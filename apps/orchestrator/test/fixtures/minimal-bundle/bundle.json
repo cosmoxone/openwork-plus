@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractId": "com.openwork.convergence.bundle",
+  "id": "minimal-demo",
+  "name": "最小演示 Bundle",
+  "version": "0.1.0",
+  "description": "用于冒烟测试 ow bundle install 的最小 bundle",
+  "requires": { "runtime": ["opencode"] },
+  "skills": [{ "path": "skills/hello" }],
+  "mcp": {
+    "servers": {
+      "demo-fs": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "${WORKSPACE}"]
+      }
+    }
+  }
+}

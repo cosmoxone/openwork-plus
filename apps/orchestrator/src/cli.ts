@@ -3592,6 +3592,7 @@ function printHelp(): void {
     "  approvals list           List pending approval requests",
     "  approvals reply <id>     Approve or deny a request",
     "  files                   Manage file sessions and batch file sync",
+    "  bundle                  Install/list/uninstall industry bundles",
     "  status                  Check OpenCode/OpenWork health",
     "",
     "Options:",
@@ -8634,6 +8635,12 @@ async function main() {
   }
   if (command === "files") {
     await runFiles(args);
+    return;
+  }
+  if (command === "bundle" || command === "bundles") {
+    // @ts-ignore -- bundle 模块为自包含 ESM(.mjs)，运行期由 bun/node 解析
+    const { runBundleCommand } = await import("./bundle/index.mjs");
+    await runBundleCommand(args.positionals, args.flags);
     return;
   }
   if (command === "status") {
