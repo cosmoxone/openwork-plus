@@ -226,7 +226,9 @@ export async function installBundle(opts) {
       }
       const destDir = cliBinDir(dataDir);
       await mkdir(destDir, { recursive: true });
-      const base = path.basename(rel).replace(/-(darwin|linux|win32)-[^.]+/, "");
+      // 去掉平台后缀（如 test-runner-win32-x64.exe → test-runner），再统一命名。
+      let base = path.basename(rel).replace(/-(darwin|linux|win32)-[^./]+(\.exe)?$/i, "");
+      if (base.toLowerCase().endsWith(".exe")) base = base.slice(0, -4);
       const destName = process.platform === "win32" ? `${base}.exe` : base;
       const dest = path.join(destDir, destName);
       await cp(src, dest);
