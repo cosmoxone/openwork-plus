@@ -2,7 +2,7 @@
 // 设计目标：可逆安装（uninstall 能精确移除注入的文件与 opencode.json 键）。
 // 仅依赖 node 内置模块。
 
-import { mkdir, readFile, writeFile, cp, rm, readdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile, cp, rm, readdir, chmod } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
@@ -34,6 +34,68 @@ export function resolveWorkspaceRoot(override) {
   return process.cwd();
 }
 
+/** 从 bundle 目录向上查找 monorepo 根（含 pnpm-workspace.yaml）。 */
+export function resolveMonorepoRoot(startDir) {
+  if (process.env.OPENWORK_MONOREPO_ROOT) {
+    return path.resolve(process.env.OPENWORK_MONOREPO_ROOT);
+  }
+  let dir = path.resolve(startDir);
+  for (let i = 0; i < 12; i++) {
+    if (existsSync(path.join(dir, "pnpm-workspace.yaml"))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return path.resolve(startDir);
+}
+
+/** 当前平台对应的 cli.bin 键。 */
+export function platformBinKey() {
+  const arch = process.arch === "x64" ? "x64" : process.arch === "arm64" ? "arm64" : process.arch;
+  if (process.platform === "darwin") return arch === "arm64" ? "darwin-arm64" : "darwin-x64";
+  if (process.platform === "linux") return "linux-x64";
+  if (process.platform === "win32") return "win32-x64";
+  return `${process.platform}-${arch}`;
+}
+
+/** 展开 MCP 配置中的 ${WORKSPACE} / ${HOME} / ${MONOREPO_ROOT}。 */
+function expandMcpValue(value, ctx) {
+  if (typeof value !== "string") return value;
+  return value
+    .replaceAll("${WORKSPACE}", ctx.workspaceRoot)
+    .replaceAll("${HOME}", ctx.home)
+    .replaceAll("${MONOREPO_ROOT}", ctx.monorepoRoot);
+}
+
+/** @param {Record<string,any>} servers @param {{workspaceRoot:string,home:string,monorepoRoot:string}} ctx */
+function expandMcpServers(servers, ctx) {
+  /** @type {Record<string,any>} */
+  const out = {};
+  for (const [id, cfg] of Object.entries(servers ?? {})) {
+    /** @type {any} */
+    const next = { ...cfg };
+    if (typeof next.command === "string") next.command = expandMcpValue(next.command, ctx);
+    if (Array.isArray(next.args)) {
+      next.args = next.args.map((a) => expandMcpValue(a, ctx));
+    }
+    if (next.env && typeof next.env === "object") {
+      /** @type {Record<string,string>} */
+      const env = {};
+      for (const [k, v] of Object.entries(next.env)) {
+        env[k] = expandMcpValue(String(v), ctx);
+      }
+      next.env = env;
+    }
+    out[id] = next;
+  }
+  return out;
+}
+
+/** @returns {string} */
+function cliBinDir(dataDir) {
+  return path.join(dataDir, "bin");
+}
+
 /** @param {string} dataDir */
 async function readInstalled(dataDir) {
   const file = path.join(dataDir, INSTALLED_FILE);
@@ -63,8 +125,9 @@ async function writeInstalled(dataDir, state) {
  * 把 bundle 的 mcp.servers 合并进 opencode.json（可逆）。
  * @returns {Promise<string[]>} 实际新增的 server id 列表（供卸载移除）
  */
-async function mergeMcp(workspaceRoot, servers) {
-  const ids = Object.keys(servers ?? {});
+async function mergeMcp(workspaceRoot, servers, ctx) {
+  const expanded = expandMcpServers(servers, ctx);
+  const ids = Object.keys(expanded ?? {});
   if (ids.length === 0) return [];
   const file = path.join(workspaceRoot, "opencode.json");
   /** @type {any} */
@@ -81,7 +144,7 @@ async function mergeMcp(workspaceRoot, servers) {
   const added = [];
   for (const id of ids) {
     if (config.mcp[id] === undefined) {
-      config.mcp[id] = servers[id];
+      config.mcp[id] = expanded[id];
       added.push(id);
     }
   }
@@ -141,9 +204,39 @@ export async function installBundle(opts) {
   const opencodeDir = path.join(workspaceRoot, ".opencode");
   await copyEntries(manifest.skills, path.join(opencodeDir, "skills"));
   await copyEntries(manifest.agents, path.join(opencodeDir, "agent"));
-  await copyEntries(manifest.commands, path.join(opencodeDir, "command"));
+  await copyEntries(manifest.commands, path.join(opencodeDir, "commands"));
 
-  const addedMcp = await mergeMcp(workspaceRoot, manifest.mcp?.servers);
+  const mcpCtx = {
+    workspaceRoot,
+    home: os.homedir(),
+    monorepoRoot: resolveMonorepoRoot(root),
+  };
+  const addedMcp = await mergeMcp(workspaceRoot, manifest.mcp?.servers, mcpCtx);
+
+  /** @type {string[]} */
+  const installedBins = [];
+  const binMap = manifest.cli?.bin;
+  if (binMap && typeof binMap === "object") {
+    const key = platformBinKey();
+    const rel = binMap[key];
+    if (rel) {
+      const src = path.join(root, rel);
+      if (!existsSync(src)) {
+        throw new Error(`cli.bin[${key}] 不存在: ${rel}`);
+      }
+      const destDir = cliBinDir(dataDir);
+      await mkdir(destDir, { recursive: true });
+      const base = path.basename(rel).replace(/-(darwin|linux|win32)-[^.]+/, "");
+      const destName = process.platform === "win32" ? `${base}.exe` : base;
+      const dest = path.join(destDir, destName);
+      await cp(src, dest);
+      if (process.platform !== "win32") {
+        await chmod(dest, 0o755);
+      }
+      installedBins.push(dest);
+      createdPaths.push(dest);
+    }
+  }
 
   installed.bundles.push({
     id: manifest.id,
@@ -153,6 +246,7 @@ export async function installBundle(opts) {
     workspaceRoot,
     createdPaths,
     addedMcp,
+    installedBins,
   });
   await writeInstalled(dataDir, installed);
 
@@ -161,6 +255,7 @@ export async function installBundle(opts) {
     version: manifest.version,
     createdPaths,
     addedMcp,
+    installedBins,
     preinstall: manifest.preinstall ?? null,
   };
 }
@@ -184,6 +279,9 @@ export async function uninstallBundle(opts) {
 
   for (const p of record.createdPaths ?? []) {
     await rm(p, { recursive: true, force: true });
+  }
+  for (const b of record.installedBins ?? []) {
+    await rm(b, { force: true });
   }
   await unmergeMcp(record.workspaceRoot, record.addedMcp ?? []);
 

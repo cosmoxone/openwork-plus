@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractId": "com.openwork.convergence.bundle",
+  "id": "test-automation",
+  "name": "测试自动化控制台",
+  "version": "0.1.0",
+  "description": "AI 辅助测试工作流：生成用例、分析失败、跟踪趋势",
+  "requires": { "runtime": ["opencode"] },
+  "skills": [
+    { "path": "skills/generate-test-cases" },
+    { "path": "skills/analyze-failure" },
+    { "path": "skills/create-regression" }
+  ],
+  "commands": [
+    { "path": "commands/generate-test-cases.md" },
+    { "path": "commands/analyze-failure.md" },
+    { "path": "commands/create-regression.md" }
+  ],
+  "cli": {
+    "tools": ["run_tests", "get_coverage", "list_failures"],
+    "bin": {
+      "darwin-arm64": "bin/test-runner-darwin-arm64",
+      "darwin-x64": "bin/test-runner-darwin-x64",
+      "linux-x64": "bin/test-runner-linux-x64",
+      "win32-x64": "bin/test-runner-win32-x64.exe"
+    }
+  },
+  "mcp": {
+    "servers": {
+      "test-db": {
+        "command": "node",
+        "args": ["${MONOREPO_ROOT}/packages/test-db-mcp/bin/test-db-mcp.mjs"],
+        "env": {
+          "OPENWORK_TEST_DB": "${WORKSPACE}/.openwork/test-results.json"
+        }
+      },
+      "github-actions": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-github"],
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+        }
+      }
+    }
+  }
+}
