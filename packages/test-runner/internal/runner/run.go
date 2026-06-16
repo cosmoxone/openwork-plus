@@ -76,7 +76,9 @@ func Run(ctx context.Context, framework, testPath string, recordDB string) (*Res
 }
 
 func runJest(ctx context.Context, dir string) (*Result, error) {
-	cmd := exec.CommandContext(ctx, "npx", "--yes", "jest", "--json", "--passWithNoTests")
+	outFile := filepath.Join(os.TempDir(), fmt.Sprintf("jest-out-%d.json", time.Now().UnixNano()))
+	defer os.Remove(outFile)
+	cmd := exec.CommandContext(ctx, "npx", "--yes", "jest", "--json", "--outputFile", outFile, "--passWithNoTests")
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
 	res := &Result{Stdout: string(out)}
@@ -85,61 +87,56 @@ func runJest(ctx context.Context, dir string) (*Result, error) {
 			res.ExitCode = ee.ExitCode()
 		}
 	}
-	// jest --json 输出可能在 stdout 末尾为 JSON 对象
-	text := string(out)
-	idx := strings.LastIndex(text, "{")
-	if idx >= 0 {
-		var jestOut struct {
-			Success bool `json:"success"`
-			NumPassedTests int `json:"numPassedTests"`
-			NumFailedTests int `json:"numFailedTests"`
-			NumPendingTests int `json:"numPendingTests"`
-			TestResults []struct {
-				Name string `json:"name"`
-				Status string `json:"status"`
-				Message string `json:"message"`
-				AssertionResults []struct {
-					Title string `json:"title"`
-					Status string `json:"status"`
-					FailureMessages []string `json:"failureMessages"`
-					Duration float64 `json:"duration"`
-				} `json:"assertionResults"`
-			} `json:"testResults"`
-		}
-		if json.Unmarshal([]byte(text[idx:]), &jestOut) == nil {
-			res.Passed = jestOut.NumPassedTests
-			res.Failed = jestOut.NumFailedTests
-			res.Skipped = jestOut.NumPendingTests
-			for _, tr := range jestOut.TestResults {
-				for _, ar := range tr.AssertionResults {
-					st := ar.Status
-					if st == "" {
-						st = "passed"
-					}
-					msg := strings.Join(ar.FailureMessages, "\n")
-					res.Cases = append(res.Cases, store.TestCase{
-						Name: ar.Title, Status: st, Duration: ar.Duration * 1000,
-						Message: msg, File: tr.Name,
-					})
-				}
-			}
-			if res.ExitCode == 0 && !jestOut.Success {
-				res.ExitCode = 1
-			}
-			return res, nil
-		}
-	}
-	// 无 jest 项目时降级：尝试 npm test
-	if res.ExitCode != 0 && strings.Contains(text, "jest") {
+	if b, rerr := os.ReadFile(outFile); rerr == nil {
+		parseJestJSON(b, res)
 		return res, nil
 	}
-	res.ExitCode = 0
-	res.Passed = 0
-	res.Failed = 0
-	if len(text) > 0 && res.ExitCode == 0 {
-		res.Stderr = "jest 未解析到 JSON；请确认目录含 jest 配置"
+	// 降级：从 stdout 末尾尝试解析 JSON
+	text := string(out)
+	if idx := strings.LastIndex(text, "{"); idx >= 0 {
+		parseJestJSON([]byte(text[idx:]), res)
 	}
 	return res, nil
+}
+
+func parseJestJSON(b []byte, res *Result) {
+	var jestOut struct {
+		Success         bool `json:"success"`
+		NumPassedTests  int  `json:"numPassedTests"`
+		NumFailedTests  int  `json:"numFailedTests"`
+		NumPendingTests int  `json:"numPendingTests"`
+		TestResults     []struct {
+			Name             string `json:"name"`
+			AssertionResults []struct {
+				Title           string   `json:"title"`
+				Status          string   `json:"status"`
+				FailureMessages []string `json:"failureMessages"`
+				Duration        float64  `json:"duration"`
+			} `json:"assertionResults"`
+		} `json:"testResults"`
+	}
+	if json.Unmarshal(b, &jestOut) != nil {
+		return
+	}
+	res.Passed = jestOut.NumPassedTests
+	res.Failed = jestOut.NumFailedTests
+	res.Skipped = jestOut.NumPendingTests
+	res.Cases = nil
+	for _, tr := range jestOut.TestResults {
+		for _, ar := range tr.AssertionResults {
+			st := ar.Status
+			if st == "" {
+				st = "passed"
+			}
+			res.Cases = append(res.Cases, store.TestCase{
+				Name: ar.Title, Status: st, Duration: ar.Duration * 1000,
+				Message: strings.Join(ar.FailureMessages, "\n"), File: tr.Name,
+			})
+		}
+	}
+	if res.ExitCode == 0 && !jestOut.Success {
+		res.ExitCode = 1
+	}
 }
 
 func runPytest(ctx context.Context, dir string) (*Result, error) {
