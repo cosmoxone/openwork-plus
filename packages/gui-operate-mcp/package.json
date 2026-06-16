@@ -1,0 +1,28 @@
+{
+  "name": "@openwork/gui-operate-mcp",
+  "version": "0.1.0",
+  "description": "GUI 自动化 MCP server（点击/输入/滚动/截图/多显示器），从 Open Cowork 提取，零 Electron 依赖。",
+  "type": "module",
+  "bin": {
+    "gui-operate-mcp": "bin/gui-operate-mcp.mjs"
+  },
+  "main": "dist/server.js",
+  "files": ["dist", "src", "bin"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "node test/tools-list-smoke.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "@anthropic-ai/sdk": "^0.30.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^20.0.0"
+  },
+  "license": "MIT",
+  "keywords": ["openwork", "mcp", "gui-automation", "computer-use"]
+}
