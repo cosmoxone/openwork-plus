@@ -5,16 +5,26 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { loadBundle } from "./schema.mjs";
 import { packZip } from "./zip.mjs";
+import {
+  monorepoRootFromBundle,
+  stageKnowledgeMgmtVendor,
+} from "./vendor-stage.mjs";
 
-/** 打包前注入 vendor 依赖（离线 zip 安装可运行 preinstall）。 */
+/** 打包前注入 vendor 依赖（离线 zip 安装可运行 preinstall / MCP）。 */
 async function stageVendorDeps(bundleRoot, manifest) {
-  if (manifest.id !== "computer-use") return;
-  const srcDir = path.resolve(bundleRoot, "..", "..", "packages", "sandbox-bootstrap", "src");
-  if (!existsSync(srcDir)) return;
-  const dest = path.join(bundleRoot, "vendor", "sandbox-bootstrap");
-  await rm(dest, { recursive: true, force: true });
-  await mkdir(path.dirname(dest), { recursive: true });
-  await cp(srcDir, dest, { recursive: true });
+  if (manifest.id === "computer-use") {
+    const srcDir = path.resolve(bundleRoot, "..", "..", "packages", "sandbox-bootstrap", "src");
+    if (!existsSync(srcDir)) return;
+    const dest = path.join(bundleRoot, "vendor", "sandbox-bootstrap");
+    await rm(dest, { recursive: true, force: true });
+    await mkdir(path.dirname(dest), { recursive: true });
+    await cp(srcDir, dest, { recursive: true });
+    return;
+  }
+  if (manifest.id === "knowledge-mgmt") {
+    const repoRoot = monorepoRootFromBundle(bundleRoot);
+    await stageKnowledgeMgmtVendor(path.join(bundleRoot, "vendor"), repoRoot);
+  }
 }
 
 /**
@@ -29,7 +39,7 @@ export async function packBundle(opts) {
     await packZip(root, output);
     return { id: manifest.id, version: manifest.version, output, manifest };
   } finally {
-    if (manifest.id === "computer-use") {
+    if (manifest.id === "computer-use" || manifest.id === "knowledge-mgmt") {
       await rm(path.join(root, "vendor"), { recursive: true, force: true });
     }
   }

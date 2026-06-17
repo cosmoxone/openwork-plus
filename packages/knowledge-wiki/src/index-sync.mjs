@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readFile, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { KnowledgeDb } from "../../sqlite-vec-mcp/src/db.mjs";
@@ -73,9 +73,13 @@ async function walkArchive(dir) {
 
 /** @param {string} workspaceRoot */
 export async function clearKnowledgeIndex(workspaceRoot) {
-  const db = openKnowledgeDb(workspaceRoot);
-  await db.clearAll();
-  return { ok: true, db: knowledgeDbPath(workspaceRoot) };
+  const dbPath = knowledgeDbPath(workspaceRoot);
+  if (existsSync(dbPath)) {
+    const db = openKnowledgeDb(workspaceRoot);
+    await db.clearAll();
+    await rm(dbPath, { force: true });
+  }
+  return { ok: true, db: dbPath };
 }
 
 /** @param {string} workspaceRoot @param {string} relPath */

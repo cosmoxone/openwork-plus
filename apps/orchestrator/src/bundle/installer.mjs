@@ -11,6 +11,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { loadBundle } from "./schema.mjs";
 import { extractBundleZip } from "./zip.mjs";
+import { stageBundleRuntime } from "./vendor-stage.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -63,16 +64,17 @@ export function platformBinKey() {
   return `${process.platform}-${arch}`;
 }
 
-/** 展开 MCP 配置中的 ${WORKSPACE} / ${HOME} / ${MONOREPO_ROOT}。 */
+/** 展开 MCP 配置中的 ${WORKSPACE} / ${HOME} / ${MONOREPO_ROOT} / ${BUNDLE_ROOT}。 */
 function expandMcpValue(value, ctx) {
   if (typeof value !== "string") return value;
   return value
     .replaceAll("${WORKSPACE}", ctx.workspaceRoot)
     .replaceAll("${HOME}", ctx.home)
-    .replaceAll("${MONOREPO_ROOT}", ctx.monorepoRoot);
+    .replaceAll("${MONOREPO_ROOT}", ctx.monorepoRoot)
+    .replaceAll("${BUNDLE_ROOT}", ctx.bundleRoot);
 }
 
-/** @param {Record<string,any>} servers @param {{workspaceRoot:string,home:string,monorepoRoot:string}} ctx */
+/** @param {Record<string,any>} servers @param {{workspaceRoot:string,home:string,monorepoRoot:string,bundleRoot:string}} ctx */
 function expandMcpServers(servers, ctx) {
   /** @type {Record<string,any>} */
   const out = {};
@@ -288,10 +290,14 @@ export async function installBundle(opts) {
   await copyEntries(manifest.agents, path.join(opencodeDir, "agent"));
   await copyEntries(manifest.commands, path.join(opencodeDir, "commands"));
 
+  const monorepoRoot = resolveMonorepoRoot(root);
+  const bundleRoot = await stageBundleRuntime(root, dataDir, manifest, monorepoRoot);
+
   const mcpCtx = {
     workspaceRoot,
     home: os.homedir(),
-    monorepoRoot: resolveMonorepoRoot(root),
+    monorepoRoot,
+    bundleRoot,
   };
   const addedMcp = await mergeMcp(workspaceRoot, manifest.mcp?.servers, mcpCtx);
 
@@ -328,6 +334,7 @@ export async function installBundle(opts) {
     name: manifest.name,
     installedAt: new Date().toISOString(),
     workspaceRoot,
+    bundleRoot,
     createdPaths,
     addedMcp,
     installedBins,
@@ -374,36 +381,21 @@ export async function uninstallBundle(opts) {
   if (!record) throw new Error(`未找到已安装 bundle: ${opts.id}`);
 
   if (record.postuninstall) {
-    if (record.postuninstall === "knowledge:clear-index") {
-      const script = path.join(
-        resolveMonorepoRoot(record.workspaceRoot ?? process.cwd()),
-        "packages",
-        "knowledge-wiki",
-        "bin",
-        "knowledge-wiki.mjs",
-      );
-      if (existsSync(script)) {
-        await execFileAsync(
-          "node",
-          [script, "clear-index", "--workspace", record.workspaceRoot ?? process.cwd()],
-          { timeout: 120_000 },
-        );
-      }
-    } else {
-      const parts = String(record.postuninstall).trim().split(/\s+/);
-      const cmd = parts[0];
-      const cmdArgs = parts.slice(1);
-      await execFileAsync(cmd, cmdArgs, {
-        cwd: record.workspaceRoot ?? process.cwd(),
-        env: {
-          ...process.env,
-          OPENWORK_DATA_DIR: dataDir,
-          OW_WORKSPACE_ROOT: record.workspaceRoot ?? process.cwd(),
-          OPENWORK_MONOREPO_ROOT: resolveMonorepoRoot(record.workspaceRoot ?? process.cwd()),
-        },
-        timeout: 120_000,
-      });
-    }
+    const bundleRoot =
+      record.bundleRoot ?? path.join(dataDir, "bundles", record.id);
+    const parts = String(record.postuninstall).trim().split(/\s+/);
+    const cmd = parts[0];
+    const cmdArgs = parts.slice(1);
+    await execFileAsync(cmd, cmdArgs, {
+      cwd: existsSync(bundleRoot) ? bundleRoot : (record.workspaceRoot ?? process.cwd()),
+      env: {
+        ...process.env,
+        OPENWORK_DATA_DIR: dataDir,
+        OW_WORKSPACE_ROOT: record.workspaceRoot ?? process.cwd(),
+        OPENWORK_MONOREPO_ROOT: resolveMonorepoRoot(record.workspaceRoot ?? process.cwd()),
+      },
+      timeout: 120_000,
+    });
   }
 
   for (const p of record.createdPaths ?? []) {
@@ -411,6 +403,9 @@ export async function uninstallBundle(opts) {
   }
   for (const b of record.installedBins ?? []) {
     await rm(b, { force: true });
+  }
+  if (record.bundleRoot && existsSync(record.bundleRoot)) {
+    await rm(record.bundleRoot, { recursive: true, force: true });
   }
   await unmergeMcp(record.workspaceRoot, record.addedMcp ?? []);
 

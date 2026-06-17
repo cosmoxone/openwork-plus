@@ -3,11 +3,11 @@
   "contractId": "com.openwork.convergence.bundle",
   "id": "knowledge-mgmt",
   "name": "个人知识库（LLM Wiki）",
-  "version": "0.4.0",
-  "description": "LLM Wiki：扫描/ingest/lint/混合检索 + watch + 快照备份",
+  "version": "0.5.0",
+  "description": "LLM Wiki：扫描/ingest/lint/混合检索 + watch + 快照备份（Hub 离线 vendor）",
   "requires": { "runtime": ["opencode"] },
   "preinstall": "node ./scripts/init-knowledge-dirs.mjs",
-  "postuninstall": "knowledge:clear-index",
+  "postuninstall": "node ./scripts/clear-knowledge-index.mjs",
   "skills": [
     { "path": "skills/wiki-curator" },
     { "path": "skills/corpus-scan" },
@@ -27,7 +27,7 @@
     "servers": {
       "sqlite-vec-rag": {
         "command": "node",
-        "args": ["${MONOREPO_ROOT}/packages/sqlite-vec-mcp/bin/sqlite-vec-mcp.mjs", "--db", "${WORKSPACE}/knowledge.db"],
+        "args": ["${BUNDLE_ROOT}/vendor/sqlite-vec-mcp/bin/sqlite-vec-mcp.mjs", "--db", "${WORKSPACE}/knowledge.db"],
         "env": {}
       },
       "filesystem": {
