@@ -16,6 +16,10 @@ import {
   rebuildKnowledgeIndex,
   saveQueryAsWikiPage,
   listWikiPages,
+  pollWatchOnce,
+  updateWatchConfig,
+  exportWikiSnapshot,
+  importWikiSnapshot,
 } from "../src/index.mjs";
 
 async function run() {
@@ -90,6 +94,29 @@ async function run() {
     if (!summary.includes("Alpha content")) throw new Error("summary missing excerpt");
 
     console.log("PASS: knowledge-wiki K0–K2 smoke");
+
+    // K3: watch + snapshot
+    const inboxDir = paths.rawInbox;
+    await writeFile(path.join(inboxDir, "inbox-note.md"), "# Inbox\n\nInbox auto ingest.");
+    await updateWatchConfig(tmp, { enabled: true, roots: [docsDir], inboxAutoIngest: true });
+    const polled = await pollWatchOnce(tmp);
+    if ((polled.actionCount ?? 0) < 1) throw new Error("watch poll expected actions");
+
+    const snapPath = path.join(tmp, "export.zip");
+    const exported = await exportWikiSnapshot(tmp, snapPath);
+    if (!existsSync(snapPath)) throw new Error("snapshot zip missing");
+    if ((exported.pageCount ?? 0) < 1) throw new Error("snapshot pageCount");
+
+    const importWs = await mkdtemp(path.join(os.tmpdir(), "ow-wiki-import-ws-"));
+    try {
+      const imported = await importWikiSnapshot(snapPath, importWs);
+      if (!imported.imported) throw new Error("import failed");
+      if (!existsSync(knowledgePaths(importWs).wikiIndex)) throw new Error("import missing INDEX");
+    } finally {
+      await rm(importWs, { recursive: true, force: true });
+    }
+
+    console.log("PASS: knowledge-wiki K3–K4 smoke");
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

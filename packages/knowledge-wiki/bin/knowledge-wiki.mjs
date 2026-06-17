@@ -2,6 +2,7 @@
 /**
  * knowledge-wiki CLI（JSON 出，供 Tauri / CI 调用）
  */
+import path from "node:path";
 import {
   initKnowledgeLayout,
   scanCorpus,
@@ -16,6 +17,11 @@ import {
   hybridQuery,
   rebuildKnowledgeIndex,
   clearKnowledgeIndex,
+  pollWatchOnce,
+  updateWatchConfig,
+  getWatchConfig,
+  exportWikiSnapshot,
+  importWikiSnapshot,
 } from "../src/index.mjs";
 
 function parseArgs(argv) {
@@ -138,8 +144,44 @@ async function main() {
       return;
     }
 
+    if (cmd === "watch-once") {
+      out(await pollWatchOnce(workspace, { autoIngestWatchRoots: flags["auto-ingest-roots"] === true }));
+      return;
+    }
+
+    if (cmd === "watch-config") {
+      if (flags.roots) {
+        const roots = String(flags.roots).split(",").map((s) => s.trim()).filter(Boolean);
+        /** @type {Record<string, unknown>} */
+        const patch = {
+          roots,
+          enabled: flags.enabled !== false && flags.enabled !== "false",
+          inboxAutoIngest: flags["no-inbox-auto-ingest"] !== true,
+          autoIngestWatchRoots: flags["auto-ingest-roots"] === true,
+          intervalSec: Number(flags.interval ?? 30) || 30,
+        };
+        out(await updateWatchConfig(workspace, patch));
+        return;
+      }
+      out(await getWatchConfig(workspace));
+      return;
+    }
+
+    if (cmd === "export-snapshot") {
+      const output = typeof flags.output === "string" ? flags.output : path.join(workspace, "wiki-snapshot.zip");
+      out(await exportWikiSnapshot(workspace, output));
+      return;
+    }
+
+    if (cmd === "import-snapshot") {
+      const zip = typeof flags.zip === "string" ? flags.zip : "";
+      if (!zip) fail("import-snapshot 需要 --zip");
+      out(await importWikiSnapshot(zip, workspace));
+      return;
+    }
+
     fail(
-      `未知命令: ${cmd ?? "(empty)"}. 可用: init, scan, ingest, state, lint, list-pages, read-page, create-page, save-query, query, rebuild-index, clear-index`,
+      `未知命令: ${cmd ?? "(empty)"}. 可用: init, scan, ingest, state, lint, list-pages, read-page, create-page, save-query, query, rebuild-index, clear-index, watch-once, watch-config, export-snapshot, import-snapshot`,
     );
   } catch (err) {
     fail(err instanceof Error ? err.message : String(err));

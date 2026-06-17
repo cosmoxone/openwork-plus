@@ -21,6 +21,8 @@ export {
   clearKnowledgeIndex,
   indexIngestedSummary,
 } from "./index-sync.mjs";
+export { pollWatchOnce, updateWatchConfig, getWatchConfig, startWatchLoop } from "./watch.mjs";
+export { exportWikiSnapshot, importWikiSnapshot } from "./snapshot.mjs";
 export {
   WIKI_PAGE_TYPES,
   TYPE_TO_DIR,
