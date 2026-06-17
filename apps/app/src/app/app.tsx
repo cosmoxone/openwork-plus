@@ -46,6 +46,10 @@ import {
   CreateWorkspaceModal,
 } from "./workspace";
 import SessionView from "./pages/session";
+import PluginHostPage from "./pages/plugin-host";
+import "./plugins/convergence-demo";
+import { syncBundleUiPluginsCombined, bundleIdsFromUiManifest } from "./extensions/bundle-ui-catalog";
+import { readIndustryBundleUiManifest } from "./industry-bundles/api";
 import { clearDevLogs } from "./lib/dev-log";
 import { clearPerfLogs } from "./lib/perf-log";
 import { deepLinkBridgeEvent, drainPendingDeepLinks, type DeepLinkBridgeDetail } from "./lib/deep-link-bridge";
@@ -204,6 +208,7 @@ export default function App() {
   const currentView = createMemo<View>(() => {
     const path = location.pathname.toLowerCase();
     if (path.startsWith("/signin")) return "signin";
+    if (path.startsWith("/plugins/") || path === "/docs" || path.startsWith("/docs/")) return "plugin";
     if (path.startsWith("/session")) return "session";
     return "settings";
   });
@@ -260,6 +265,10 @@ export default function App() {
         return;
       }
       navigate("/session");
+      return;
+    }
+    if (next === "plugin") {
+      navigate("/plugins/convergence-demo");
       return;
     }
     goToSettings(settingsTab());
@@ -826,7 +835,7 @@ export default function App() {
     markReloadRequired,
   });
 
-  const { refreshMcpServers } = connectionsStore;
+  const { refreshMcpServers, mcpServers } = connectionsStore;
 
   const [hideTitlebar, setHideTitlebar] = createSignal(false);
   const {
@@ -927,6 +936,30 @@ export default function App() {
     pendingInitialSessionSelection,
     setPendingInitialSessionSelection,
     useMicrosandboxCreateSandbox: microsandboxCreateSandboxEnabled,
+  });
+
+  createEffect(() => {
+    const names = mcpServers().map((entry) => entry.name);
+    const root = workspaceStore.selectedWorkspaceRoot()?.trim() ?? "";
+
+    let cancelled = false;
+    onCleanup(() => {
+      cancelled = true;
+    });
+
+    if (!isTauriRuntime() || !root) {
+      syncBundleUiPluginsCombined(names, []);
+      return;
+    }
+
+    void readIndustryBundleUiManifest(root)
+      .then((manifest) => {
+        if (cancelled) return;
+        syncBundleUiPluginsCombined(names, bundleIdsFromUiManifest(manifest));
+      })
+      .catch(() => {
+        if (!cancelled) syncBundleUiPluginsCombined(names, []);
+      });
   });
 
   createEffect(() => {
@@ -2495,6 +2528,7 @@ export default function App() {
     "automations",
     "skills",
     "extensions",
+    "bundles",
     "messaging",
     "advanced",
     "appearance",
@@ -2631,6 +2665,9 @@ export default function App() {
               </Match>
               <Match when={currentView() === "session"}>
                 <SessionView {...sessionProps()} />
+              </Match>
+              <Match when={currentView() === "plugin"}>
+                <PluginHostPage />
               </Match>
               <Match when={true}>
                 <SettingsShell {...settingsShellProps()} />

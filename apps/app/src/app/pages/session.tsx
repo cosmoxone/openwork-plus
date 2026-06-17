@@ -71,6 +71,7 @@ import { ProviderAuthModal,
   type ProviderOAuthStartResult,
 } from "../context/providers";
 import StatusBar from "../components/status-bar";
+import PluginSidebarSection from "../components/plugin-sidebar-section";
 import { ShareWorkspaceModal } from "../workspace";
 import type {
   OpenworkServerClient,
@@ -3041,6 +3042,7 @@ export default function SessionView(props: SessionViewProps) {
               onOpenCreateWorkspace={props.openCreateWorkspace}
             />
           </div>
+          <PluginSidebarSection title="扩展" />
           <div
             class="absolute right-0 top-3 hidden h-[calc(100%-24px)] w-2 translate-x-1/2 cursor-col-resize rounded-full bg-transparent transition-colors hover:bg-gray-6/40 lg:block"
             onPointerDown={startLeftSidebarResize}
