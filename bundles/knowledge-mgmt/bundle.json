@@ -2,16 +2,21 @@
   "schemaVersion": "1.0.0",
   "contractId": "com.openwork.convergence.bundle",
   "id": "knowledge-mgmt",
-  "name": "个人知识管理系统",
-  "version": "0.1.0",
-  "description": "文档编辑、摘要、关联发现与跨文档语义检索",
+  "name": "个人知识库（LLM Wiki）",
+  "version": "0.2.0",
+  "description": "本机文档梳理 + LLM 维护维基 + 语义检索 + 持续 lint",
   "requires": { "runtime": ["opencode"] },
+  "preinstall": "node ./scripts/init-knowledge-dirs.mjs",
   "skills": [
+    { "path": "skills/wiki-curator" },
+    { "path": "skills/corpus-scan" },
     { "path": "skills/summarize-docs" },
     { "path": "skills/find-connections" },
     { "path": "skills/semantic-search" }
   ],
   "commands": [
+    { "path": "commands/corpus-scan.md" },
+    { "path": "commands/ingest-sources.md" },
     { "path": "commands/summarize-docs.md" },
     { "path": "commands/find-connections.md" },
     { "path": "commands/semantic-search.md" }
@@ -20,7 +25,7 @@
     "servers": {
       "sqlite-vec-rag": {
         "command": "node",
-        "args": ["${MONOREPO_ROOT}/packages/sqlite-vec-mcp/bin/sqlite-vec-mcp.mjs", "--db", "${WORKSPACE}/.openwork/knowledge.json"],
+        "args": ["${MONOREPO_ROOT}/packages/sqlite-vec-mcp/bin/sqlite-vec-mcp.mjs", "--db", "${WORKSPACE}/knowledge.db"],
         "env": {}
       },
       "filesystem": {
