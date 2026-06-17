@@ -41,7 +41,10 @@
       "sidecars/openwork-orchestrator",
       "sidecars/chrome-devtools-mcp",
       "sidecars/versions.json"
-    ]
+    ],
+    "resources": {
+      "resources/bundles/": "bundles/"
+    }
   },
   "plugins": {
     "deep-link": {

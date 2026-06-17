@@ -139,6 +139,14 @@ const runPrepareSidecars = () => {
   }
 };
 
+const runBuildBuiltinBundles = () => {
+  const script = resolve(fileURLToPath(new URL("../../../scripts/build-builtin-bundles.mjs", import.meta.url)));
+  const result = spawnSync(process.execPath, [script], { stdio: "inherit" });
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
+};
+
 const readLinuxReleaseInfo = () => {
   try {
     const content = readFileSync("/etc/os-release", "utf8");
@@ -243,6 +251,7 @@ const runUiDevServer = () => {
 };
 
 runPrepareSidecars();
+runBuildBuiltinBundles();
 ensureLinuxDesktopDependencies();
 
 const main = async () => {

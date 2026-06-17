@@ -15,4 +15,5 @@ const runPnpm = (args) => {
 };
 
 runPnpm(["-C", "../..", "--filter", "@openwork/desktop", "run", "prepare:sidecar"]);
+runPnpm(["-C", "../..", "node", "scripts/build-builtin-bundles.mjs"]);
 runPnpm(["--filter", "@openwork/app", "build"]);

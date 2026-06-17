@@ -1,3 +1,5 @@
+pub mod industry_bundle;
+pub mod rpa;
 pub mod command_files;
 pub mod config;
 pub mod desktop_bootstrap;

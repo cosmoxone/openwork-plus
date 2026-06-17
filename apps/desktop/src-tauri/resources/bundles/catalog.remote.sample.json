@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "remote-sample",
+  "description": "Sample remote catalog for dev/offline fallback testing. Not used in production builds.",
+  "bundles": [
+    {
+      "id": "computer-use",
+      "name": "Computer Use / RPA",
+      "version": "0.2.0",
+      "description": "GUI automation, sandbox bootstrap, RPA control panel.",
+      "featured": true,
+      "path": "computer-use-0.2.0.zip"
+    },
+    {
+      "id": "test-automation",
+      "name": "Test Automation",
+      "version": "0.1.1",
+      "description": "Test DB MCP and automation skills.",
+      "path": "test-automation-0.1.1.zip"
+    }
+  ]
+}

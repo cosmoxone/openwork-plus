@@ -16,6 +16,15 @@ mod workspace;
 
 pub use types::*;
 
+use commands::industry_bundle::{
+    industry_bundle_check_updates, industry_bundle_install, industry_bundle_install_builtin,
+    industry_bundle_install_from_catalog, industry_bundle_list_catalog, industry_bundle_list_installed,
+    industry_bundle_read_ui_manifest, industry_bundle_uninstall,
+};
+use commands::rpa::{
+    rpa_capture_screenshot, rpa_list_operations, rpa_list_screenshots, rpa_set_automation_enabled,
+    rpa_status,
+};
 use commands::command_files::{
     opencode_command_delete, opencode_command_list, opencode_command_write,
 };
@@ -215,6 +224,19 @@ pub fn run() {
             opencode_mcp_auth,
             scheduler_list_jobs,
             scheduler_delete_job,
+            rpa_status,
+            rpa_list_screenshots,
+            rpa_list_operations,
+            rpa_capture_screenshot,
+            rpa_set_automation_enabled,
+            industry_bundle_list_catalog,
+            industry_bundle_list_installed,
+            industry_bundle_install,
+            industry_bundle_install_builtin,
+            industry_bundle_install_from_catalog,
+            industry_bundle_uninstall,
+            industry_bundle_check_updates,
+            industry_bundle_read_ui_manifest,
             set_window_decorations
         ])
         .build(tauri::generate_context!())
