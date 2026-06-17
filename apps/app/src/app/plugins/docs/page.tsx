@@ -336,28 +336,28 @@ export default function DocsPage() {
     `rounded-md px-3 py-1.5 text-sm ${tab() === value ? "bg-dls-hover font-medium text-dls-text" : "text-dls-secondary hover:text-dls-text"}`;
 
   return (
-    <div class="mx-auto flex h-full max-w-6xl flex-col gap-4 p-6">
+    <div class="mx-auto flex h-full max-w-6xl flex-col gap-4 p-6" data-testid="docs-knowledge-page">
       <div class="flex flex-wrap items-center gap-2 border-b border-dls-border pb-3">
         <h1 class="mr-4 text-base font-medium text-dls-text">{t("docs.knowledge_title", currentLocale())}</h1>
-        <button type="button" class={tabClass("scan")} onClick={() => setTab("scan")}>
+        <button type="button" data-testid="docs-tab-scan" class={tabClass("scan")} onClick={() => setTab("scan")}>
           {t("docs.knowledge_tab_scan", currentLocale())}
         </button>
-        <button type="button" class={tabClass("wiki")} onClick={() => setTab("wiki")}>
+        <button type="button" data-testid="docs-tab-wiki" class={tabClass("wiki")} onClick={() => setTab("wiki")}>
           {t("docs.knowledge_tab_wiki", currentLocale())}
         </button>
-        <button type="button" class={tabClass("query")} onClick={() => setTab("query")}>
+        <button type="button" data-testid="docs-tab-query" class={tabClass("query")} onClick={() => setTab("query")}>
           {t("docs.knowledge_tab_query", currentLocale())}
         </button>
-        <button type="button" class={tabClass("health")} onClick={() => setTab("health")}>
+        <button type="button" data-testid="docs-tab-health" class={tabClass("health")} onClick={() => setTab("health")}>
           {t("docs.knowledge_tab_health", currentLocale())}
         </button>
-        <button type="button" class={tabClass("edit")} onClick={() => setTab("edit")}>
+        <button type="button" data-testid="docs-tab-edit" class={tabClass("edit")} onClick={() => setTab("edit")}>
           {t("docs.knowledge_tab_edit", currentLocale())}
         </button>
       </div>
 
       <Show when={knowledgeError()}>
-        <p class="text-sm text-red-500">{knowledgeError()}</p>
+        <p class="text-sm text-red-500" data-testid="docs-knowledge-error">{knowledgeError()}</p>
       </Show>
 
       <Show when={tab() === "scan"}>
@@ -366,6 +366,7 @@ export default function DocsPage() {
           <div class="flex flex-wrap gap-2">
             <button
               type="button"
+              data-testid="docs-scan-workspace"
               class="rounded-lg bg-dls-accent px-3 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
               disabled={knowledgeBusy()}
               onClick={handleScanWorkspace}
@@ -546,7 +547,7 @@ export default function DocsPage() {
         <section class="flex flex-col gap-3">
           <p class="text-sm text-dls-secondary">{t("docs.knowledge_health_hint", currentLocale())}</p>
           <div class="flex flex-wrap gap-2">
-            <button type="button" class="rounded-lg bg-dls-accent px-3 py-2 text-sm text-white disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => handleRunLint(false)}>
+            <button type="button" data-testid="docs-lint-run" class="rounded-lg bg-dls-accent px-3 py-2 text-sm text-white disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => handleRunLint(false)}>
               {t("docs.knowledge_lint_run", currentLocale())}
             </button>
             <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => handleRunLint(true)}>
@@ -555,7 +556,7 @@ export default function DocsPage() {
             <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={handleRebuildIndex}>
               {t("docs.knowledge_rebuild_index", currentLocale())}
             </button>
-            <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => void handleExportSnapshot()}>
+            <button type="button" data-testid="docs-export-snapshot" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => void handleExportSnapshot()}>
               {t("docs.knowledge_export_snapshot", currentLocale())}
             </button>
           </div>
@@ -591,6 +592,7 @@ export default function DocsPage() {
               <h2 class="text-sm font-medium text-dls-text">{t("docs.knowledge_local_notes", currentLocale())}</h2>
               <button
                 type="button"
+                data-testid="docs-note-new"
                 class="rounded-md border border-dls-border px-2 py-1 text-xs text-dls-secondary hover:text-dls-text"
                 onClick={handleNew}
               >
@@ -618,6 +620,7 @@ export default function DocsPage() {
           <section class="flex min-w-0 flex-1 flex-col gap-3">
             <div class="flex flex-wrap items-center gap-2">
               <input
+                data-testid="docs-note-title"
                 class="min-w-[12rem] flex-1 rounded-lg border border-dls-border bg-dls-surface px-3 py-2 text-sm"
                 value={title()}
                 onInput={(e) => setTitle(e.currentTarget.value)}
@@ -625,6 +628,7 @@ export default function DocsPage() {
               />
               <button
                 type="button"
+                data-testid="docs-note-save"
                 class="rounded-lg bg-dls-accent px-3 py-2 text-sm text-white hover:opacity-90"
                 onClick={handleSave}
               >

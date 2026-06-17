@@ -97,6 +97,7 @@ async function main() {
     await uninstallBundle({ id: "knowledge-mgmt", dataDir });
     const remaining = await listBundles({ dataDir });
     assert.equal(remaining.length, 0);
+    assert.ok(!existsSync(knowledgeDbPath(workspaceRoot)), "postuninstall 应清除 knowledge.db");
 
     console.log("PASS: knowledge-mgmt hub install + postuninstall clear-index hook");
   } finally {

@@ -1,0 +1,41 @@
+name: Convergence Smoke
+
+on:
+  pull_request:
+  push:
+    branches:
+      - dev
+      - main
+      - feat/**
+
+permissions:
+  contents: read
+
+jobs:
+  convergence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.27.0
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install sqlite-vec-mcp dependencies
+        run: npm ci
+        working-directory: packages/sqlite-vec-mcp
+
+      - name: Run convergence smoke suite
+        run: pnpm test:convergence

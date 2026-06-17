@@ -39,7 +39,8 @@ async function main() {
 
     const cfg = JSON.parse(await readFile(path.join(workspaceRoot, "opencode.json"), "utf8"));
     const rag = cfg.mcp["sqlite-vec-rag"];
-    assert.ok(rag.args[0].includes("sqlite-vec-mcp"), "sqlite-vec-rag 应指向 monorepo 包");
+    assert.ok(rag.args[0].includes("sqlite-vec-mcp"), "sqlite-vec-rag 应指向 vendored MCP");
+    assert.ok(rag.args[0].includes("bundles"), "应使用 BUNDLE_ROOT 持久化 vendor");
     assert.equal(
       path.normalize(rag.args[rag.args.length - 1]),
       path.normalize(knowledgeDbPath(workspaceRoot)),
