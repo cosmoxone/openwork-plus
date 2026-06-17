@@ -10,6 +10,13 @@
  * 可选:
  *   --output dist/bundle-catalog/catalog.json
  *   --source remote
+ *   --featured-ids knowledge-mgmt,computer-use
+ *
+ * Hub-only（knowledge-mgmt）示例:
+ *   pnpm run bundle-hub:build
+ *   node scripts/publish-remote-catalog.mjs \
+ *     --zip-dir dist/bundle-hub \
+ *     --cdn-base https://hub.openwork.ai/bundles/
  */
 import { readdir, mkdir, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -54,7 +61,7 @@ async function main() {
 
   const files = (await readdir(zipDir)).filter((f) => f.endsWith(".zip")).sort();
   if (!files.length) {
-    console.error(`no .zip in ${zipDir}; run: node scripts/build-builtin-bundles.mjs`);
+    console.error(`no .zip in ${zipDir}; run: node scripts/build-builtin-bundles.mjs or pnpm run bundle-hub:build`);
     process.exit(1);
   }
 
@@ -65,10 +72,18 @@ async function main() {
     const entry = await catalogEntryFromZip(zipPath, {
       downloadUrl: `${base}${file}`,
     });
+    const featuredDefault =
+      entry.id === "computer-use" ||
+      entry.id === "test-automation" ||
+      entry.id === "knowledge-mgmt";
+    const featuredIds = (flags["featured-ids"] ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     bundles.push({
       ...entry,
       path: file,
-      featured: entry.id === "computer-use" || entry.id === "test-automation",
+      featured: featuredIds.length ? featuredIds.includes(entry.id) : featuredDefault,
     });
     console.log(`catalog entry: ${entry.id}@${entry.version} -> ${base}${file}`);
   }
