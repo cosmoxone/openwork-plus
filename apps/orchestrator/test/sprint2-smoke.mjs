@@ -11,6 +11,7 @@ import {
   uninstallBundle,
 } from "../src/bundle/installer.mjs";
 import { KnowledgeDb } from "../../../packages/sqlite-vec-mcp/src/db.mjs";
+import { knowledgeDbPath } from "../../../packages/knowledge-wiki/src/db-path.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const bundleDir = path.join(here, "..", "..", "..", "bundles", "knowledge-mgmt");
@@ -41,7 +42,7 @@ async function main() {
     assert.ok(rag.args[0].includes("sqlite-vec-mcp"), "sqlite-vec-rag 应指向 monorepo 包");
     assert.equal(
       path.normalize(rag.args[rag.args.length - 1]),
-      path.normalize(path.join(workspaceRoot, ".openwork", "knowledge.json")),
+      path.normalize(knowledgeDbPath(workspaceRoot)),
     );
 
     const ui = JSON.parse(
@@ -51,7 +52,7 @@ async function main() {
     assert.ok(ui.bundles.find((b) => b.id === "knowledge-mgmt")?.routes?.includes("/docs"));
 
     // MCP 存储层：索引 + 语义检索
-    const dbPath = path.join(workspaceRoot, ".openwork", "knowledge.json");
+    const dbPath = knowledgeDbPath(workspaceRoot);
     const db = new KnowledgeDb(dbPath);
     await db.indexDocument({
       path: "docs/onboarding.md",
