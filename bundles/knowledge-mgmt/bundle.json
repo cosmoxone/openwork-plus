@@ -3,8 +3,8 @@
   "contractId": "com.openwork.convergence.bundle",
   "id": "knowledge-mgmt",
   "name": "个人知识库（LLM Wiki）",
-  "version": "0.2.0",
-  "description": "本机文档梳理 + LLM 维护维基 + 语义检索 + 持续 lint",
+  "version": "0.3.0",
+  "description": "本机文档梳理 + LLM Wiki + lint + 混合检索 + 向量索引联动",
   "requires": { "runtime": ["opencode"] },
   "preinstall": "node ./scripts/init-knowledge-dirs.mjs",
   "skills": [
@@ -17,6 +17,7 @@
   "commands": [
     { "path": "commands/corpus-scan.md" },
     { "path": "commands/ingest-sources.md" },
+    { "path": "commands/knowledge-lint.md" },
     { "path": "commands/summarize-docs.md" },
     { "path": "commands/find-connections.md" },
     { "path": "commands/semantic-search.md" }

@@ -188,3 +188,82 @@ pub fn knowledge_read_state(workspace_path: String) -> Result<KnowledgeStateResu
     ])?;
     serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
 }
+
+#[tauri::command]
+pub fn knowledge_lint(workspace_path: String, apply: Option<bool>) -> Result<serde_json::Value, String> {
+    let mut args = vec![
+        "lint".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+    ];
+    if apply.unwrap_or(false) {
+        args.push("--apply".to_string());
+    }
+    let stdout = run_knowledge_cli(args)?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_query(workspace_path: String, query: String) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "query".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+        "--q".to_string(),
+        query,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_save_query_page(
+    workspace_path: String,
+    title: String,
+    query: String,
+    answer: String,
+) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "save-query".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+        "--title".to_string(),
+        title,
+        "--query".to_string(),
+        query,
+        "--answer".to_string(),
+        answer,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_list_pages(workspace_path: String) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "list-pages".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_read_page(workspace_path: String, page_path: String) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "read-page".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+        "--path".to_string(),
+        page_path,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_rebuild_index(workspace_path: String) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "rebuild-index".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}

@@ -1,4 +1,4 @@
-/** 个人知识管理 — LLM Wiki（K0：扫描 manifest + ingest + 编辑） */
+/** 个人知识管理 — LLM Wiki（K0–K2） */
 import { createMemo, createSignal, For, Show, onMount } from "solid-js";
 
 import { useConnections } from "../../connections/provider";
@@ -17,16 +17,25 @@ import {
   formatBytes,
   knowledgeIngest,
   knowledgeInit,
+  knowledgeLint,
+  knowledgeListPages,
+  knowledgeQuery,
+  knowledgeReadPage,
   knowledgeReadState,
+  knowledgeRebuildIndex,
+  knowledgeSaveQueryPage,
   knowledgeScan,
   pickIngestFile,
   pickScanRoot,
+  type KnowledgeLintReport,
+  type KnowledgeQueryResult,
   type KnowledgeScanEntry,
   type KnowledgeState,
+  type KnowledgeWikiPage,
 } from "./knowledge-api";
 import { currentLocale, t } from "../../../i18n";
 
-type Tab = "edit" | "scan" | "wiki";
+type Tab = "edit" | "scan" | "wiki" | "health" | "query";
 
 export default function DocsPage() {
   const connections = useConnections();
@@ -41,6 +50,12 @@ export default function DocsPage() {
 
   const [knowledgeState, setKnowledgeState] = createSignal<KnowledgeState | null>(null);
   const [indexPreview, setIndexPreview] = createSignal("");
+  const [wikiPages, setWikiPages] = createSignal<KnowledgeWikiPage[]>([]);
+  const [selectedWikiPath, setSelectedWikiPath] = createSignal<string | null>(null);
+  const [wikiPreview, setWikiPreview] = createSignal("");
+  const [lintReport, setLintReport] = createSignal<KnowledgeLintReport | null>(null);
+  const [queryText, setQueryText] = createSignal("");
+  const [queryResult, setQueryResult] = createSignal<KnowledgeQueryResult | null>(null);
   const [knowledgeBusy, setKnowledgeBusy] = createSignal(false);
   const [knowledgeError, setKnowledgeError] = createSignal("");
 
@@ -57,6 +72,13 @@ export default function DocsPage() {
       if (result.ok) {
         setKnowledgeState(result.state);
         setIndexPreview(result.indexPreview);
+      }
+      const pages = await knowledgeListPages(ws);
+      setWikiPages(pages);
+      const selected = selectedWikiPath();
+      if (selected) {
+        const page = await knowledgeReadPage(ws, selected);
+        setWikiPreview(page?.body ?? "");
       }
     } catch (err) {
       setKnowledgeError(err instanceof Error ? err.message : String(err));
@@ -168,6 +190,62 @@ export default function DocsPage() {
     });
   };
 
+  const handleRunLint = (apply = false) => {
+    void runKnowledge(async () => {
+      const ws = workspacePath();
+      const report = await knowledgeLint(ws, apply);
+      setLintReport(report);
+      setStatus(
+        apply
+          ? t("docs.knowledge_lint_fixed", currentLocale(), { n: report.summary.fixed })
+          : t("docs.knowledge_lint_done", currentLocale(), { n: report.summary.total }),
+      );
+    });
+  };
+
+  const handleRebuildIndex = () => {
+    void runKnowledge(async () => {
+      const ws = workspacePath();
+      const result = await knowledgeRebuildIndex(ws);
+      setStatus(t("docs.knowledge_rebuild_done", currentLocale(), { n: (result as { indexed?: number }).indexed ?? 0 }));
+    });
+  };
+
+  const handleRunQuery = () => {
+    void runKnowledge(async () => {
+      const ws = workspacePath();
+      const q = queryText().trim();
+      if (!q) return;
+      const result = await knowledgeQuery(ws, q);
+      setQueryResult(result);
+    });
+  };
+
+  const handleSaveQuery = () => {
+    const result = queryResult();
+    const q = queryText().trim();
+    if (!result || !q) return;
+    const answer = result.results.map((r) => `- **${r.title}** (${r.layer}): ${r.excerpt}`).join("\n");
+    void runKnowledge(async () => {
+      const ws = workspacePath();
+      await knowledgeSaveQueryPage(ws, {
+        title: q.slice(0, 48),
+        query: q,
+        answer,
+      });
+      setStatus(t("docs.knowledge_save_query_done", currentLocale()));
+      setTab("wiki");
+    });
+  };
+
+  const selectWikiPage = async (relPath: string) => {
+    setSelectedWikiPath(relPath);
+    const ws = workspacePath();
+    if (!ws || !isTauriRuntime()) return;
+    const page = await knowledgeReadPage(ws, relPath);
+    setWikiPreview(page?.body ?? "");
+  };
+
   const tabClass = (value: Tab) =>
     `rounded-md px-3 py-1.5 text-sm ${tab() === value ? "bg-dls-hover font-medium text-dls-text" : "text-dls-secondary hover:text-dls-text"}`;
 
@@ -180,6 +258,12 @@ export default function DocsPage() {
         </button>
         <button type="button" class={tabClass("wiki")} onClick={() => setTab("wiki")}>
           {t("docs.knowledge_tab_wiki", currentLocale())}
+        </button>
+        <button type="button" class={tabClass("query")} onClick={() => setTab("query")}>
+          {t("docs.knowledge_tab_query", currentLocale())}
+        </button>
+        <button type="button" class={tabClass("health")} onClick={() => setTab("health")}>
+          {t("docs.knowledge_tab_health", currentLocale())}
         </button>
         <button type="button" class={tabClass("edit")} onClick={() => setTab("edit")}>
           {t("docs.knowledge_tab_edit", currentLocale())}
@@ -264,24 +348,123 @@ export default function DocsPage() {
       </Show>
 
       <Show when={tab() === "wiki"}>
+        <section class="flex min-h-0 flex-1 gap-4">
+          <aside class="flex w-52 shrink-0 flex-col gap-2">
+            <p class="text-xs font-medium text-dls-secondary">{t("docs.knowledge_wiki_tree", currentLocale())}</p>
+            <ul class="max-h-[420px] space-y-1 overflow-auto text-xs">
+              <For each={wikiPages()} fallback={<li class="text-dls-secondary">{t("docs.knowledge_index_empty", currentLocale())}</li>}>
+                {(page) => (
+                  <li>
+                    <button
+                      type="button"
+                      class="w-full truncate rounded px-2 py-1 text-left hover:bg-dls-hover"
+                      classList={{ "bg-dls-hover font-medium": selectedWikiPath() === page.relPath }}
+                      onClick={() => void selectWikiPage(page.relPath)}
+                    >
+                      <span class="text-dls-secondary">{page.type}</span> {page.title}
+                    </button>
+                  </li>
+                )}
+              </For>
+            </ul>
+          </aside>
+          <div class="flex min-w-0 flex-1 flex-col gap-3">
+            <pre class="max-h-[240px] overflow-auto rounded-lg border border-dls-border bg-dls-hover/30 p-3 text-xs whitespace-pre-wrap font-mono">
+              {indexPreview() || t("docs.knowledge_index_empty", currentLocale())}
+            </pre>
+            <pre class="min-h-[200px] flex-1 overflow-auto rounded-lg border border-dls-border p-4 text-xs whitespace-pre-wrap font-mono">
+              {wikiPreview() || t("docs.knowledge_wiki_select_page", currentLocale())}
+            </pre>
+          </div>
+        </section>
+      </Show>
+
+      <Show when={tab() === "query"}>
         <section class="flex flex-col gap-3">
-          <p class="text-sm text-dls-secondary">{t("docs.knowledge_wiki_hint", currentLocale())}</p>
-          <pre class="max-h-[480px] overflow-auto rounded-lg border border-dls-border bg-dls-hover/30 p-4 text-xs whitespace-pre-wrap font-mono">
-            {indexPreview() || t("docs.knowledge_index_empty", currentLocale())}
-          </pre>
-          <Show when={(knowledgeState()?.ingestLog.length ?? 0) > 0}>
-            <div class="text-xs text-dls-secondary">
-              <p class="mb-1 font-medium">{t("docs.knowledge_ingest_log", currentLocale())}</p>
-              <ul class="list-inside list-disc">
-                <For each={knowledgeState()?.ingestLog.slice().reverse().slice(0, 8) ?? []}>
-                  {(row) => (
-                    <li>
-                      {row.summaryPath} ← {row.sourcePath.split(/[/\\]/).pop()}
-                    </li>
+          <p class="text-sm text-dls-secondary">{t("docs.knowledge_query_hint", currentLocale())}</p>
+          <div class="flex gap-2">
+            <input
+              class="min-w-0 flex-1 rounded-lg border border-dls-border bg-dls-surface px-3 py-2 text-sm"
+              value={queryText()}
+              onInput={(e) => setQueryText(e.currentTarget.value)}
+              placeholder={t("docs.knowledge_query_placeholder", currentLocale())}
+            />
+            <button
+              type="button"
+              class="rounded-lg bg-dls-accent px-3 py-2 text-sm text-white disabled:opacity-50"
+              disabled={knowledgeBusy()}
+              onClick={handleRunQuery}
+            >
+              {t("docs.knowledge_query_run", currentLocale())}
+            </button>
+          </div>
+          <Show when={queryResult()}>
+            {(result) => (
+              <div class="space-y-3">
+                <p class="text-xs text-dls-secondary">
+                  {t("docs.knowledge_query_layer", currentLocale(), {
+                    layer: result().layer,
+                    fallback: result().vectorFallback ? "yes" : "no",
+                  })}
+                </p>
+                <For each={result().results}>
+                  {(hit) => (
+                    <div class="rounded-lg border border-dls-border p-3 text-sm">
+                      <p class="font-medium">{hit.title} <span class="text-xs text-dls-secondary">({hit.layer})</span></p>
+                      <p class="mt-1 text-xs text-dls-secondary">{hit.path}</p>
+                      <p class="mt-2 whitespace-pre-wrap text-dls-text">{hit.excerpt}</p>
+                    </div>
                   )}
                 </For>
-              </ul>
-            </div>
+                <button
+                  type="button"
+                  class="rounded-lg border border-dls-border px-3 py-2 text-sm hover:bg-dls-hover disabled:opacity-50"
+                  disabled={knowledgeBusy() || result().results.length === 0}
+                  onClick={handleSaveQuery}
+                >
+                  {t("docs.knowledge_save_query", currentLocale())}
+                </button>
+              </div>
+            )}
+          </Show>
+        </section>
+      </Show>
+
+      <Show when={tab() === "health"}>
+        <section class="flex flex-col gap-3">
+          <p class="text-sm text-dls-secondary">{t("docs.knowledge_health_hint", currentLocale())}</p>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" class="rounded-lg bg-dls-accent px-3 py-2 text-sm text-white disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => handleRunLint(false)}>
+              {t("docs.knowledge_lint_run", currentLocale())}
+            </button>
+            <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => handleRunLint(true)}>
+              {t("docs.knowledge_lint_fix", currentLocale())}
+            </button>
+            <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={handleRebuildIndex}>
+              {t("docs.knowledge_rebuild_index", currentLocale())}
+            </button>
+          </div>
+          <Show when={lintReport()}>
+            {(report) => (
+              <div class="rounded-lg border border-dls-border p-3 text-xs">
+                <p class="mb-2">
+                  {t("docs.knowledge_lint_summary", currentLocale(), {
+                    errors: report().summary.errors,
+                    warnings: report().summary.warnings,
+                    total: report().summary.total,
+                  })}
+                </p>
+                <ul class="max-h-[360px] space-y-1 overflow-auto">
+                  <For each={report().issues}>
+                    {(issue) => (
+                      <li class="font-mono">
+                        [{issue.severity}] {issue.file ?? "-"} — {issue.message}
+                      </li>
+                    )}
+                  </For>
+                </ul>
+              </div>
+            )}
           </Show>
         </section>
       </Show>
