@@ -50,6 +50,7 @@ import type { EngineInfo, OrchestratorStatus, OpenworkServerInfo, OpenCodeRouter
 import Button from "../components/button";
 import SettingsView from "../pages/settings";
 import StatusBar from "../components/status-bar";
+import PluginSidebarSection from "../components/plugin-sidebar-section";
 import { ProviderAuthModal,
   type ProviderAuthProvider,
   type ProviderAuthMethod,
@@ -271,6 +272,8 @@ export default function SettingsShell(props: SettingsShellProps) {
         return t("settings.tab_skills");
       case "extensions":
         return t("settings.tab_extensions");
+      case "bundles":
+        return t("settings.tab_bundles");
       case "messaging":
         return t("settings.tab_messaging");
       case "advanced":
@@ -430,6 +433,9 @@ export default function SettingsShell(props: SettingsShellProps) {
         }
         if (currentTab === "extensions" && !cancelled) {
           await Promise.all([extensions.refreshPlugins(), connections.refreshMcpServers()]);
+        }
+        if (currentTab === "bundles" && !cancelled) {
+          await connections.refreshMcpServers();
         }
       } catch {
         // Ignore errors during navigation
@@ -1077,6 +1083,7 @@ export default function SettingsShell(props: SettingsShellProps) {
             onOpenCreateWorkspace={props.openCreateWorkspace}
           />
         </div>
+        <PluginSidebarSection title="扩展" />
         <div
           class="absolute right-0 top-3 hidden h-[calc(100%-24px)] w-2 translate-x-1/2 cursor-col-resize rounded-full bg-transparent transition-colors hover:bg-gray-6/40 md:block"
           onPointerDown={startLeftSidebarResize}

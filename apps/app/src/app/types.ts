@@ -150,7 +150,7 @@ export type SessionCompactionState = {
   messageID: string | null;
 };
 
-export type View = "settings" | "session" | "signin";
+export type View = "settings" | "session" | "signin" | "plugin";
 
 export type StartupPreference = "local" | "server";
 
@@ -164,6 +164,7 @@ export type SettingsTab =
   | "automations"
   | "skills"
   | "extensions"
+  | "bundles"
   | "messaging"
   | "advanced"
   | "appearance"

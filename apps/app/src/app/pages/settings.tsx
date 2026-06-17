@@ -28,6 +28,7 @@ import { useSessionDisplayPreferences } from "../app-settings/session-display-pr
 import { usePlatform } from "../context/platform";
 import ConfigView from "./config";
 import ExtensionsView from "./extensions";
+import BundlesView from "./bundles";
 import IdentitiesView from "./identities";
 import AutomationsView from "./automations";
 import SkillsView from "./skills";
@@ -798,6 +799,8 @@ export default function SettingsView(props: SettingsViewProps) {
         return t("settings.tab_skills");
       case "extensions":
         return t("settings.tab_extensions");
+      case "bundles":
+        return t("settings.tab_bundles");
       case "messaging":
         return t("settings.tab_messaging");
       case "advanced":
@@ -820,6 +823,7 @@ export default function SettingsView(props: SettingsViewProps) {
     "automations",
     "skills",
     "extensions",
+    "bundles",
     "messaging",
     "advanced",
   ]);
@@ -1361,6 +1365,8 @@ export default function SettingsView(props: SettingsViewProps) {
         return t("settings.tab_description_skills");
       case "extensions":
         return t("settings.tab_description_extensions");
+      case "bundles":
+        return t("settings.tab_description_bundles");
       case "messaging":
         return t("settings.tab_description_messaging");
       case "advanced":
@@ -1785,6 +1791,12 @@ export default function SettingsView(props: SettingsViewProps) {
               suggestedPlugins={props.suggestedPlugins}
               showHeader={false}
             />
+          </WebUnavailableSurface>
+        </Match>
+
+        <Match when={activeTab() === "bundles"}>
+          <WebUnavailableSurface unavailable={webDeployment()}>
+            <BundlesView selectedWorkspaceRoot={props.selectedWorkspaceRoot} busy={props.busy} showHeader={false} />
           </WebUnavailableSurface>
         </Match>
 
