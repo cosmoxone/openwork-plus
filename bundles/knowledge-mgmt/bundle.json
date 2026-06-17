@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractId": "com.openwork.convergence.bundle",
+  "id": "knowledge-mgmt",
+  "name": "个人知识管理系统",
+  "version": "0.1.0",
+  "description": "文档编辑、摘要、关联发现与跨文档语义检索",
+  "requires": { "runtime": ["opencode"] },
+  "skills": [
+    { "path": "skills/summarize-docs" },
+    { "path": "skills/find-connections" },
+    { "path": "skills/semantic-search" }
+  ],
+  "commands": [
+    { "path": "commands/summarize-docs.md" },
+    { "path": "commands/find-connections.md" },
+    { "path": "commands/semantic-search.md" }
+  ],
+  "mcp": {
+    "servers": {
+      "sqlite-vec-rag": {
+        "command": "node",
+        "args": ["${MONOREPO_ROOT}/packages/sqlite-vec-mcp/bin/sqlite-vec-mcp.mjs", "--db", "${WORKSPACE}/.openwork/knowledge.json"],
+        "env": {}
+      },
+      "filesystem": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "${WORKSPACE}"]
+      }
+    }
+  },
+  "ui": {
+    "routes": ["/docs"]
+  }
+}

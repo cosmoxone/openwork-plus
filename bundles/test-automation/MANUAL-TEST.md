@@ -27,8 +27,9 @@ cd E:\proj\openwork-platform
 # 安装器 + minimal bundle
 node apps/orchestrator/test/bundle-smoke.mjs
 
-# Sprint 1 全流程（skills/commands/mcp/cli/卸载可逆）
+# Sprint 1 全流程 + analyze-failure 链路预检
 node apps/orchestrator/test/sprint1-smoke.mjs
+node apps/orchestrator/test/sprint1-analyze-failure-chain.mjs
 
 # test-db 存储层
 cd packages/test-db-mcp

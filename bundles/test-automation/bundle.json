@@ -9,7 +9,8 @@
   "skills": [
     { "path": "skills/generate-test-cases" },
     { "path": "skills/analyze-failure" },
-    { "path": "skills/create-regression" }
+    { "path": "skills/create-regression" },
+    { "path": "skills/ui-test-assist" }
   ],
   "commands": [
     { "path": "commands/generate-test-cases.md" },
@@ -42,5 +43,8 @@
         }
       }
     }
+  },
+  "ui": {
+    "routes": ["/plugins/test-automation"]
   }
 }

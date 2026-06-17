@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractId": "com.openwork.convergence.bundle",
+  "id": "computer-use",
+  "name": "RPA / UI 自动化",
+  "version": "0.1.0",
+  "description": "GUI 自动化 MCP（从 Open Cowork 提取的 gui-operate-mcp）",
+  "requires": {
+    "runtime": ["opencode"],
+    "platform": ["desktop"]
+  },
+  "preinstall": "node ./scripts/init-sandbox.mjs",
+  "skills": [
+    { "path": "skills/browser-automation" },
+    { "path": "skills/desktop-recorder" },
+    { "path": "skills/error-recovery" }
+  ],
+  "commands": [
+    { "path": "commands/gui-screenshot.md" }
+  ],
+  "mcp": {
+    "servers": {
+      "gui-operate": {
+        "command": "node",
+        "args": ["${MONOREPO_ROOT}/packages/gui-operate-mcp/dist/server.js"],
+        "env": {
+          "OPENWORK_DATA_DIR": "${HOME}/.openwork"
+        }
+      }
+    }
+  },
+  "ui": {
+    "routes": ["/plugins/rpa"]
+  }
+}
