@@ -1,4 +1,5 @@
 pub mod industry_bundle;
+pub mod knowledge;
 pub mod rpa;
 pub mod command_files;
 pub mod config;

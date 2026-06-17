@@ -21,6 +21,9 @@ use commands::industry_bundle::{
     industry_bundle_install_from_catalog, industry_bundle_list_catalog, industry_bundle_list_installed,
     industry_bundle_read_ui_manifest, industry_bundle_uninstall,
 };
+use commands::knowledge::{
+    knowledge_init, knowledge_ingest, knowledge_read_state, knowledge_scan,
+};
 use commands::rpa::{
     rpa_capture_screenshot, rpa_list_operations, rpa_list_screenshots, rpa_set_automation_enabled,
     rpa_status,
@@ -237,6 +240,10 @@ pub fn run() {
             industry_bundle_uninstall,
             industry_bundle_check_updates,
             industry_bundle_read_ui_manifest,
+            knowledge_init,
+            knowledge_scan,
+            knowledge_ingest,
+            knowledge_read_state,
             set_window_decorations
         ])
         .build(tauri::generate_context!())
