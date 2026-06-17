@@ -1,0 +1,121 @@
+# Hub-only Industry Bundle 发布（阶段 D2）。
+# Tag: bundle-knowledge-mgmt-v0.5.0
+# 或 workflow_dispatch 指定 version（须与 bundles/knowledge-mgmt/bundle.json 一致）。
+#
+# 仓库变量（Settings › Variables）:
+#   BUNDLE_CDN_BASE — 可选；默认用 GitHub Release 资产直链
+#
+# 产物: knowledge-mgmt-<version>.zip + catalog.remote.json（Release assets）
+
+name: Publish Bundle Hub
+
+on:
+  workflow_dispatch:
+    inputs:
+      bundle_id:
+        description: Hub bundle id
+        default: knowledge-mgmt
+        type: string
+      version:
+        description: semver（须与 bundle.json 一致，不含 v 前缀）
+        required: true
+        type: string
+  push:
+    tags:
+      - "bundle-knowledge-mgmt-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Resolve release version
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+            BUNDLE_ID="${{ inputs.bundle_id }}"
+          else
+            TAG="${GITHUB_REF_NAME#refs/tags/}"
+            # bundle-knowledge-mgmt-v0.5.0 -> 0.5.0
+            VERSION="${TAG#bundle-knowledge-mgmt-v}"
+            BUNDLE_ID="knowledge-mgmt"
+          fi
+          VERSION="${VERSION#v}"
+          RELEASE_TAG="bundle-${BUNDLE_ID}-v${VERSION}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "bundle_id=${BUNDLE_ID}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify bundle.json version
+        run: |
+          node scripts/verify-bundle-hub-release.mjs \
+            --bundle "${{ steps.meta.outputs.bundle_id }}" \
+            --version "${{ steps.meta.outputs.version }}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.27.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install sqlite-vec-mcp dependencies
+        run: npm ci
+        working-directory: packages/sqlite-vec-mcp
+
+      - name: Convergence smoke (gate)
+        run: pnpm test:convergence
+
+      - name: Build Hub bundle zip
+        run: pnpm run bundle-hub:build
+
+      - name: Resolve CDN base for catalog
+        id: cdn
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${{ vars.BUNDLE_CDN_BASE }}" ]; then
+            BASE="${{ vars.BUNDLE_CDN_BASE }}"
+          else
+            BASE="https://github.com/${{ github.repository }}/releases/download/${{ steps.meta.outputs.release_tag }}/"
+          fi
+          case "$BASE" in
+            */) ;;
+            *) BASE="${BASE}/" ;;
+          esac
+          echo "base=${BASE}" >> "$GITHUB_OUTPUT"
+          echo "Using CDN base: ${BASE}"
+
+      - name: Generate remote catalog
+        run: |
+          node scripts/publish-remote-catalog.mjs \
+            --zip-dir dist/bundle-hub \
+            --cdn-base "${{ steps.cdn.outputs.base }}" \
+            --output dist/bundle-hub/catalog.remote.json
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.release_tag }}
+          name: Bundle Hub ${{ steps.meta.outputs.bundle_id }} v${{ steps.meta.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/bundle-hub/knowledge-mgmt-${{ steps.meta.outputs.version }}.zip
+            dist/bundle-hub/catalog.remote.json
+          fail_on_unmatched_files: true

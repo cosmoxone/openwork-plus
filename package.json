@@ -41,6 +41,7 @@
     "test:knowledge:e2e": "pnpm --filter @openwork/app exec playwright test --config playwright.config.ts e2e/specs/knowledge-docs.spec.ts",
     "bundle-hub:prepare": "node scripts/prepare-bundle-hub-dev.mjs",
     "bundle-hub:build": "node scripts/build-hub-bundles.mjs",
+    "bundle-hub:verify": "node scripts/verify-bundle-hub-release.mjs",
     "bundle-hub:dev": "node scripts/prepare-bundle-hub-dev.mjs && node scripts/bundle-hub-dev-server.mjs",
     "bump:patch": "pnpm --filter @openwork/app bump:patch",
     "bump:minor": "pnpm --filter @openwork/app bump:minor",
