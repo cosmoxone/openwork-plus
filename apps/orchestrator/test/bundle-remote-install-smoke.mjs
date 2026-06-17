@@ -37,7 +37,7 @@ function runPrepare() {
 }
 
 function startServer() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const server = http.createServer(async (req, res) => {
       const rel = (req.url ?? "/").split("?")[0].replace(/^\//, "");
       const file = path.join(hubDir, rel);
@@ -51,6 +51,13 @@ function startServer() {
         "Content-Type": rel.endsWith(".json") ? "application/json" : "application/zip",
       });
       res.end(body);
+    });
+    server.on("error", (err) => {
+      if (/** @type {NodeJS.ErrnoException} */ (err).code === "EADDRINUSE") {
+        resolve(null);
+        return;
+      }
+      reject(err);
     });
     server.listen(port, "127.0.0.1", () => resolve(server));
   });
@@ -68,7 +75,7 @@ async function main() {
   }
 
   await runPrepare();
-  /** @type {import("node:http").Server} */
+  /** @type {import("node:http").Server | null} */
   const server = await startServer();
   const remoteUrl = `http://127.0.0.1:${port}/catalog.json`;
   const workspaceRoot = await mkdtemp(path.join(os.tmpdir(), "ow-remote-ws-"));
@@ -135,7 +142,7 @@ async function main() {
     await uninstallBundle({ id: "computer-use", dataDir });
     console.log("PASS: bundle remote install (phase C)");
   } finally {
-    server.close();
+    server?.close();
     await rm(workspaceRoot, { recursive: true, force: true });
     await rm(dataDir, { recursive: true, force: true });
   }
