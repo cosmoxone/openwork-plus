@@ -29,6 +29,7 @@
     "test:local-file-path": "node scripts/local-file-path.mjs",
     "test:browser-entry": "node scripts/browser-entry.mjs",
     "test:e2e": "pnpm test:local-file-path && node scripts/e2e.mjs && node scripts/session-switch.mjs && node scripts/fs-engine.mjs && node scripts/browser-entry.mjs",
+    "test:bundles:e2e": "playwright test --config playwright.config.ts",
     "bump:patch": "node scripts/bump-version.mjs patch",
     "bump:minor": "node scripts/bump-version.mjs minor",
     "bump:major": "node scripts/bump-version.mjs major",
@@ -61,8 +62,8 @@
     "ai": "^6.0.146",
     "fuzzysort": "^3.1.0",
     "jsonc-parser": "^3.2.1",
-    "lucide-solid": "^0.562.0",
     "lexical": "^0.35.0",
+    "lucide-solid": "^0.562.0",
     "marked": "^17.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -72,6 +73,7 @@
     "streamdown": "^2.5.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@solid-devtools/overlay": "^0.33.5",
     "@tailwindcss/vite": "^4.1.18",
     "@types/react": "^19.2.2",
