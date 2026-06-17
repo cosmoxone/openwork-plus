@@ -154,4 +154,20 @@ export class KnowledgeDb {
       preview: String(d.content ?? "").slice(0, 120),
     }));
   }
+
+  async clearAll() {
+    await this.load();
+    this.data.documents = [];
+    await this.flush();
+    return { cleared: true };
+  }
+
+  /** @param {string} prefix */
+  async removeByPathPrefix(prefix) {
+    await this.load();
+    const before = this.data.documents.length;
+    this.data.documents = this.data.documents.filter((d) => !String(d.path).startsWith(prefix));
+    await this.flush();
+    return { removed: before - this.data.documents.length };
+  }
 }

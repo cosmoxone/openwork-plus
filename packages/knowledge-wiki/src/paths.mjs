@@ -17,6 +17,11 @@ export function knowledgePaths(workspaceRoot) {
     wiki: path.join(root, "wiki"),
     wikiIndex: path.join(root, "wiki", "INDEX.md"),
     wikiSummaries: path.join(root, "wiki", "summaries"),
+    wikiConcepts: path.join(root, "wiki", "concepts"),
+    wikiEntities: path.join(root, "wiki", "entities"),
+    wikiSyntheses: path.join(root, "wiki", "syntheses"),
+    wikiQa: path.join(root, "wiki", "qa"),
+    lintReport: path.join(root, "lint-report.json"),
     logDir: path.join(root, "log"),
     stateFile: path.join(root, "state.json"),
   };

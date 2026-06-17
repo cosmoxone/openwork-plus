@@ -61,6 +61,33 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       description: "列出已索引文档及元数据",
       inputSchema: { type: "object", properties: {} },
     },
+    {
+      name: "rebuild_index",
+      description: "清空并重建索引（传入 documents 数组：{path, title, content}）",
+      inputSchema: {
+        type: "object",
+        properties: {
+          documents: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                path: { type: "string" },
+                title: { type: "string" },
+                content: { type: "string" },
+              },
+              required: ["path", "content"],
+            },
+          },
+        },
+        required: ["documents"],
+      },
+    },
+    {
+      name: "clear_index",
+      description: "清空向量索引",
+      inputSchema: { type: "object", properties: {} },
+    },
   ],
 }));
 
@@ -77,6 +104,16 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
       break;
     case "list_documents":
       result = await db.listDocuments();
+      break;
+    case "rebuild_index":
+      await db.clearAll();
+      for (const doc of args?.documents ?? []) {
+        await db.indexDocument(doc);
+      }
+      result = { rebuilt: (args?.documents ?? []).length };
+      break;
+    case "clear_index":
+      result = await db.clearAll();
       break;
     default:
       throw new Error(`未知工具: ${name}`);

@@ -6,6 +6,9 @@ import { knowledgePaths } from "./paths.mjs";
 import { fileId, slugify } from "./slug.mjs";
 import { readState, writeState } from "./state.mjs";
 import { refreshIndex } from "./index-page.mjs";
+import { extractWikilinks } from "./wiki-page.mjs";
+import { createWikiPage, resolveWikiLink } from "./pages.mjs";
+import { indexIngestedSummary } from "./index-sync.mjs";
 
 const TEXT_EXTENSIONS = new Set([".md", ".markdown", ".txt", ".html", ".htm"]);
 
@@ -76,7 +79,9 @@ ${excerpt}
   await mkdir(paths.wikiSummaries, { recursive: true });
   await writeFile(summaryAbs, body, "utf8");
 
+  await ensureConceptStubs(workspaceRoot, extractWikilinks(body));
   await refreshIndex(workspaceRoot);
+  await indexIngestedSummary(workspaceRoot, summaryRel);
 
   const state = await readState(workspaceRoot);
   const manifest = state.scanManifest.map((entry) =>
@@ -113,4 +118,18 @@ ${excerpt}
     summaryPath: summaryAbs,
     summaryRel,
   };
+}
+
+/** @param {string} workspaceRoot @param {string[]} links */
+async function ensureConceptStubs(workspaceRoot, links) {
+  for (const link of links) {
+    if (!link.startsWith("concepts/")) continue;
+    if (resolveWikiLink(workspaceRoot, link)) continue;
+    const title = link.split("/").pop()?.replace(/-/g, " ") ?? link;
+    await createWikiPage(workspaceRoot, {
+      type: "concept",
+      title,
+      body: `_由 ingest 自动创建的概念占位页，请用 wiki-curator 补充内容。_\n\n关联：[[${link}]]`,
+    });
+  }
 }

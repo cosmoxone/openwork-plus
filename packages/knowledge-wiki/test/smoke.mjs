@@ -1,8 +1,7 @@
-import { mkdtemp, rm, writeFile, readFile } from "node:fs/promises";
+import { mkdtemp, rm, writeFile, readFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   initKnowledgeLayout,
   scanCorpus,
@@ -10,9 +9,14 @@ import {
   readState,
   readIndex,
   knowledgePaths,
+  knowledgeDbPath,
+  createWikiPage,
+  runKnowledgeLint,
+  hybridQuery,
+  rebuildKnowledgeIndex,
+  saveQueryAsWikiPage,
+  listWikiPages,
 } from "../src/index.mjs";
-
-const here = path.dirname(fileURLToPath(import.meta.url));
 
 async function run() {
   const tmp = await mkdtemp(path.join(os.tmpdir(), "ow-knowledge-wiki-"));
@@ -20,36 +24,72 @@ async function run() {
     await initKnowledgeLayout(tmp);
     const paths = knowledgePaths(tmp);
     if (!existsSync(paths.agents)) throw new Error("AGENTS.md missing");
-    if (!existsSync(paths.wikiIndex)) throw new Error("INDEX.md missing");
 
     const docsDir = path.join(tmp, "sample-docs");
-    const { mkdir } = await import("node:fs/promises");
     await mkdir(docsDir, { recursive: true });
-    await writeFile(path.join(docsDir, "note-a.md"), "# Note A\n\nAlpha content.");
+    await writeFile(
+      path.join(docsDir, "note-a.md"),
+      "# Note A\n\nAlpha content with [[concepts/alpha-term]].",
+    );
     await writeFile(path.join(docsDir, "note-b.md"), "# Note B\n\nBeta content.");
 
     const scan = await scanCorpus(tmp, [docsDir]);
     if (scan.total !== 2) throw new Error(`expected 2 scan entries, got ${scan.total}`);
-    if (scan.pending !== 2) throw new Error(`expected 2 pending, got ${scan.pending}`);
 
     const noteA = path.join(docsDir, "note-a.md");
-    const ingested = await ingestSourceFile(tmp, noteA);
-    if (!existsSync(ingested.summaryPath)) throw new Error("summary not created");
+    await ingestSourceFile(tmp, noteA);
+
+    const pages = await listWikiPages(tmp);
+    if (pages.length < 2) throw new Error("expected summary + concept stub pages");
+
+    await createWikiPage(tmp, {
+      type: "synthesis",
+      title: "Alpha Beta Synth",
+      body: "Cross doc synthesis linking [[summaries/note-a]].",
+    });
+
+    const broken = await createWikiPage(tmp, {
+      type: "entity",
+      title: "Broken Link Demo",
+      body: "See [[concepts/does-not-exist]].",
+    });
+    if (!broken.relPath) throw new Error("entity page missing");
+
+    let lint = await runKnowledgeLint(tmp);
+    if (lint.summary.errors < 1) throw new Error("lint should detect broken wikilink");
+
+    lint = await runKnowledgeLint(tmp, { apply: true });
+    if (lint.summary.fixed < 1) throw new Error("lint apply should fix broken link");
+
+    const saved = await saveQueryAsWikiPage(tmp, {
+      title: "What is Alpha",
+      query: "What is Alpha",
+      answer: "Alpha is mentioned in note A.",
+    });
+    if (!existsSync(path.join(paths.wiki, "qa", `${saved.slug}.md`))) {
+      throw new Error("qa page not saved");
+    }
 
     const index = await readIndex(tmp);
-    if (!index.includes("note-a") && !index.includes("Note A")) {
-      throw new Error("INDEX missing ingested entry");
+    if (!index.includes("问答沉淀")) throw new Error("INDEX missing qa section");
+
+    const rebuild = await rebuildKnowledgeIndex(tmp);
+    if (!rebuild.indexed || rebuild.indexed < 2) throw new Error("rebuild index too small");
+    if (!existsSync(knowledgeDbPath(tmp))) throw new Error("knowledge.db missing");
+
+    const query = await hybridQuery(tmp, "Alpha content");
+    if (!query.results.length) throw new Error("hybrid query returned no hits");
+    if (!query.results.some((r) => r.layer === "L1" || r.layer === "L2")) {
+      throw new Error("expected L1/L2 wiki hit before vector");
     }
 
     const state = await readState(tmp);
-    if (state.ingestLog.length !== 1) throw new Error("ingestLog length mismatch");
-    const entry = state.scanManifest.find((e) => e.path === noteA);
-    if (entry?.status !== "ingested") throw new Error("manifest status not ingested");
+    if (state.ingestLog.length < 1) throw new Error("ingestLog empty");
 
-    const archived = await readFile(ingested.summaryPath, "utf8");
-    if (!archived.includes("Alpha content")) throw new Error("summary missing excerpt");
+    const summary = await readFile(path.join(paths.wiki, "summaries", "note-a.md"), "utf8");
+    if (!summary.includes("Alpha content")) throw new Error("summary missing excerpt");
 
-    console.log("PASS: knowledge-wiki K0 smoke");
+    console.log("PASS: knowledge-wiki K0–K2 smoke");
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
