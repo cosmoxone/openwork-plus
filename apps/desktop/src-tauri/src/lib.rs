@@ -22,9 +22,10 @@ use commands::industry_bundle::{
     industry_bundle_read_ui_manifest, industry_bundle_uninstall,
 };
 use commands::knowledge::{
-    knowledge_init, knowledge_ingest, knowledge_lint, knowledge_list_pages, knowledge_query,
-    knowledge_read_page, knowledge_read_state, knowledge_rebuild_index, knowledge_save_query_page,
-    knowledge_scan,
+    knowledge_export_snapshot, knowledge_init, knowledge_ingest, knowledge_lint, knowledge_list_pages,
+    knowledge_query, knowledge_read_page, knowledge_read_state, knowledge_rebuild_index,
+    knowledge_save_query_page, knowledge_scan, knowledge_watch_config_get, knowledge_watch_config_set,
+    knowledge_watch_poll,
 };
 use commands::rpa::{
     rpa_capture_screenshot, rpa_list_operations, rpa_list_screenshots, rpa_set_automation_enabled,
@@ -252,6 +253,10 @@ pub fn run() {
             knowledge_list_pages,
             knowledge_read_page,
             knowledge_rebuild_index,
+            knowledge_watch_poll,
+            knowledge_watch_config_get,
+            knowledge_watch_config_set,
+            knowledge_export_snapshot,
             set_window_decorations
         ])
         .build(tauri::generate_context!())

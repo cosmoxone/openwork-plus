@@ -1,8 +1,9 @@
-/** 个人知识管理 — LLM Wiki（K0–K2） */
-import { createMemo, createSignal, For, Show, onMount } from "solid-js";
+/** 个人知识管理 — LLM Wiki（K0–K4） */
+import { createMemo, createSignal, For, Show, onCleanup, onMount } from "solid-js";
 
 import { useConnections } from "../../connections/provider";
 import { isTauriRuntime } from "../../utils";
+import { saveFile } from "../../lib/tauri";
 import { ReactIsland } from "../../../react/island";
 import { LexicalDocsEditor } from "./editor.react";
 import {
@@ -24,13 +25,18 @@ import {
   knowledgeReadState,
   knowledgeRebuildIndex,
   knowledgeSaveQueryPage,
+  knowledgeExportSnapshot,
   knowledgeScan,
+  knowledgeWatchConfigGet,
+  knowledgeWatchConfigSet,
+  knowledgeWatchPoll,
   pickIngestFile,
   pickScanRoot,
   type KnowledgeLintReport,
   type KnowledgeQueryResult,
   type KnowledgeScanEntry,
   type KnowledgeState,
+  type KnowledgeWatchConfig,
   type KnowledgeWikiPage,
 } from "./knowledge-api";
 import { currentLocale, t } from "../../../i18n";
@@ -58,6 +64,8 @@ export default function DocsPage() {
   const [queryResult, setQueryResult] = createSignal<KnowledgeQueryResult | null>(null);
   const [knowledgeBusy, setKnowledgeBusy] = createSignal(false);
   const [knowledgeError, setKnowledgeError] = createSignal("");
+  const [watchConfig, setWatchConfig] = createSignal<KnowledgeWatchConfig | null>(null);
+  let watchTimer: ReturnType<typeof setInterval> | undefined;
 
   const manifest = createMemo(() => knowledgeState()?.scanManifest ?? []);
   const pendingCount = createMemo(() => manifest().filter((e) => e.status === "pending").length);
@@ -75,6 +83,8 @@ export default function DocsPage() {
       }
       const pages = await knowledgeListPages(ws);
       setWikiPages(pages);
+      const watch = await knowledgeWatchConfigGet(ws);
+      if (watch.ok) setWatchConfig(watch.watch);
       const selected = selectedWikiPath();
       if (selected) {
         const page = await knowledgeReadPage(ws, selected);
@@ -91,6 +101,24 @@ export default function DocsPage() {
     if (first) selectDoc(first.id);
     void refreshKnowledge();
   });
+
+  onCleanup(() => {
+    if (watchTimer) clearInterval(watchTimer);
+  });
+
+  const syncWatchTimer = (cfg: KnowledgeWatchConfig | null) => {
+    if (watchTimer) {
+      clearInterval(watchTimer);
+      watchTimer = undefined;
+    }
+    if (!cfg?.enabled || !isTauriRuntime()) return;
+    const sec = Math.max(10, cfg.intervalSec ?? 30);
+    watchTimer = setInterval(() => {
+      void runKnowledge(async () => {
+        await knowledgeWatchPoll(workspacePath());
+      });
+    }, sec * 1000);
+  };
 
   const selectDoc = (id: string) => {
     const doc = getDoc(id);
@@ -246,6 +274,64 @@ export default function DocsPage() {
     setWikiPreview(page?.body ?? "");
   };
 
+  const handleAddWatchRoot = async () => {
+    const folder = await pickScanRoot();
+    if (!folder) return;
+    void runKnowledge(async () => {
+      const ws = workspacePath();
+      const current = watchConfig() ?? { enabled: false, roots: [] };
+      const roots = [...new Set([...(current.roots ?? []), folder])];
+      await knowledgeWatchConfigSet(ws, {
+        roots,
+        enabled: current.enabled ?? false,
+        inboxAutoIngest: current.inboxAutoIngest ?? true,
+        autoIngestRoots: current.autoIngestWatchRoots ?? false,
+        intervalSec: current.intervalSec ?? 30,
+      });
+      await refreshKnowledge();
+      syncWatchTimer(watchConfig());
+    });
+  };
+
+  const handleToggleWatch = (enabled: boolean) => {
+    void runKnowledge(async () => {
+      const ws = workspacePath();
+      const current = watchConfig() ?? { enabled: false, roots: [] };
+      await knowledgeWatchConfigSet(ws, {
+        roots: current.roots ?? [],
+        enabled,
+        inboxAutoIngest: current.inboxAutoIngest ?? true,
+        autoIngestRoots: current.autoIngestWatchRoots ?? false,
+        intervalSec: current.intervalSec ?? 30,
+      });
+      await refreshKnowledge();
+      syncWatchTimer({ ...current, enabled });
+    });
+  };
+
+  const handleWatchPollNow = () => {
+    void runKnowledge(async () => {
+      const ws = workspacePath();
+      const result = await knowledgeWatchPoll(ws);
+      setStatus(t("docs.knowledge_watch_poll_done", currentLocale(), { n: result.actionCount ?? 0 }));
+    });
+  };
+
+  const handleExportSnapshot = async () => {
+    const ws = workspacePath();
+    if (!ws) return;
+    const dest = await saveFile({
+      title: t("docs.knowledge_export_snapshot", currentLocale()),
+      defaultPath: "wiki-snapshot.zip",
+      filters: [{ name: "Zip", extensions: ["zip"] }],
+    });
+    if (!dest) return;
+    void runKnowledge(async () => {
+      const result = await knowledgeExportSnapshot(ws, dest);
+      setStatus(t("docs.knowledge_export_done", currentLocale(), { n: result.pageCount ?? 0, path: dest }));
+    });
+  };
+
   const tabClass = (value: Tab) =>
     `rounded-md px-3 py-1.5 text-sm ${tab() === value ? "bg-dls-hover font-medium text-dls-text" : "text-dls-secondary hover:text-dls-text"}`;
 
@@ -307,6 +393,32 @@ export default function DocsPage() {
           <div class="flex gap-4 text-xs text-dls-secondary">
             <span>{t("docs.knowledge_manifest_total", currentLocale(), { n: manifest().length })}</span>
             <span>{t("docs.knowledge_manifest_pending", currentLocale(), { n: pendingCount() })}</span>
+          </div>
+
+          <div class="rounded-lg border border-dls-border p-4">
+            <p class="mb-2 text-sm font-medium text-dls-text">{t("docs.knowledge_watch_title", currentLocale())}</p>
+            <p class="mb-3 text-xs text-dls-secondary">{t("docs.knowledge_watch_hint", currentLocale())}</p>
+            <div class="mb-2 flex flex-wrap gap-2">
+              <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => void handleAddWatchRoot()}>
+                {t("docs.knowledge_watch_add_root", currentLocale())}
+              </button>
+              <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={handleWatchPollNow}>
+                {t("docs.knowledge_watch_poll", currentLocale())}
+              </button>
+              <label class="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={watchConfig()?.enabled ?? false}
+                  onChange={(e) => handleToggleWatch(e.currentTarget.checked)}
+                />
+                {t("docs.knowledge_watch_auto", currentLocale())}
+              </label>
+            </div>
+            <Show when={(watchConfig()?.roots?.length ?? 0) > 0}>
+              <ul class="text-xs text-dls-secondary">
+                <For each={watchConfig()?.roots ?? []}>{(root) => <li class="truncate font-mono">{root}</li>}</For>
+              </ul>
+            </Show>
           </div>
 
           <div class="max-h-[420px] overflow-auto rounded-lg border border-dls-border">
@@ -442,6 +554,9 @@ export default function DocsPage() {
             </button>
             <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={handleRebuildIndex}>
               {t("docs.knowledge_rebuild_index", currentLocale())}
+            </button>
+            <button type="button" class="rounded-lg border border-dls-border px-3 py-2 text-sm disabled:opacity-50" disabled={knowledgeBusy()} onClick={() => void handleExportSnapshot()}>
+              {t("docs.knowledge_export_snapshot", currentLocale())}
             </button>
           </div>
           <Show when={lintReport()}>

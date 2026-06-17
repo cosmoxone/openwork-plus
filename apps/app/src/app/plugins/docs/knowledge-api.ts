@@ -150,6 +150,60 @@ export async function knowledgeRebuildIndex(workspacePath: string) {
   return invoke("knowledge_rebuild_index", { workspacePath });
 }
 
+export type KnowledgeWatchConfig = {
+  enabled: boolean;
+  roots: string[];
+  inboxAutoIngest?: boolean;
+  autoIngestWatchRoots?: boolean;
+  intervalSec?: number;
+  lastRunAt?: string;
+  lastActions?: Array<{ kind: string; path: string; result?: string }>;
+};
+
+export async function knowledgeWatchPoll(workspacePath: string) {
+  if (!isTauriRuntime()) return { ok: false, actions: [], actionCount: 0 };
+  return invoke<{ ok: boolean; actions: KnowledgeWatchConfig["lastActions"]; actionCount: number }>(
+    "knowledge_watch_poll",
+    { workspacePath },
+  );
+}
+
+export async function knowledgeWatchConfigGet(workspacePath: string) {
+  if (!isTauriRuntime()) return { ok: false, watch: { enabled: false, roots: [] } };
+  return invoke<{ ok: boolean; watch: KnowledgeWatchConfig }>("knowledge_watch_config_get", {
+    workspacePath,
+  });
+}
+
+export async function knowledgeWatchConfigSet(
+  workspacePath: string,
+  config: {
+    roots: string[];
+    enabled: boolean;
+    inboxAutoIngest: boolean;
+    autoIngestRoots: boolean;
+    intervalSec: number;
+  },
+) {
+  if (!isTauriRuntime()) return { ok: false };
+  return invoke("knowledge_watch_config_set", {
+    workspacePath,
+    roots: config.roots,
+    enabled: config.enabled,
+    inboxAutoIngest: config.inboxAutoIngest,
+    autoIngestRoots: config.autoIngestRoots,
+    intervalSec: config.intervalSec,
+  });
+}
+
+export async function knowledgeExportSnapshot(workspacePath: string, outputZip: string) {
+  if (!isTauriRuntime()) throw new Error("export requires desktop runtime");
+  return invoke<{ ok: boolean; outputZip: string; pageCount: number }>("knowledge_export_snapshot", {
+    workspacePath,
+    outputZip,
+  });
+}
+
 export async function pickScanRoot() {
   const picked = await pickDirectory({ title: t("docs.knowledge_pick_scan_root", currentLocale()) });
   if (!picked || Array.isArray(picked)) return null;

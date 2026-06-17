@@ -267,3 +267,69 @@ pub fn knowledge_rebuild_index(workspace_path: String) -> Result<serde_json::Val
     ])?;
     serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
 }
+
+#[tauri::command]
+pub fn knowledge_watch_poll(workspace_path: String) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "watch-once".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_watch_config_get(workspace_path: String) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "watch-config".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_watch_config_set(
+    workspace_path: String,
+    roots: Vec<String>,
+    enabled: bool,
+    inbox_auto_ingest: bool,
+    auto_ingest_roots: bool,
+    interval_sec: u32,
+) -> Result<serde_json::Value, String> {
+    let mut args = vec![
+        "watch-config".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+        "--roots".to_string(),
+        roots.join(","),
+        "--interval".to_string(),
+        interval_sec.to_string(),
+    ];
+    if enabled {
+        args.push("--enabled".to_string());
+    }
+    if !inbox_auto_ingest {
+        args.push("--no-inbox-auto-ingest".to_string());
+    }
+    if auto_ingest_roots {
+        args.push("--auto-ingest-roots".to_string());
+    }
+    let stdout = run_knowledge_cli(args)?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
+
+#[tauri::command]
+pub fn knowledge_export_snapshot(
+    workspace_path: String,
+    output_zip: String,
+) -> Result<serde_json::Value, String> {
+    let stdout = run_knowledge_cli(vec![
+        "export-snapshot".to_string(),
+        "--workspace".to_string(),
+        workspace_path,
+        "--output".to_string(),
+        output_zip,
+    ])?;
+    serde_json::from_str(&stdout).map_err(|e| format!("invalid json: {e}"))
+}
