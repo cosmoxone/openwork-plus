@@ -1,0 +1,22 @@
+{
+  "name": "@openwork/host-api-adapter",
+  "version": "0.1.0",
+  "description": "Host API ↔ JSON-RPC 共享核心与双协议适配（P0-ARC-2）",
+  "type": "module",
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./core": "./src/core-handlers.mjs",
+    "./jsonrpc": "./src/jsonrpc-adapter.mjs",
+    "./http": "./src/http-adapter.mjs"
+  },
+  "files": ["src", "test"],
+  "scripts": {
+    "test": "node test/contract-equiv-smoke.mjs && node test/execpolicy-smoke.mjs && node test/arc345-smoke.mjs"
+  },
+  "dependencies": {
+    "@openwork/appserver-contract": "workspace:*",
+    "@openwork/metering-store": "workspace:*"
+  },
+  "license": "MIT"
+}

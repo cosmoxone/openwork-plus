@@ -8,7 +8,8 @@
   "exports": {
     ".": {
       "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "import": "./src/runtime.mjs",
+      "default": "./src/runtime.mjs"
     }
   },
   "files": ["src"],
