@@ -35,6 +35,7 @@ export const BUNDLE_SCHEMA_VERSION = "1.0.0";
  * @property {{tools?:string[],bin?:Record<string,string>}} [cli]
  * @property {{routes?:string[]}} [ui]
  * @property {string} [preinstall]
+ * @property {string} [postuninstall]
  */
 
 /** 校验错误集合 */

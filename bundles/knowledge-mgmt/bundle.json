@@ -3,10 +3,11 @@
   "contractId": "com.openwork.convergence.bundle",
   "id": "knowledge-mgmt",
   "name": "个人知识库（LLM Wiki）",
-  "version": "0.3.0",
-  "description": "本机文档梳理 + LLM Wiki + lint + 混合检索 + 向量索引联动",
+  "version": "0.4.0",
+  "description": "LLM Wiki：扫描/ingest/lint/混合检索 + watch + 快照备份",
   "requires": { "runtime": ["opencode"] },
   "preinstall": "node ./scripts/init-knowledge-dirs.mjs",
+  "postuninstall": "knowledge:clear-index",
   "skills": [
     { "path": "skills/wiki-curator" },
     { "path": "skills/corpus-scan" },

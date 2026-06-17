@@ -332,6 +332,7 @@ export async function installBundle(opts) {
     addedMcp,
     installedBins,
     uiRoutes: manifest.ui?.routes ?? [],
+    postuninstall: manifest.postuninstall ?? null,
   });
   await writeInstalled(dataDir, installed);
 
@@ -371,6 +372,39 @@ export async function uninstallBundle(opts) {
   const installed = await readInstalled(dataDir);
   const record = installed.bundles.find((b) => b.id === opts.id);
   if (!record) throw new Error(`未找到已安装 bundle: ${opts.id}`);
+
+  if (record.postuninstall) {
+    if (record.postuninstall === "knowledge:clear-index") {
+      const script = path.join(
+        resolveMonorepoRoot(record.workspaceRoot ?? process.cwd()),
+        "packages",
+        "knowledge-wiki",
+        "bin",
+        "knowledge-wiki.mjs",
+      );
+      if (existsSync(script)) {
+        await execFileAsync(
+          "node",
+          [script, "clear-index", "--workspace", record.workspaceRoot ?? process.cwd()],
+          { timeout: 120_000 },
+        );
+      }
+    } else {
+      const parts = String(record.postuninstall).trim().split(/\s+/);
+      const cmd = parts[0];
+      const cmdArgs = parts.slice(1);
+      await execFileAsync(cmd, cmdArgs, {
+        cwd: record.workspaceRoot ?? process.cwd(),
+        env: {
+          ...process.env,
+          OPENWORK_DATA_DIR: dataDir,
+          OW_WORKSPACE_ROOT: record.workspaceRoot ?? process.cwd(),
+          OPENWORK_MONOREPO_ROOT: resolveMonorepoRoot(record.workspaceRoot ?? process.cwd()),
+        },
+        timeout: 120_000,
+      });
+    }
+  }
 
   for (const p of record.createdPaths ?? []) {
     await rm(p, { recursive: true, force: true });
