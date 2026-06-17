@@ -30,7 +30,7 @@ async function main() {
     assert.ok(res.addedMcp.includes("github-actions"), "应合并 github-actions mcp");
 
     // skills
-    for (const skill of ["generate-test-cases", "analyze-failure", "create-regression"]) {
+    for (const skill of ["generate-test-cases", "analyze-failure", "create-regression", "ui-test-assist"]) {
       const p = path.join(workspaceRoot, ".opencode", "skills", skill, "SKILL.md");
       assert.ok(existsSync(p), `技能应存在: ${skill}`);
     }
@@ -56,6 +56,14 @@ async function main() {
       assert.ok(existsSync(bin), "cli bin 应安装到 dataDir/bin");
       await access(bin);
     }
+
+    assert.ok(
+      existsSync(path.join(workspaceRoot, ".openwork", "bundle-ui.json")),
+      "bundle-ui.json 应存在",
+    );
+    const ui = JSON.parse(await readFile(path.join(workspaceRoot, ".openwork", "bundle-ui.json"), "utf8"));
+    assert.ok(ui.bundles.some((b) => b.id === "test-automation"));
+    assert.ok(ui.bundles.find((b) => b.id === "test-automation")?.routes?.includes("/plugins/test-automation"));
 
     // list
     const list = await listBundles({ dataDir });

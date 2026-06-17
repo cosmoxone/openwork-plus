@@ -7,7 +7,12 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { randomUUID } from "node:crypto";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { loadBundle } from "./schema.mjs";
+import { extractBundleZip } from "./zip.mjs";
+
+const execFileAsync = promisify(execFile);
 
 const INSTALLED_FILE = "installed-bundles.json";
 
@@ -121,6 +126,49 @@ async function writeInstalled(dataDir, state) {
   await atomicWrite(path.join(dataDir, INSTALLED_FILE), JSON.stringify(state, null, 2));
 }
 
+const WORKSPACE_UI_FILE = "bundle-ui.json";
+
+/** @param {string} workspaceRoot */
+function workspaceUiManifestPath(workspaceRoot) {
+  return path.join(workspaceRoot, ".openwork", WORKSPACE_UI_FILE);
+}
+
+/** @param {string} workspaceRoot */
+export async function readWorkspaceUiManifest(workspaceRoot) {
+  const file = workspaceUiManifestPath(workspaceRoot);
+  if (!existsSync(file)) return { schemaVersion: "1.0.0", bundles: [] };
+  try {
+    return JSON.parse(await readFile(file, "utf8"));
+  } catch {
+    return { schemaVersion: "1.0.0", bundles: [] };
+  }
+}
+
+/**
+ * 同步工作区 bundle UI 清单（供桌面端读取 ui.routes）。
+ * @param {string} workspaceRoot
+ * @param {{id:string,name?:string,version?:string,routes?:string[]}} entry
+ * @param {"add"|"remove"} op
+ */
+async function syncWorkspaceUiManifest(workspaceRoot, entry, op) {
+  const manifest = await readWorkspaceUiManifest(workspaceRoot);
+  const routes = entry.routes ?? [];
+  if (op === "add") {
+    manifest.bundles = (manifest.bundles ?? []).filter((b) => b.id !== entry.id);
+    if (routes.length > 0) {
+      manifest.bundles.push({
+        id: entry.id,
+        name: entry.name ?? entry.id,
+        version: entry.version ?? "0.0.0",
+        routes,
+      });
+    }
+  } else {
+    manifest.bundles = (manifest.bundles ?? []).filter((b) => b.id !== entry.id);
+  }
+  await atomicWrite(workspaceUiManifestPath(workspaceRoot), JSON.stringify(manifest, null, 2));
+}
+
 /**
  * 把 bundle 的 mcp.servers 合并进 opencode.json（可逆）。
  * @returns {Promise<string[]>} 实际新增的 server id 列表（供卸载移除）
@@ -167,16 +215,33 @@ async function unmergeMcp(workspaceRoot, ids) {
 
 /**
  * 安装 bundle。
- * @param {{bundleDir:string, workspaceRoot?:string, dataDir?:string, fromCodex?:boolean}} opts
+ * @param {{bundleDir:string, workspaceRoot?:string, dataDir?:string, fromCodex?:boolean, replace?:boolean}} opts
  */
 export async function installBundle(opts) {
   const workspaceRoot = resolveWorkspaceRoot(opts.workspaceRoot);
   const dataDir = resolveDataDir(opts.dataDir);
-  const { manifest, root } = await loadBundle(opts.bundleDir);
+
+  let bundleDir = opts.bundleDir;
+  /** @type {() => Promise<void>} */
+  let cleanup = async () => {};
+  if (bundleDir.toLowerCase().endsWith(".zip")) {
+    const extracted = await extractBundleZip(bundleDir);
+    bundleDir = extracted.dir;
+    cleanup = extracted.cleanup;
+  }
+
+  try {
+  const { manifest, root } = await loadBundle(bundleDir);
 
   const installed = await readInstalled(dataDir);
   if (installed.bundles.some((b) => b.id === manifest.id)) {
-    throw new Error(`bundle 已安装: ${manifest.id}（先 uninstall 再重装）`);
+    if (opts.replace) {
+      await uninstallBundle({ id: manifest.id, dataDir });
+      const refreshed = await readInstalled(dataDir);
+      installed.bundles = refreshed.bundles;
+    } else {
+      throw new Error(`bundle 已安装: ${manifest.id}（先 uninstall 或使用 replace）`);
+    }
   }
 
   // 依赖检查
@@ -186,6 +251,23 @@ export async function installBundle(opts) {
   );
   if (missing.length > 0) {
     throw new Error(`缺少依赖 bundle: ${missing.join(", ")}（请先安装）`);
+  }
+
+  /** 执行 preinstall（如沙箱初始化），失败则中止安装。 */
+  if (manifest.preinstall) {
+    const parts = manifest.preinstall.trim().split(/\s+/);
+    const cmd = parts[0];
+    const cmdArgs = parts.slice(1);
+    await execFileAsync(cmd, cmdArgs, {
+      cwd: root,
+      env: {
+        ...process.env,
+        OPENWORK_DATA_DIR: dataDir,
+        OW_WORKSPACE_ROOT: workspaceRoot,
+        OPENWORK_MONOREPO_ROOT: resolveMonorepoRoot(root),
+      },
+      timeout: 600_000,
+    });
   }
 
   /** @type {string[]} */
@@ -249,8 +331,16 @@ export async function installBundle(opts) {
     createdPaths,
     addedMcp,
     installedBins,
+    uiRoutes: manifest.ui?.routes ?? [],
   });
   await writeInstalled(dataDir, installed);
+
+  await syncWorkspaceUiManifest(workspaceRoot, {
+    id: manifest.id,
+    name: manifest.name,
+    version: manifest.version,
+    routes: manifest.ui?.routes ?? [],
+  }, "add");
 
   return {
     id: manifest.id,
@@ -260,6 +350,9 @@ export async function installBundle(opts) {
     installedBins,
     preinstall: manifest.preinstall ?? null,
   };
+  } finally {
+    await cleanup();
+  }
 }
 
 /** @param {{dataDir?:string}} [opts] */
@@ -286,6 +379,8 @@ export async function uninstallBundle(opts) {
     await rm(b, { force: true });
   }
   await unmergeMcp(record.workspaceRoot, record.addedMcp ?? []);
+
+  await syncWorkspaceUiManifest(record.workspaceRoot, { id: record.id }, "remove");
 
   installed.bundles = installed.bundles.filter((b) => b.id !== opts.id);
   await writeInstalled(dataDir, installed);
