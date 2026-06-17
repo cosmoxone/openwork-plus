@@ -1,0 +1,16 @@
+{
+  "name": "@openwork/knowledge-wiki",
+  "version": "0.1.0",
+  "description": "LLM Wiki 知识库：目录骨架、Corpus Scan、ingest 与 INDEX 维护",
+  "type": "module",
+  "bin": {
+    "knowledge-wiki": "bin/knowledge-wiki.mjs"
+  },
+  "main": "src/index.mjs",
+  "files": ["src", "bin", "templates"],
+  "scripts": {
+    "test": "node test/smoke.mjs"
+  },
+  "license": "MIT",
+  "keywords": ["openwork", "knowledge", "wiki", "llm-wiki", "corpus-scan"]
+}
