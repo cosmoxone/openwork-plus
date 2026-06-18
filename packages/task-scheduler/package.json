@@ -1,0 +1,20 @@
+{
+  "name": "@openwork/task-scheduler",
+  "version": "0.1.0",
+  "description": "SQLite 持久化定时任务调度（P3-2）：CRUD + cron + tick 触发",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": {
+    "openwork-schedule": "bin/openwork-schedule.mjs"
+  },
+  "files": ["src", "bin", "schema.sql", "README.md"],
+  "scripts": {
+    "test": "node test/smoke.mjs"
+  },
+  "dependencies": {
+    "cron-parser": "^5.0.0",
+    "sql.js": "^1.13.0"
+  },
+  "license": "MIT",
+  "keywords": ["openwork", "scheduler", "cron", "sqlite"]
+}
