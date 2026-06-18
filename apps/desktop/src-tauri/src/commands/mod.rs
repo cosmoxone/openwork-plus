@@ -1,6 +1,7 @@
 pub mod industry_bundle;
 pub mod knowledge;
 pub mod rpa;
+pub mod test_automation;
 pub mod command_files;
 pub mod config;
 pub mod desktop_bootstrap;

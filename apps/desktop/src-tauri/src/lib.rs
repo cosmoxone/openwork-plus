@@ -31,6 +31,7 @@ use commands::rpa::{
     rpa_capture_screenshot, rpa_list_operations, rpa_list_screenshots, rpa_set_automation_enabled,
     rpa_status,
 };
+use commands::test_automation::test_automation_read_dashboard;
 use commands::command_files::{
     opencode_command_delete, opencode_command_list, opencode_command_write,
 };
@@ -257,6 +258,7 @@ pub fn run() {
             knowledge_watch_config_get,
             knowledge_watch_config_set,
             knowledge_export_snapshot,
+            test_automation_read_dashboard,
             set_window_decorations
         ])
         .build(tauri::generate_context!())
