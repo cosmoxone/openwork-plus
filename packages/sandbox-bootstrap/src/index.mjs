@@ -159,6 +159,7 @@ export async function bootstrap(opts = {}) {
 }
 
 export { checkWSLStatus, installNodeInWSL } from "./wsl-init.mjs";
+export { execInWSL } from "./wsl-exec.mjs";
 export { checkLimaStatus, ensureLimaInstance } from "./lima-init.mjs";
 export { isPathAllowed } from "./path-guard.mjs";
 export { runNativeCommand } from "./native-executor.mjs";

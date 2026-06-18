@@ -1,6 +1,7 @@
 /** 场景 E：RPA / UI 自动化控制面板 */
 import { createSignal } from "solid-js";
 import AutoControl from "./auto-control";
+import PermissionGuide from "./permission-guide";
 import RecordingList from "./recording-list";
 import ScreenshotViewer from "./screenshot-viewer";
 
@@ -22,6 +23,8 @@ export default function RpaPage() {
       </div>
 
       <AutoControl onChange={bump} />
+
+      <PermissionGuide />
 
       <ScreenshotViewer refreshToken={refreshToken()} onCaptured={bump} />
 
