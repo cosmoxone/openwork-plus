@@ -29,6 +29,7 @@
     "test:local-file-path": "node scripts/local-file-path.mjs",
     "test:browser-entry": "node scripts/browser-entry.mjs",
     "test:analyze-failure-session": "node scripts/analyze-failure-session.mjs",
+    "test:gui-screenshot-session": "node scripts/gui-screenshot-session.mjs",
     "test:e2e": "pnpm test:local-file-path && node scripts/e2e.mjs && node scripts/session-switch.mjs && node scripts/fs-engine.mjs && node scripts/browser-entry.mjs",
     "test:bundles:e2e": "playwright test --config playwright.config.ts",
     "bump:patch": "node scripts/bump-version.mjs patch",
