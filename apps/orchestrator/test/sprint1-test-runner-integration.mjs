@@ -12,6 +12,19 @@ const monorepoRoot = path.join(here, "..", "..", "..");
 const fixture = path.join(monorepoRoot, "bundles", "test-automation", "fixtures", "sample-jest-project");
 const testRunnerDir = path.join(monorepoRoot, "packages", "test-runner");
 
+/** @param {string} stdout test-runner 输出（可能为多行缩进 JSON） */
+function parseTestRunnerJson(stdout) {
+  const trimmed = stdout.trim();
+  if (!trimmed) {
+    throw new Error("test-runner stdout 为空");
+  }
+  const start = trimmed.indexOf("{");
+  if (start < 0) {
+    throw new Error(`stdout 中无 JSON 对象: ${trimmed.slice(0, 120)}`);
+  }
+  return JSON.parse(trimmed.slice(start));
+}
+
 function runGo(args, cwd) {
   return new Promise((resolve, reject) => {
     const child = spawn("go", args, { cwd, shell: true, stdio: ["ignore", "pipe", "pipe"] });
@@ -62,14 +75,22 @@ async function main() {
   }
 
   if (run.code !== 0) {
-    if (/jest|npm|cannot find module|ENOENT/i.test(run.stderr + run.stdout)) {
+    const combined = run.stderr + run.stdout;
+    if (/jest|npm|cannot find module|ENOENT/i.test(combined)) {
       console.log("SKIP: fixture 需 npm install / jest —", run.stderr.slice(0, 200));
       return;
     }
-    throw new Error(run.stderr || run.stdout);
+    try {
+      const errJson = parseTestRunnerJson(run.stderr || run.stdout);
+      throw new Error(errJson.error ?? JSON.stringify(errJson));
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        throw new Error(run.stderr || run.stdout);
+      }
+      throw e;
+    }
   }
-  const jsonLine = run.stdout.trim().split("\n").pop();
-  const result = JSON.parse(jsonLine ?? "{}");
+  const result = parseTestRunnerJson(run.stdout);
   assert.ok(typeof result.passed === "number");
   assert.ok(result.recordedId, "应写入 test-results.json");
 
