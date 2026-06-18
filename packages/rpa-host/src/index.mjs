@@ -122,6 +122,27 @@ export function listOperationHistory(dataDir, limit = 50) {
 }
 
 /** @param {string} dataDir @param {number} [limit] */
+export function listGuiOperationNdjson(dataDir, limit = 50) {
+  const file = path.join(resolveDataDir(dataDir), "logs", "gui-operate", "operations.ndjson");
+  if (!fs.existsSync(file)) return [];
+  const lines = fs
+    .readFileSync(file, "utf8")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  /** @type {Array<Record<string, unknown>>} */
+  const rows = [];
+  for (const line of lines.slice(-limit)) {
+    try {
+      rows.push(JSON.parse(line));
+    } catch {
+      /* skip corrupt line */
+    }
+  }
+  return rows.reverse();
+}
+
+/** @param {string} dataDir @param {number} [limit] */
 export function listMcpLogs(dataDir, limit = 10) {
   const logsDir = path.join(resolveDataDir(dataDir), "logs");
   if (!fs.existsSync(logsDir)) return [];

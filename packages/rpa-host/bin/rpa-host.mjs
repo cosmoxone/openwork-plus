@@ -2,6 +2,7 @@
 import {
   captureScreenshot,
   getRpaStatus,
+  listGuiOperationNdjson,
   listMcpLogs,
   listOperationHistory,
   listScreenshots,
@@ -29,6 +30,8 @@ try {
     out(listScreenshots(dataDir));
   } else if (cmd === "history") {
     out(listOperationHistory(dataDir));
+  } else if (cmd === "ndjson") {
+    out(listGuiOperationNdjson(dataDir));
   } else if (cmd === "logs") {
     out(listMcpLogs(dataDir));
   } else if (cmd === "capture") {
@@ -42,7 +45,7 @@ try {
       out(setAutomationEnabled(dataDir, enabledArg === "true" || enabledArg === "1"));
     }
   } else {
-    console.error("用法: rpa-host <status|screenshots|history|logs|capture|automation> [--json] [--data-dir <dir>]");
+    console.error("用法: rpa-host <status|screenshots|history|ndjson|logs|capture|automation> [--json] [--data-dir <dir>]");
     process.exit(1);
   }
 } catch (error) {

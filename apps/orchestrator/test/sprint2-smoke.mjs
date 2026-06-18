@@ -42,7 +42,7 @@ async function main() {
     assert.ok(rag.command.some((p) => String(p).includes("sqlite-vec-mcp")), "sqlite-vec-rag 应指向 vendored MCP");
     assert.ok(rag.command.some((p) => String(p).includes("bundles")), "应使用 BUNDLE_ROOT 持久化 vendor");
     assert.equal(
-      path.normalize(rag.args[rag.args.length - 1]),
+      path.normalize(rag.command[rag.command.length - 1]),
       path.normalize(knowledgeDbPath(workspaceRoot)),
     );
 

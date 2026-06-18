@@ -24,6 +24,7 @@ const RPA_HTTP_ROUTES = {
   "GET /api/rpa/status": "rpa/status",
   "GET /api/rpa/screenshots": "rpa/screenshots/list",
   "GET /api/rpa/history": "rpa/history/list",
+  "GET /api/rpa/ndjson": "rpa/ndjson/list",
   "GET /api/rpa/logs": "rpa/logs/list",
   "POST /api/rpa/capture": "rpa/screenshot/capture",
   "POST /api/rpa/automation": "rpa/automation/set",

@@ -21,6 +21,11 @@ try {
   const shots = await fetch(`${base}/api/rpa/screenshots?dataDir=${encodeURIComponent(dataDir)}`);
   assert.equal(shots.status, 200);
 
+  const ndjson = await fetch(`${base}/api/rpa/ndjson?dataDir=${encodeURIComponent(dataDir)}`);
+  assert.equal(ndjson.status, 200);
+  const ndBody = await ndjson.json();
+  assert.ok(Array.isArray(ndBody.result));
+
   server.close();
   console.log("PASS: RPA HTTP routes");
 } finally {

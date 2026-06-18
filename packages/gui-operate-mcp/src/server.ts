@@ -20,6 +20,7 @@
 
 // Bootstrap logging - log as early as possible
 import { writeMCPLog } from './logger.js';
+import { appendGuiOperationLog } from './operation-ndjson.js';
 writeMCPLog('=== Module Loading Started ===', 'Bootstrap');
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -627,6 +628,18 @@ async function saveLatestClickToHistory(
 
     // Write back to disk
     await fs.writeFile(filePath, JSON.stringify(existingHistory, null, 2), 'utf-8');
+
+    await appendGuiOperationLog({
+      ts: new Date().toISOString(),
+      tool: 'gui-operate',
+      appName: currentAppName,
+      operation: latestClick.operation,
+      x: latestClick.x,
+      y: latestClick.y,
+      xNormalized: x_normalized,
+      yNormalized: y_normalized,
+      displayIndex: latestClick.displayIndex,
+    });
 
     writeMCPLog(
       `[ClickHistory] Saved latest click for app "${currentAppName}" to ${filePath}`,
@@ -6632,6 +6645,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           safeOutputPath = resolved;
         }
         result = await takeScreenshot(safeOutputPath, display_index, region);
+        await appendGuiOperationLog({
+          ts: new Date().toISOString(),
+          tool: 'screenshot',
+          appName: currentAppName ?? undefined,
+          operation: 'screenshot',
+          displayIndex: display_index,
+          meta: { outputPath: safeOutputPath, region },
+        });
         break;
       }
 

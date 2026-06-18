@@ -239,6 +239,26 @@ fn list_operation_entries(data_dir: &Path, limit: usize) -> Result<Vec<Operation
     Ok(rows)
 }
 
+fn list_gui_operation_ndjson(data_dir: &Path, limit: usize) -> Result<Vec<serde_json::Value>, String> {
+    let file = data_dir.join("logs").join("gui-operate").join("operations.ndjson");
+    if !file.exists() {
+        return Ok(Vec::new());
+    }
+    let raw = fs::read_to_string(&file).map_err(|e| e.to_string())?;
+    let mut rows = Vec::new();
+    for line in raw.lines().map(str::trim).filter(|l| !l.is_empty()) {
+        match serde_json::from_str::<serde_json::Value>(line) {
+            Ok(v) => rows.push(v),
+            Err(_) => continue,
+        }
+    }
+    if rows.len() > limit {
+        rows = rows.split_off(rows.len() - limit);
+    }
+    rows.reverse();
+    Ok(rows)
+}
+
 fn rpa_host_script_path() -> Option<PathBuf> {
     if let Ok(root) = env::var("OPENWORK_MONOREPO_ROOT") {
         let trimmed = root.trim();
@@ -280,6 +300,11 @@ pub fn rpa_list_screenshots() -> Result<Vec<ScreenshotEntry>, String> {
 #[tauri::command]
 pub fn rpa_list_operations() -> Result<Vec<OperationEntry>, String> {
     list_operation_entries(&resolve_openwork_data_dir(), 50)
+}
+
+#[tauri::command]
+pub fn rpa_list_gui_operation_logs() -> Result<Vec<serde_json::Value>, String> {
+    list_gui_operation_ndjson(&resolve_openwork_data_dir(), 50)
 }
 
 #[tauri::command]

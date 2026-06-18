@@ -4,6 +4,7 @@
 import {
   captureScreenshot,
   getRpaStatus,
+  listGuiOperationNdjson,
   listMcpLogs,
   listOperationHistory,
   listScreenshots,
@@ -17,6 +18,8 @@ export const RPA_HANDLERS = {
     listScreenshots(params?.dataDir, params?.limit ?? 20),
   "rpa/history/list": async (params) =>
     listOperationHistory(params?.dataDir, params?.limit ?? 50),
+  "rpa/ndjson/list": async (params) =>
+    listGuiOperationNdjson(params?.dataDir, params?.limit ?? 50),
   "rpa/logs/list": async (params) => listMcpLogs(params?.dataDir, params?.limit ?? 10),
   "rpa/screenshot/capture": async (params) =>
     captureScreenshot({

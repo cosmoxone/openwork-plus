@@ -68,6 +68,26 @@ export async function fetchScreenshots(): Promise<ScreenshotEntry[]> {
   return httpGet<ScreenshotEntry[]>("/api/rpa/screenshots");
 }
 
+export type GuiOperationLogEntry = {
+  ts: string;
+  tool: string;
+  appName?: string;
+  operation?: string;
+  x?: number;
+  y?: number;
+  xNormalized?: number;
+  yNormalized?: number;
+  displayIndex?: number;
+  meta?: Record<string, unknown>;
+};
+
+export async function fetchGuiOperationLogs(): Promise<GuiOperationLogEntry[]> {
+  if (isTauriRuntime()) {
+    return invoke<GuiOperationLogEntry[]>("rpa_list_gui_operation_logs");
+  }
+  return httpGet<GuiOperationLogEntry[]>("/api/rpa/ndjson");
+}
+
 export async function fetchOperationHistory(): Promise<OperationEntry[]> {
   if (isTauriRuntime()) {
     return invoke<OperationEntry[]>("rpa_list_operations");

@@ -28,8 +28,8 @@ use commands::knowledge::{
     knowledge_watch_poll,
 };
 use commands::rpa::{
-    rpa_capture_screenshot, rpa_list_operations, rpa_list_screenshots, rpa_set_automation_enabled,
-    rpa_status,
+    rpa_capture_screenshot, rpa_list_gui_operation_logs, rpa_list_operations, rpa_list_screenshots,
+    rpa_set_automation_enabled, rpa_status,
 };
 use commands::test_automation::test_automation_read_dashboard;
 use commands::command_files::{
@@ -234,6 +234,7 @@ pub fn run() {
             rpa_status,
             rpa_list_screenshots,
             rpa_list_operations,
+            rpa_list_gui_operation_logs,
             rpa_capture_screenshot,
             rpa_set_automation_enabled,
             industry_bundle_list_catalog,
