@@ -6,6 +6,11 @@ import path from "node:path";
  * @param {string} dataDir
  */
 async function executeTaskAction(task, dataDir) {
+  if (task.actionKind === "scheduled_test") {
+    const { executeScheduledTest } = await import("./actions/scheduled-test.mjs");
+    return executeScheduledTest(task, dataDir);
+  }
+
   if (task.actionKind === "test_db_record") {
     const dbPath =
       (task.actionPayload?.dbPath && String(task.actionPayload.dbPath)) ||

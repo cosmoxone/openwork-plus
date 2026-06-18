@@ -58,6 +58,10 @@ export class TestDb {
       cases: run.cases ?? [],
       coverage: run.coverage ?? null,
     };
+    if (run.trigger) row.trigger = run.trigger;
+    if (run.taskId) row.taskId = run.taskId;
+    if (run.sandbox_id) row.sandbox_id = run.sandbox_id;
+    if (run.title) row.title = run.title;
     this.data.runs.push(row);
     await this.flush();
     return row;

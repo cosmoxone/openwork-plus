@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { TaskSchedulerStore, tickScheduler, resolveDataDir } from "../src/index.mjs";
+import { TaskSchedulerStore, tickScheduler, resolveDataDir, getTestSummary } from "../src/index.mjs";
 
 const args = process.argv.slice(2);
 const json = args.includes("--json");
@@ -25,7 +25,9 @@ try {
     const title = arg("--title");
     const cron = arg("--cron");
     if (!title || !cron) {
-      console.error("用法: openwork-schedule add --title <t> --cron <expr> [--prompt p] [--cwd dir] [--action log|test_db_record|shell]");
+      console.error(
+        "用法: openwork-schedule add --title <t> --cron <expr> [--prompt p] [--cwd dir] [--action log|test_db_record|shell|scheduled_test]",
+      );
       process.exit(1);
     }
     const actionKind = arg("--action") ?? "log";
@@ -35,6 +37,14 @@ try {
       actionPayload = { dbPath: arg("--db") };
     } else if (actionKind === "shell") {
       actionPayload = { command: arg("--command") ?? "echo ok" };
+    } else if (actionKind === "scheduled_test") {
+      actionPayload = {
+        dbPath: arg("--db"),
+        outputJson: arg("--output-json"),
+        sandbox_id: arg("--sandbox-id"),
+        command: arg("--command"),
+        framework: arg("--framework"),
+      };
     }
     out(
       await store.add({
@@ -69,13 +79,22 @@ try {
       process.exit(1);
     }
     out(await store.listRuns(id));
+  } else if (cmd === "summary") {
+    const dbPath = arg("--db") ?? undefined;
+    out(
+      await getTestSummary(dbPath, {
+        trendDays: arg("--days") ? Number(arg("--days")) : undefined,
+        failureHours: arg("--since-hours") ? Number(arg("--since-hours")) : undefined,
+      }),
+    );
   } else {
     console.error(`用法:
-  openwork-schedule add --title <t> --cron <expr> [--prompt p] [--action log|test_db_record|shell]
+  openwork-schedule add --title <t> --cron <expr> [--prompt p] [--action log|test_db_record|shell|scheduled_test]
   openwork-schedule list [--json]
   openwork-schedule remove --id <uuid>
   openwork-schedule tick [--json]
   openwork-schedule runs --id <uuid> [--json]
+  openwork-schedule summary [--db <path>] [--days 7] [--since-hours 24] [--json]
   [--data-dir <dir>]`);
     process.exit(1);
   }

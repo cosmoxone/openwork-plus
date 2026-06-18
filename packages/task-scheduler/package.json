@@ -1,7 +1,7 @@
 {
   "name": "@openwork/task-scheduler",
   "version": "0.1.0",
-  "description": "SQLite 持久化定时任务调度（P3-2）：CRUD + cron + tick 触发",
+  "description": "SQLite 持久化定时任务调度（P3-2/P3-3）：CRUD + cron + tick + WSL test_db 闭环",
   "type": "module",
   "main": "src/index.mjs",
   "bin": {
@@ -9,7 +9,7 @@
   },
   "files": ["src", "bin", "schema.sql", "README.md"],
   "scripts": {
-    "test": "node test/smoke.mjs"
+    "test": "node test/smoke.mjs && node test/p3-3-smoke.mjs"
   },
   "dependencies": {
     "cron-parser": "^5.0.0",
