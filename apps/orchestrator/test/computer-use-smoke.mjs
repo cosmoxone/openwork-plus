@@ -43,7 +43,7 @@ async function main() {
 
     const cfg = JSON.parse(await readFile(path.join(workspaceRoot, "opencode.json"), "utf8"));
     const gui = cfg.mcp["gui-operate"];
-    assert.ok(gui.args[0].includes("gui-operate-mcp"), "应指向 gui-operate-mcp");
+    assert.ok(gui.command.some((p) => String(p).includes("gui-operate-mcp")), "应指向 gui-operate-mcp");
 
     const uiManifest = JSON.parse(
       await readFile(path.join(workspaceRoot, ".openwork", "bundle-ui.json"), "utf8"),

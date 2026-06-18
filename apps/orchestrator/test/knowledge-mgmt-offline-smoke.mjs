@@ -49,9 +49,12 @@ async function main() {
 
     const cfg = JSON.parse(await readFile(path.join(workspaceRoot, "opencode.json"), "utf8"));
     const rag = cfg.mcp["sqlite-vec-rag"];
-    assert.ok(rag.args[0].includes("bundles"), "MCP 应指向 dataDir/bundles vendor");
-    assert.ok(rag.args[0].includes("sqlite-vec-mcp"), "MCP 应使用 vendored sqlite-vec-mcp");
-    assert.equal(path.normalize(rag.args[rag.args.length - 1]), path.normalize(knowledgeDbPath(workspaceRoot)));
+    assert.ok(rag.command.some((p) => String(p).includes("bundles")), "MCP 应指向 dataDir/bundles vendor");
+    assert.ok(rag.command.some((p) => String(p).includes("sqlite-vec-mcp")), "MCP 应使用 vendored sqlite-vec-mcp");
+    assert.equal(
+      path.normalize(String(rag.command[rag.command.length - 1])),
+      path.normalize(knowledgeDbPath(workspaceRoot)),
+    );
 
     const db = new KnowledgeDb(knowledgeDbPath(workspaceRoot));
     await db.indexDocument({

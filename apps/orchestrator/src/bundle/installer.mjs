@@ -74,6 +74,28 @@ function expandMcpValue(value, ctx) {
     .replaceAll("${BUNDLE_ROOT}", ctx.bundleRoot);
 }
 
+/** 将 bundle 清单中的 command/args/env 转为 OpenCode 1.4+ 的 local MCP 形态。 */
+function normalizeMcpServerConfig(cfg) {
+  if (cfg.type === "local" && Array.isArray(cfg.command)) {
+    if (cfg.env && !cfg.environment) {
+      const { env, ...rest } = cfg;
+      return { ...rest, environment: env };
+    }
+    return cfg;
+  }
+
+  /** @type {Record<string, unknown>} */
+  const next = { type: "local" };
+  const cmd = typeof cfg.command === "string" ? cfg.command : "";
+  const args = Array.isArray(cfg.args) ? cfg.args : [];
+  next.command = cmd ? [cmd, ...args] : args;
+  if (cfg.env && typeof cfg.env === "object") next.environment = cfg.env;
+  if (typeof cfg.cwd === "string") next.cwd = cfg.cwd;
+  if (typeof cfg.enabled === "boolean") next.enabled = cfg.enabled;
+  if (typeof cfg.timeout === "number") next.timeout = cfg.timeout;
+  return next;
+}
+
 /** @param {Record<string,any>} servers @param {{workspaceRoot:string,home:string,monorepoRoot:string,bundleRoot:string}} ctx */
 function expandMcpServers(servers, ctx) {
   /** @type {Record<string,any>} */
@@ -93,7 +115,8 @@ function expandMcpServers(servers, ctx) {
       }
       next.env = env;
     }
-    out[id] = next;
+    if (typeof next.cwd === "string") next.cwd = expandMcpValue(next.cwd, ctx);
+    out[id] = normalizeMcpServerConfig(next);
   }
   return out;
 }

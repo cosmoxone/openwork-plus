@@ -44,9 +44,9 @@ async function main() {
     // opencode.json mcp 展开
     const cfg = JSON.parse(await readFile(path.join(workspaceRoot, "opencode.json"), "utf8"));
     const testDb = cfg.mcp["test-db"];
-    assert.ok(testDb.args[0].includes("test-db-mcp"), "test-db 应指向 monorepo 包");
+    assert.ok(testDb.command[1]?.includes("test-db-mcp"), "test-db 应指向 monorepo 包");
     assert.equal(
-      path.normalize(testDb.env.OPENWORK_TEST_DB),
+      path.normalize(testDb.environment.OPENWORK_TEST_DB),
       path.normalize(path.join(workspaceRoot, ".openwork", "test-results.json")),
     );
 

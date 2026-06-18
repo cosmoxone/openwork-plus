@@ -25,6 +25,12 @@ export function makeClient({ baseUrl, directory }) {
   });
 }
 
+export function resolveOpencodeCommand() {
+  const override = process.env.OPENCODE_BIN?.trim();
+  if (override) return override;
+  return "opencode";
+}
+
 export async function findFreePort() {
   const server = net.createServer();
   server.unref();
@@ -57,7 +63,7 @@ export async function spawnOpencodeServe({
     args.push("--cors", origin);
   }
 
-  const child = spawn("opencode", args, {
+  const child = spawn(resolveOpencodeCommand(), args, {
     cwd,
     stdio: ["ignore", "ignore", "pipe"],
     env: {
