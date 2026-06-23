@@ -1,7 +1,8 @@
 // 将 monorepo packages 注入 bundle vendor（Hub zip 离线运行）。
 import path from "node:path";
-import { cp, mkdir, rm } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { copyTreeDeref } from "./copy-tree-deref.mjs";
 
 /** @param {string} bundleRoot bundles/knowledge-mgmt */
 export function monorepoRootFromBundle(bundleRoot) {
@@ -16,11 +17,7 @@ export async function stageKnowledgeMgmtVendor(vendorRoot, repoRoot) {
   await rm(vendorRoot, { recursive: true, force: true });
   await mkdir(vendorRoot, { recursive: true });
 
-  const copyTree = async (src, dest) => {
-    if (!existsSync(src)) return;
-    await mkdir(path.dirname(dest), { recursive: true });
-    await cp(src, dest, { recursive: true });
-  };
+  const copyTree = copyTreeDeref;
 
   const sqliteSrc = path.join(repoRoot, "packages", "sqlite-vec-mcp");
   const sqliteDest = path.join(vendorRoot, "sqlite-vec-mcp");
@@ -59,14 +56,14 @@ export async function stageBundleRuntime(bundleExtractRoot, dataDir, manifest, r
 
   const vendorSrc = path.join(bundleExtractRoot, "vendor");
   if (existsSync(vendorSrc)) {
-    await cp(vendorSrc, path.join(dest, "vendor"), { recursive: true });
+    await copyTreeDeref(vendorSrc, path.join(dest, "vendor"));
   } else if (manifest.id === "knowledge-mgmt") {
     await stageKnowledgeMgmtVendor(path.join(dest, "vendor"), repoRoot);
   }
 
   const scriptsSrc = path.join(bundleExtractRoot, "scripts");
   if (existsSync(scriptsSrc)) {
-    await cp(scriptsSrc, path.join(dest, "scripts"), { recursive: true });
+    await copyTreeDeref(scriptsSrc, path.join(dest, "scripts"));
   }
 
   return dest;
