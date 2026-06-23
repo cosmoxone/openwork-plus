@@ -319,7 +319,7 @@ export const TOY_UI_HTML = `<!doctype html>
       <div class="top">
         <div class="title">
           <h1>OpenWork Toy UI</h1>
-          <div class="sub">Local-first host contract harness (served by openwork-server)</div>
+          <div class="sub">Local-first host contract harness (served by openwork-plus-server)</div>
         </div>
         <div class="row">
           <span class="pill" id="pill-conn">disconnected</span>

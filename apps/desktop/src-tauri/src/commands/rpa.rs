@@ -41,7 +41,7 @@ pub struct OperationEntry {
     pub count: i64,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CaptureResult {
     pub path: String,
@@ -57,10 +57,10 @@ struct BootstrapState {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct AutomationState {
-    enabled: Option<bool>,
-    #[serde(rename = "updatedAt")]
-    updated_at: Option<String>,
+#[serde(rename_all = "camelCase")]
+pub struct AutomationState {
+    pub enabled: Option<bool>,
+    pub updated_at: Option<String>,
 }
 
 fn unix_iso_now() -> String {

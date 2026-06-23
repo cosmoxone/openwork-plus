@@ -28,7 +28,7 @@ function runGenerate() {
     activeChild = null;
 
     if (code && code !== 0) {
-      process.stderr.write(`[openwork-server-v2] OpenAPI generation failed with exit code ${code}.\n`);
+      process.stderr.write(`[openwork-plus-server-v2] OpenAPI generation failed with exit code ${code}.\n`);
     }
 
     if (queued) {

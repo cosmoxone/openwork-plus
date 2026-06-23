@@ -32,7 +32,7 @@ async function sha256(filePath: string) {
 }
 
 async function createFakeBinary(kind: "opencode" | "router", mode: string, exitAfterMs?: number) {
-  const wrapperDir = makeTempDir(`openwork-server-v2-${kind}`);
+  const wrapperDir = makeTempDir(`openwork-plus-server-v2-${kind}`);
   const binaryPath = path.join(wrapperDir, kind === "opencode" ? "opencode" : "opencode-router");
   const fixturePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "test-fixtures", "fake-runtime.ts");
   const script = [
@@ -118,7 +118,7 @@ async function createFakeAssetService(opencodePath: string, routerPath: string) 
 }
 
 function createPersistence() {
-  const workingDirectory = makeTempDir("openwork-server-v2-runtime-service");
+  const workingDirectory = makeTempDir("openwork-plus-server-v2-runtime-service");
   return createServerPersistence({
     environment: "test",
     localServer: {

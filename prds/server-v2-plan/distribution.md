@@ -10,7 +10,7 @@ This document defines the preferred distribution model for the new OpenWork serv
 It covers:
 
 - how the new server should be built
-- how `opencode` and `opencode-router` should be packaged
+- how `opencode` and `openwork-plus-opencode-router` should be packaged
 - how the desktop app should bundle the server
 - how standalone server users should install and run it
 
@@ -35,7 +35,7 @@ Recommended implementation/runtime choice:
 Recommended packaging choice:
 
 - one compiled server executable per target platform
-- embed `opencode` and `opencode-router` into that executable
+- embed `opencode` and `openwork-plus-opencode-router` into that executable
 - extract those sidecars into a managed runtime directory on first run
 - launch them from there
 
@@ -63,19 +63,19 @@ That means the new server can likely:
 
 Per platform, the canonical runtime should be:
 
-- `openwork-server-v2`
+- `openwork-plus-server-v2`
   - compiled Bun executable
   - embedded `opencode`
-  - embedded `opencode-router`
+  - embedded `openwork-plus-opencode-router`
   - embedded release/runtime manifest
 
 One artifact per platform, for example:
 
-- `openwork-server-v2-darwin-arm64`
-- `openwork-server-v2-darwin-x64`
-- `openwork-server-v2-linux-x64`
-- `openwork-server-v2-linux-arm64`
-- `openwork-server-v2-windows-x64.exe`
+- `openwork-plus-server-v2-darwin-arm64`
+- `openwork-plus-server-v2-darwin-x64`
+- `openwork-plus-server-v2-linux-x64`
+- `openwork-plus-server-v2-linux-arm64`
+- `openwork-plus-server-v2-windows-x64.exe`
 
 ## Desktop Distribution
 
@@ -83,15 +83,15 @@ Desktop users download the desktop app.
 
 The desktop app should:
 
-- ship with the matching `openwork-server-v2` runtime embedded or bundled as an app resource
+- ship with the matching `openwork-plus-server-v2` runtime embedded or bundled as an app resource
 - launch only that server
-- never directly launch `opencode` or `opencode-router`
+- never directly launch `opencode` or `openwork-plus-opencode-router`
 
 At runtime:
 
-1. Desktop app launches `openwork-server-v2`.
-2. `openwork-server-v2` checks its managed runtime directory.
-3. If needed, it extracts embedded `opencode` and `opencode-router`.
+1. Desktop app launches `openwork-plus-server-v2`.
+2. `openwork-plus-server-v2` checks its managed runtime directory.
+3. If needed, it extracts embedded `opencode` and `openwork-plus-opencode-router`.
 4. It starts and supervises those sidecars itself.
 5. Desktop app talks only to the server over port + token.
 
@@ -103,7 +103,7 @@ For them, we should publish the same canonical runtime as a standalone download.
 
 That means:
 
-- standalone users download `openwork-server-v2` for their platform
+- standalone users download `openwork-plus-server-v2` for their platform
 - they run it directly
 - it performs the same sidecar extraction and supervision the desktop-bundled copy would do
 
@@ -120,7 +120,7 @@ Current implementation note:
 
 - Phase 10 now treats the managed app-data runtime directory as the canonical release runtime location.
 - The release runtime is populated on first run from a bundled runtime source directory (for example the desktop resource sidecar directory or an executable-adjacent bundle with `manifest.json`) and is then reused across later runs.
-- `apps/server-v2/script/build.ts` now also supports `--embed-runtime`, which generates a temporary build entrypoint that embeds `opencode`, `opencode-router`, and `manifest.json` directly into the compiled Server V2 binary via Bun `with { type: "file" }` imports.
+- `apps/server-v2/script/build.ts` now also supports `--embed-runtime`, which generates a temporary build entrypoint that embeds `opencode`, `openwork-plus-opencode-router`, and `manifest.json` directly into the compiled Server V2 binary via Bun `with { type: "file" }` imports.
 - Extraction now uses a lock, temp directory, atomic replace, lease file, and conservative cleanup of stale runtime directories.
 - The standalone embedded artifact can now boot without an adjacent sidecar bundle: when no filesystem bundle is present, Server V2 falls back to the embedded runtime payload and extracts from there.
 
@@ -145,7 +145,7 @@ Example contents:
 <app-data>/runtime/server-v2/0.1.0/
   manifest.json
   opencode
-  opencode-router
+  openwork-plus-opencode-router
 ```
 
 ## Why Persistent Runtime Dir Instead Of Temp
@@ -165,7 +165,7 @@ Reasons:
 Recommended build flow:
 
 1. Build or collect the platform-specific `opencode` binary.
-2. Build or collect the platform-specific `opencode-router` binary.
+2. Build or collect the platform-specific `openwork-plus-opencode-router` binary.
 3. Generate a runtime manifest containing:
    - server version
    - OpenCode version
@@ -178,7 +178,7 @@ Recommended build flow:
 Illustrative Bun compile command:
 
 ```bash
-bun build --compile --minify --bytecode --target=bun-darwin-arm64 ./src/cli.ts --outfile dist/openwork-server-v2
+bun build --compile --minify --bytecode --target=bun-darwin-arm64 ./src/cli.ts --outfile dist/openwork-plus-server-v2
 ```
 
 The exact build script will likely be JS-driven rather than a one-liner so it can:
@@ -190,9 +190,9 @@ The exact build script will likely be JS-driven rather than a one-liner so it ca
 
 Current implementation note:
 
-- `pnpm --filter openwork-server-v2 build:bin` builds the plain compiled executable.
-- `pnpm --filter openwork-server-v2 build:bin:embedded --bundle-dir <runtime-bundle-dir>` builds the compiled executable with embedded runtime assets from a prepared bundle directory.
-- `pnpm --filter openwork-server-v2 build:bin:embedded:all` drives the same embedding flow across the supported Bun targets when target-specific runtime bundle files are staged.
+- `pnpm --filter openwork-plus-server-v2 build:bin` builds the plain compiled executable.
+- `pnpm --filter openwork-plus-server-v2 build:bin:embedded --bundle-dir <runtime-bundle-dir>` builds the compiled executable with embedded runtime assets from a prepared bundle directory.
+- `pnpm --filter openwork-plus-server-v2 build:bin:embedded:all` drives the same embedding flow across the supported Bun targets when target-specific runtime bundle files are staged.
 - The build script resolves target-specific asset filenames like `opencode-<triple>` and `manifest.json-<triple>` when cross-target bundles are staged.
 
 ## Bun Embedding Model
@@ -255,13 +255,13 @@ Recommended runtime manifest shape:
 
 ### Desktop release
 
-- desktop app contains the matching `openwork-server-v2` runtime
+- desktop app contains the matching `openwork-plus-server-v2` runtime
 - user launches app
 - app launches server
 
 ### Standalone server release
 
-- user downloads `openwork-server-v2` for their platform
+- user downloads `openwork-plus-server-v2` for their platform
 - user launches server directly
 - server self-extracts sidecars and runs normally
 
@@ -274,7 +274,7 @@ Local development should preserve the same ownership model as production without
 Recommended dev behavior:
 
 - run `apps/server-v2` directly with Bun in watch mode
-- keep `opencode-router` as a locally built workspace binary from `apps/opencode-router`
+- keep `openwork-plus-opencode-router` as a locally built workspace binary from `apps/openwork-plus-opencode-router`
 - acquire `opencode` as a pinned release artifact rather than committing the binary into git
 - stage both binaries into a gitignored local runtime-assets directory
 - have Server V2 launch those staged binaries by absolute path
@@ -318,17 +318,17 @@ Illustrative shape:
     darwin-arm64/
       v1.2.27/
         opencode
-  opencode-router/
+  openwork-plus-opencode-router/
     darwin-arm64/
       dev/
-        opencode-router
+        openwork-plus-opencode-router
 ```
 
 Notes:
 
 - this directory should be gitignored
 - exact path names can change, but the shape should be versioned and platform-specific
-- `opencode-router` can use a `dev` slot because it is built from the local workspace during development
+- `openwork-plus-opencode-router` can use a `dev` slot because it is built from the local workspace during development
 - `opencode` should use the pinned version from `constants.json`
 
 ### Recommended dev acquisition flow
@@ -339,14 +339,14 @@ Notes:
 4. If not, download the matching OpenCode release artifact.
 5. Verify checksum if the release metadata supports it.
 6. Mark executable bits where needed.
-7. Build `apps/opencode-router` locally and place its binary in the staged dev runtime location.
+7. Build `apps/openwork-plus-opencode-router` locally and place its binary in the staged dev runtime location.
 8. Start Server V2 and pass those absolute binary paths into runtime startup.
 
 ### Dev vs release relationship
 
 The difference between dev and release should be only where the sidecar payloads come from:
 
-- release: sidecars are embedded into `openwork-server-v2` and extracted on first run
+- release: sidecars are embedded into `openwork-plus-server-v2` and extracted on first run
 - local dev: sidecars are staged into a gitignored local runtime-assets directory first
 
 The runtime ownership model should stay the same in both cases:
@@ -364,13 +364,13 @@ Current behavior is closer to:
 - desktop app bundles or prepares multiple sidecars
 - desktop/Tauri still owns more startup logic
 - orchestrator is a separate hosting/control layer
-- `openwork-server`, `opencode`, and `opencode-router` are not yet one canonical server runtime bundle
+- `openwork-plus-server`, `opencode`, and `openwork-plus-opencode-router` are not yet one canonical server runtime bundle
 
 Target behavior becomes:
 
-- desktop app starts one thing: `openwork-server-v2`
-- standalone users start that same `openwork-server-v2`
-- `openwork-server-v2` starts and supervises its own runtime dependencies
+- desktop app starts one thing: `openwork-plus-server-v2`
+- standalone users start that same `openwork-plus-server-v2`
+- `openwork-plus-server-v2` starts and supervises its own runtime dependencies
 
 So the key shift is:
 
@@ -413,7 +413,7 @@ We need to validate:
 
 Important practical note:
 
-- the main `openwork-server-v2` executable will need a clean signing and notarization path
+- the main `openwork-plus-server-v2` executable will need a clean signing and notarization path
 - extracted sidecars may also need to be signed appropriately if macOS quarantine or Gatekeeper treats them as separate executables
 - we should assume that "signed main binary" does not automatically make extracted child binaries a non-issue
 
@@ -458,7 +458,7 @@ We should plan to sign Windows artifacts explicitly.
 That includes:
 
 - desktop app executable/installer
-- standalone `openwork-server-v2.exe`
+- standalone `openwork-plus-server-v2.exe`
 - extracted Windows sidecars when they are shipped as separate signed executables inside the embedded runtime bundle
 
 Recommended signing model:
@@ -474,14 +474,14 @@ Rule of thumb:
 That includes:
 
 - the desktop app executable and/or installer
-- `openwork-server-v2.exe`
+- `openwork-plus-server-v2.exe`
 - `opencode.exe`
-- `opencode-router.exe`
+- `openwork-plus-opencode-router.exe`
 
 Important practical point:
 
 - signing only the main desktop executable is not enough for the server runtime model we want
-- if `openwork-server-v2.exe` extracts `opencode.exe` and `opencode-router.exe`, those sidecars should ideally also be signed before embedding
+- if `openwork-plus-server-v2.exe` extracts `opencode.exe` and `openwork-plus-opencode-router.exe`, those sidecars should ideally also be signed before embedding
 
 ## Suggested Windows Release Flow
 
@@ -494,10 +494,10 @@ Important practical point:
 
 ### Standalone server release flow
 
-1. Build `openwork-server-v2.exe` for Windows.
-2. Build or collect signed Windows `opencode.exe` and `opencode-router.exe` payloads.
+1. Build `openwork-plus-server-v2.exe` for Windows.
+2. Build or collect signed Windows `opencode.exe` and `openwork-plus-opencode-router.exe` payloads.
 3. Embed those signed sidecar payloads into the server executable.
-4. Sign the final `openwork-server-v2.exe`.
+4. Sign the final `openwork-plus-server-v2.exe`.
 5. Verify the signature.
 6. Publish the signed asset.
 
@@ -526,10 +526,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build server runtime
-        run: pnpm --filter openwork-server-v2 build:bin:windows
+        run: pnpm --filter openwork-plus-server-v2 build:bin:windows
 
       - name: Build or fetch Windows sidecars
-        run: pnpm --filter openwork-server-v2 build:sidecars:windows
+        run: pnpm --filter openwork-plus-server-v2 build:sidecars:windows
 
       - name: Import signing certificate
         shell: pwsh
@@ -541,20 +541,20 @@ jobs:
         shell: pwsh
         run: |
           signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f codesign.pfx /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" dist\\sidecars\\opencode.exe
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f codesign.pfx /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" dist\\sidecars\\opencode-router.exe
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f codesign.pfx /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" dist\\sidecars\\openwork-plus-opencode-router.exe
 
       - name: Build embedded runtime
-        run: pnpm --filter openwork-server-v2 package:windows
+        run: pnpm --filter openwork-plus-server-v2 package:windows
 
       - name: Sign final server runtime
         shell: pwsh
         run: |
-          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f codesign.pfx /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" dist\\openwork-server-v2.exe
+          signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f codesign.pfx /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" dist\\openwork-plus-server-v2.exe
 
       - name: Verify signature
         shell: pwsh
         run: |
-          signtool verify /pa /v dist\\openwork-server-v2.exe
+          signtool verify /pa /v dist\\openwork-plus-server-v2.exe
 ```
 
 The desktop Windows job would follow the same pattern, but sign the desktop executable/installer artifact.

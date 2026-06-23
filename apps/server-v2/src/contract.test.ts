@@ -44,11 +44,11 @@ test("openapi generation writes the committed server-v2 contract", async () => {
 });
 
 test("sdk generation succeeds from the server-v2 openapi document", async () => {
-  const result = await runCommand(["pnpm", "--filter", "@openwork/server-sdk", "generate"], repoDir);
+  const result = await runCommand(["pnpm", "--filter", "@openwork-plus/server-sdk", "generate"], repoDir);
 
   expect(result.exitCode).toBe(0);
 
-  const sdkIndex = await Bun.file(path.join(repoDir, "packages/openwork-server-sdk/generated/index.ts")).text();
+  const sdkIndex = await Bun.file(path.join(repoDir, "packages/openwork-plus-server-sdk/generated/index.ts")).text();
   expect(sdkIndex).toContain("getSystemHealth");
   expect(sdkIndex).toContain("getSystemStatus");
   expect(sdkIndex).toContain("getSystemCloudSignin");

@@ -2,7 +2,7 @@
 set -eu
 
 OPENWORK_WORKSPACE="${OPENWORK_WORKSPACE:-/workspace}"
-OPENWORK_DATA_DIR="${OPENWORK_DATA_DIR:-/data/openwork-orchestrator}"
+OPENWORK_DATA_DIR="${OPENWORK_DATA_DIR:-/data/openwork-plus-orchestrator}"
 OPENWORK_SIDECAR_DIR="${OPENWORK_SIDECAR_DIR:-/data/sidecars}"
 OPENWORK_PORT="${OPENWORK_PORT:-8787}"
 OPENWORK_OPENCODE_PORT="${OPENWORK_OPENCODE_PORT:-4096}"
@@ -55,6 +55,6 @@ exec openwork serve \
   --allow-external \
   --sidecar-source external \
   --opencode-source external \
-  --openwork-server-bin /usr/local/bin/openwork-server \
+  --openwork-server-bin /usr/local/bin/openwork-plus-server \
   --opencode-bin /usr/local/bin/opencode \
-  --no-opencode-router
+  --no-openwork-plus-opencode-router

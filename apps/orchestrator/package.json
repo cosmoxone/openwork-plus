@@ -1,6 +1,6 @@
 {
-  "name": "openwork-orchestrator",
-  "version": "0.11.212",
+  "name": "openwork-plus-orchestrator",
+  "version": "0.11.213",
   "description": "OpenWork host orchestrator for opencode + OpenWork server + opencode-router",
   "private": true,
   "type": "module",
@@ -25,12 +25,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/different-ai/openwork.git",
+    "url": "git+https://github.com/comoxone/openwork-plus.git",
     "directory": "apps/orchestrator"
   },
-  "homepage": "https://github.com/different-ai/openwork/tree/dev/apps/orchestrator",
+  "homepage": "https://github.com/comoxone/openwork-plus/tree/main/apps/orchestrator",
   "bugs": {
-    "url": "https://github.com/different-ai/openwork/issues"
+    "url": "https://github.com/comoxone/openwork-plus/issues"
   },
   "keywords": [
     "openwork",
@@ -47,9 +47,9 @@
     "@opencode-ai/sdk": "^1.4.9",
     "@opentui/core": "0.1.77",
     "@opentui/solid": "0.1.77",
-    "opencode-router": "0.11.212",
-    "openwork-server": "0.11.212",
-    "solid-js": "1.9.9"
+    "solid-js": "1.9.9",
+    "openwork-plus-opencode-router": "0.11.213",
+    "openwork-plus-server": "0.11.213"
   },
   "devDependencies": {
     "@opentui/core-darwin-arm64": "0.1.77",

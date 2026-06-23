@@ -1,14 +1,14 @@
 {
   "schemaVersion": "1.0.0",
   "source": "builtin",
-  "generatedAt": "2026-06-17T14:32:49.147Z",
+  "generatedAt": "2026-06-18T23:53:01.482Z",
   "bundles": [
     {
       "id": "computer-use",
       "name": "RPA / UI 自动化",
       "version": "0.1.0",
       "description": "GUI 自动化 MCP（从 Open Cowork 提取的 gui-operate-mcp）",
-      "sha256": "d9999ecafaed15f52934d82c70afcff0d8b1b24c670a638633b557b1d664af45",
+      "sha256": "c9c20644f4473768f11bac74e0d74f9316b8ae71b1f281cb618497cde7fd00cd",
       "path": "computer-use-0.1.0.zip",
       "downloadUrl": null,
       "manifestUrl": null,
@@ -27,7 +27,7 @@
       "name": "测试自动化控制台",
       "version": "0.1.0",
       "description": "AI 辅助测试工作流：生成用例、分析失败、跟踪趋势",
-      "sha256": "bbe7a0f9f76c8bc45f99b673fdc52728df104a346b917f82a420f914ce7dd28d",
+      "sha256": "289bcc01f53f502c6a3937d86143e04532c27a5ce18c804fa2522293cd7fefe3",
       "path": "test-automation-0.1.0.zip",
       "downloadUrl": null,
       "manifestUrl": null,

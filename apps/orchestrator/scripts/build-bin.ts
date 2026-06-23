@@ -16,7 +16,7 @@ const targetDir = resolve(root, "dist");
 const serverBin = resolve(root, "..", "server", "dist", "bin", "openwork-server");
 const routerRepo = process.env.OPENCODE_ROUTER_DIR?.trim() || resolve(repoRoot, "apps", "opencode-router");
 if (!existsSync(resolve(routerRepo, "package.json"))) {
-  throw new Error("OpenCodeRouter package not found. Expected apps/opencode-router in the monorepo.");
+  throw new Error("OpenCodeRouter package not found. Expected apps/openwork-plus-opencode-router in the monorepo.");
 }
 const routerBin = resolve(routerRepo, "dist", "bin", "opencode-router");
 

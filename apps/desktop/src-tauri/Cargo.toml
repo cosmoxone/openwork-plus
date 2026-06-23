@@ -1,7 +1,7 @@
 [package]
 name = "openwork"
-version = "0.11.212"
-description = "OpenWork"
+version = "0.11.213"
+description = "OpenWork Plus"
 authors = ["Different AI"]
 edition = "2021"
 default-run = "OpenWork-Dev"

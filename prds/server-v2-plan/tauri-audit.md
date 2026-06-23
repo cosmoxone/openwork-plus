@@ -241,7 +241,7 @@ Reasoning: these are runtime and workspace orchestration concerns, not UI concer
 
 - What it does: starts a detached host stack, optionally sandboxed, and reports progress back to the UI.
 - Called from and when: called when the user creates a detached worker or remote sandbox.
-- Ends up calling: `openwork-orchestrator start --detach`, token generation, health polling, optional owner-token issuance, and progress event emission.
+- Ends up calling: `openwork-plus-orchestrator start --detach`, token generation, health polling, optional owner-token issuance, and progress event emission.
 
 ### `sandbox_doctor()`, `sandbox_stop()`, `sandbox_cleanup_openwork_containers()`, `sandbox_debug_probe()`
 
@@ -271,7 +271,7 @@ Reasoning: the desktop shell should keep launch/supervision of the local OpenWor
 
 ### `spawn_openwork_server()`
 
-- What it does: launches the `openwork-server` sidecar.
+- What it does: launches the `openwork-plus-server` sidecar.
 - Called from and when: called by `start_openwork_server()`.
 - Ends up calling: child-process spawn, cwd selection, and env var injection including OpenCode base URL, OpenCode creds, and OpenWork tokens.
 
@@ -322,7 +322,7 @@ Reasoning: router config, status, and product-facing control should become part 
 
 ### `spawn_opencode_router()`
 
-- What it does: launches `opencode-router serve` with the active OpenCode connection.
+- What it does: launches `openwork-plus-opencode-router serve` with the active OpenCode connection.
 - Called from and when: called by `opencodeRouter_start()`.
 - Ends up calling: child-process spawn and localhost router startup.
 

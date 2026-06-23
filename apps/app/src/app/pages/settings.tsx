@@ -225,7 +225,7 @@ export type SettingsViewProps = {
 
 const DISCORD_INVITE_URL = "https://discord.gg/VEhNQXxYMB";
 const BUG_REPORT_URL =
-  "https://github.com/different-ai/openwork/issues/new?template=bug.yml";
+  "https://github.com/comoxone/openwork-plus/issues/new?template=bug.yml";
 
 export default function SettingsView(props: SettingsViewProps) {
   const modelControls = useModelControls();

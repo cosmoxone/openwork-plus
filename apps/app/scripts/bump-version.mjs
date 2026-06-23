@@ -83,7 +83,7 @@ const updatePackageJson = async (nextVersion) => {
   tauriData.opencodeRouterVersion = nextVersion;
   orchestratorData.version = nextVersion;
 
-  // Ensure openwork-orchestrator uses the same openwork-server/opencode-router versions.
+  // Ensure openwork-plus-orchestrator uses the same openwork-plus-server/openwork-plus-opencode-router versions.
   orchestratorData.dependencies = orchestratorData.dependencies ?? {};
   orchestratorData.dependencies["openwork-server"] = nextVersion;
   orchestratorData.dependencies["opencode-router"] = nextVersion;
@@ -172,7 +172,7 @@ const main = async () => {
           "apps/desktop/package.json",
           "apps/orchestrator/package.json",
           "apps/server/package.json",
-          "apps/opencode-router/package.json",
+          "apps/openwork-plus-opencode-router/package.json",
           "apps/desktop/src-tauri/Cargo.toml",
           "apps/desktop/src-tauri/tauri.conf.json",
         ],

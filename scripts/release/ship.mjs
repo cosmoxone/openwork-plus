@@ -70,15 +70,16 @@ heading("Pushing tag to origin");
 run(`git push origin ${tag}`);
 success(`Pushed ${tag}`);
 
-// ── Step 3: Push dev ────────────────────────────────────────────────
-heading("Pushing dev to origin");
-run("git push origin dev");
-success("Pushed dev");
+// ── Step 3: Push default branch ─────────────────────────────────────
+heading(`Pushing ${defaultBranch} to origin`);
+run(`git push origin ${defaultBranch}`);
+success(`Pushed ${defaultBranch}`);
 
 // ── Step 4: Print workflow URL ──────────────────────────────────────
 heading("GitHub Actions");
 
-const repo = "different-ai/openwork";
+const repo = process.env.GITHUB_REPOSITORY || "comoxone/openwork-plus";
+const defaultBranch = process.env.GITHUB_DEFAULT_BRANCH || "main";
 const url = `https://github.com/${repo}/actions/workflows/release-macos-aarch64.yml`;
 log(`Workflow: ${url}`);
 log(`Release:  https://github.com/${repo}/releases/tag/${tag}`);

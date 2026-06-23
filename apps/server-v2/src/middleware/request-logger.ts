@@ -15,7 +15,7 @@ export const requestLoggerMiddleware: MiddlewareHandler<AppBindings> = async (c,
       method: c.req.method,
       path: url.pathname,
       requestId: c.get("requestId"),
-      scope: "openwork-server-v2.request",
+      scope: "openwork-plus-server-v2.request",
       status: c.res.status,
     }),
   );

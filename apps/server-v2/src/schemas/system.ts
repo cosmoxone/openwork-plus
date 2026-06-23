@@ -15,7 +15,7 @@ export const routeNamespacesSchema = z.object({
 export const contractMetadataSchema = z.object({
   source: z.literal("hono-openapi"),
   openapiPath: z.literal("/openapi.json"),
-  sdkPackage: z.literal("@openwork/server-sdk"),
+  sdkPackage: z.literal("@openwork-plus/server-sdk"),
 }).meta({ ref: "OpenWorkServerV2ContractMetadata" });
 
 export const databaseStatusSchema = z.object({
@@ -76,8 +76,8 @@ export const startupDiagnosticsSchema = z.object({
 }).meta({ ref: "OpenWorkServerV2StartupDiagnostics" });
 
 export const rootInfoDataSchema = z.object({
-  service: z.literal("openwork-server-v2"),
-  packageName: z.literal("openwork-server-v2"),
+  service: z.literal("openwork-plus-server-v2"),
+  packageName: z.literal("openwork-plus-server-v2"),
   version: z.string(),
   environment: z.string(),
   routes: routeNamespacesSchema,
@@ -85,7 +85,7 @@ export const rootInfoDataSchema = z.object({
 }).meta({ ref: "OpenWorkServerV2RootInfoData" });
 
 export const healthDataSchema = z.object({
-  service: z.literal("openwork-server-v2"),
+  service: z.literal("openwork-plus-server-v2"),
   status: z.literal("ok"),
   startedAt: isoTimestampSchema,
   uptimeMs: z.number().int().nonnegative(),

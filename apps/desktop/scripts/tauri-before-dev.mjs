@@ -217,7 +217,7 @@ const ensureLinuxDesktopDependencies = () => {
 const runUiDevServer = () => {
   const uiArgs =
     process.platform === "win32"
-      ? [...pnpmArgs, "--filter", "@openwork/app", "dev:windows"]
+      ? [...pnpmArgs, "--filter", "@openwork-plus/app", "dev:windows"]
       : [...pnpmArgs, "-w", "dev:ui"];
   const child = spawn(pnpmCmd, uiArgs, {
     stdio: "inherit",

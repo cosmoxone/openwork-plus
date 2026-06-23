@@ -64,7 +64,7 @@ function readArgs(argv: string[]): BuildOptions {
   const options: BuildOptions = {
     bundleDir: process.env.OPENWORK_SERVER_V2_BUNDLE_DIR?.trim() ? resolve(process.env.OPENWORK_SERVER_V2_BUNDLE_DIR.trim()) : null,
     embedRuntime: false,
-    filename: "openwork-server-v2",
+    filename: "openwork-plus-server-v2",
     outdir: resolve("dist", "bin"),
     targets: [],
   };
@@ -159,8 +159,8 @@ function runtimeAssetCandidates(bundleDir: string, target?: string): RuntimeAsse
     join(bundleDir, process.platform === "win32" || target?.includes("windows") ? "opencode.exe" : "opencode"),
   ];
   const routerCandidates = [
-    triple ? join(bundleDir, `opencode-router-${triple}${triple.includes("windows") ? ".exe" : ""}`) : null,
-    join(bundleDir, process.platform === "win32" || target?.includes("windows") ? "opencode-router.exe" : "opencode-router"),
+    triple ? join(bundleDir, `openwork-plus-opencode-router-${triple}${triple.includes("windows") ? ".exe" : ""}`) : null,
+    join(bundleDir, process.platform === "win32" || target?.includes("windows") ? "openwork-plus-opencode-router.exe" : "opencode-router"),
   ];
 
   const opencodePath = opencodeCandidates.find((candidate) => candidate && fileExists(candidate)) ?? null;
@@ -180,7 +180,7 @@ function runtimeAssetCandidates(bundleDir: string, target?: string): RuntimeAsse
 }
 
 function createEmbeddedEntrypoint(assets: RuntimeAssetPaths) {
-  const buildDir = mkdtempSync(join(os.tmpdir(), "openwork-server-v2-build-"));
+  const buildDir = mkdtempSync(join(os.tmpdir(), "openwork-plus-server-v2-build-"));
   const embeddedModulePath = join(buildDir, "embedded-runtime.ts");
   const entrypointPath = join(buildDir, "entry.ts");
 

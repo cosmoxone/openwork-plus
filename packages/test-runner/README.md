@@ -1,6 +1,6 @@
 # test-runner
 
-跨平台测试执行 CLI，输出统一 JSON，供 AI 与 `@openwork/test-db-mcp` 消费。
+跨平台测试执行 CLI，输出统一 JSON，供 AI 与 `@openwork-plus/test-db-mcp` 消费。
 
 ## 命令
 

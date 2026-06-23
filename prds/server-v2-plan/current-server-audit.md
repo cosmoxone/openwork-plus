@@ -25,7 +25,7 @@ This is meant to help break down the current server into clear migration targets
 
 - What it is: the packaged/server CLI entrypoint.
 - What it does: parses startup args, resolves runtime config, starts the server, and prints startup information.
-- Called from and when: called when the `openwork-server` binary or `bun src/cli.ts` is launched.
+- Called from and when: called when the `openwork-plus-server` binary or `bun src/cli.ts` is launched.
 - What it calls: `parseCliArgs`, `resolveServerConfig`, `createServerLogger`, and `startServer`.
 
 ### `parseCliArgs`
@@ -358,20 +358,20 @@ This is meant to help break down the current server into clear migration targets
 
 - What it is: OpenCode Router auth policy resolver.
 - What it does: decides what auth and scope is required for router proxy paths.
-- Called from and when: called by the main dispatcher for `/opencode-router` paths.
+- Called from and when: called by the main dispatcher for `/openwork-plus-opencode-router` paths.
 - What it calls: access control for bindings, identities, health, and other router APIs.
 
 ### `proxyOpenCodeRouterRequest`
 
 - What it is: OpenCode Router reverse proxy.
 - What it does: forwards raw OpenCode Router requests to the local router service.
-- Called from and when: called for `/opencode-router` and mounted equivalents.
+- Called from and when: called for `/openwork-plus-opencode-router` and mounted equivalents.
 - What it calls: localhost OpenCode Router health/config/send endpoints.
 
 ### router identity persistence helpers
 
 - What they are: Telegram/Slack identity config writers.
-- What they do: persist messaging identity config into `opencode-router.json`.
+- What they do: persist messaging identity config into `openwork-plus-opencode-router.json`.
 - Called from and when: called by workspace router-management routes.
 - What they call: local router config mutation while preserving legacy fallback fields.
 
@@ -384,7 +384,7 @@ This is meant to help break down the current server into clear migration targets
 
 ### workspace router routes
 
-- What they are: `/workspace/:id/opencode-router/*` routes.
+- What they are: `/workspace/:id/openwork-plus-opencode-router/*` routes.
 - What they do: manage health, Telegram/Slack setup, identities, bindings, and outbound sends.
 - Called from and when: called by messaging/connectors UI.
 - What they call: router config files, live router process state, identity pairing state, and outbound routing behavior.

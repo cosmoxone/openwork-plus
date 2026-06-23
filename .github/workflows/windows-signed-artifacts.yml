@@ -84,7 +84,7 @@ jobs:
           }
 
       - name: Build embedded Server V2 runtime
-        run: pnpm --filter openwork-server-v2 build:bin:embedded:windows --bundle-dir ../desktop/src-tauri/sidecars
+        run: pnpm --filter openwork-plus-server-v2 build:bin:embedded:windows --bundle-dir ../desktop/src-tauri/sidecars
         working-directory: apps/server-v2
 
       - name: Sign Server V2 executable
@@ -98,7 +98,7 @@ jobs:
           signtool verify /pa /v $serverPath
 
       - name: Build desktop Windows bundle
-        run: pnpm --filter @openwork/desktop exec tauri build --target x86_64-pc-windows-msvc
+        run: pnpm --filter @openwork-plus/desktop exec tauri build --target x86_64-pc-windows-msvc
 
       - name: Sign desktop Windows artifacts
         shell: pwsh

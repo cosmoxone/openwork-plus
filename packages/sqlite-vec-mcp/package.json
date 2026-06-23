@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/sqlite-vec-mcp",
+  "name": "@openwork-plus/sqlite-vec-mcp",
   "version": "0.1.0",
   "description": "知识库 RAG MCP server（JSON 向量存储 + 语义检索，MVP 无需原生 sqlite-vec）",
   "type": "module",
@@ -7,7 +7,11 @@
     "sqlite-vec-mcp": "bin/sqlite-vec-mcp.mjs"
   },
   "main": "src/index.mjs",
-  "files": ["src", "bin", "README.md"],
+  "files": [
+    "src",
+    "bin",
+    "README.md"
+  ],
   "scripts": {
     "test": "node test/smoke.mjs"
   },
@@ -15,5 +19,11 @@
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
   "license": "MIT",
-  "keywords": ["openwork", "mcp", "rag", "knowledge", "semantic-search"]
+  "keywords": [
+    "openwork",
+    "mcp",
+    "rag",
+    "knowledge",
+    "semantic-search"
+  ]
 }

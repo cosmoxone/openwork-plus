@@ -495,7 +495,7 @@ export function createServerPersistence(options: CreateServerPersistenceOptions)
 
   const orchestratorStateFile = resolveExistingFile(
     legacyOrchestratorDirCandidates(options.legacy?.orchestratorDataDir),
-    "openwork-orchestrator-state.json",
+    "openwork-plus-orchestrator-state.json",
   );
   const orchestratorStateReport = !shouldImportLegacyWorkspaceState
     ? createEmptyReport("skipped", orchestratorStateFile, {
@@ -578,7 +578,7 @@ export function createServerPersistence(options: CreateServerPersistenceOptions)
 
   const orchestratorAuthFile = resolveExistingFile(
     legacyOrchestratorDirCandidates(options.legacy?.orchestratorDataDir),
-    "openwork-orchestrator-auth.json",
+    "openwork-plus-orchestrator-auth.json",
   );
   const orchestratorAuthReport = orchestratorAuthFile
     ? createEmptyReport("skipped", orchestratorAuthFile)

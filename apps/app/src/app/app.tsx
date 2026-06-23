@@ -31,7 +31,7 @@ import ForcedSigninPage from "./cloud/forced-signin-page";
 import RenameWorkspaceModal from "./components/rename-workspace-modal";
 import ConnectionsModals from "./connections/modals";
 import { OpenworkServerProvider } from "./connections/openwork-server-provider";
-import { createOpenworkServerStore } from "./connections/openwork-server-store";
+import { createOpenworkServerStore } from "./connections/openwork-plus-server-store";
 import { ConnectionsProvider } from "./connections/provider";
 import { ExtensionsProvider } from "./extensions/provider";
 import { AutomationsProvider } from "./automations/provider";
@@ -135,7 +135,7 @@ import {
   readOpenworkServerSettings,
   writeOpenworkServerSettings,
   type OpenworkServerSettings,
-} from "./lib/openwork-server";
+} from "./lib/openwork-plus-server";
 import { ReactIsland } from "../react/island";
 import { reactSessionEnabled } from "../react/feature-flag";
 import { ReactSessionRuntime } from "../react/session/runtime-sync.react";

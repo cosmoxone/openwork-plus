@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/appserver-contract",
+  "name": "@openwork-plus/appserver-contract",
   "version": "0.1.0",
   "description": "统一 App-Server JSON-RPC 2.0 契约的共享 TypeScript 类型、方法名常量与错误码（OpenWork / ClawX box-agent / 远程 worker 共用）",
   "type": "module",
@@ -12,7 +12,14 @@
       "default": "./src/runtime.mjs"
     }
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "license": "MIT",
-  "keywords": ["openwork", "jsonrpc", "app-server", "contract"]
+  "keywords": [
+    "openwork",
+    "jsonrpc",
+    "app-server",
+    "contract"
+  ]
 }

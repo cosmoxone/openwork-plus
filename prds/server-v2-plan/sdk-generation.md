@@ -15,7 +15,7 @@ Preferred stack:
 
 - OpenAPI spec generation: `hono-openapi`
 - TypeScript SDK generation: `@hey-api/openapi-ts`
-- Reusable client package: `packages/openwork-server-sdk`
+- Reusable client package: `packages/openwork-plus-server-sdk`
 - App entrypoint: app-owned `createSdk({ serverId })`
 - SSE support: small handwritten helpers exposed from the SDK package, then wrapped by the app adapter
 
@@ -63,7 +63,7 @@ Role:
 
 Output:
 
-- `packages/openwork-server-sdk/generated/**`
+- `packages/openwork-plus-server-sdk/generated/**`
 
 ### 3. Handwritten SDK package files
 
@@ -74,8 +74,8 @@ Role:
 
 Files:
 
-- `packages/openwork-server-sdk/src/index.ts`
-- `packages/openwork-server-sdk/src/streams/**`
+- `packages/openwork-plus-server-sdk/src/index.ts`
+- `packages/openwork-plus-server-sdk/src/streams/**`
 
 ### 4. App-side adapter
 
@@ -98,7 +98,7 @@ apps/server-v2/
 └── openapi/
     └── openapi.json
 
-packages/openwork-server-sdk/
+packages/openwork-plus-server-sdk/
 ├── package.json
 ├── openapi-ts.config.ts
 ├── generated/**
@@ -136,7 +136,7 @@ apps/server-v2/src/**
 -> hono-openapi
 -> apps/server-v2/openapi/openapi.json
 -> @hey-api/openapi-ts
--> packages/openwork-server-sdk/generated/**
+-> packages/openwork-plus-server-sdk/generated/**
 ```
 
 ## Mixed Old/New Routing During Migration
@@ -147,7 +147,7 @@ During migration, typed fallback behavior for legacy server routes should live i
 
 Recommended split:
 
-- `packages/openwork-server-sdk`: generated Server V2 client plus small handwritten SSE helpers for Server V2
+- `packages/openwork-plus-server-sdk`: generated Server V2 client plus small handwritten SSE helpers for Server V2
 - `apps/app/.../createSdk.ts`: rollout checks, capability gating, and per-operation routing
 - `apps/app/.../legacy/`: small handwritten compatibility shims for old-server calls that have not been ported yet
 
@@ -179,7 +179,7 @@ Notes:
 - they should use `hono-openapi`
 - `openapi:watch` should only watch `src/**`
 
-### `packages/openwork-server-sdk/package.json`
+### `packages/openwork-plus-server-sdk/package.json`
 
 ```json
 {
@@ -204,7 +204,7 @@ Notes:
   "scripts": {
     "dev:server-v2": "pnpm run dev:server-v2:watchers",
     "dev:server-v2:watchers": "node ./scripts/dev-server-v2.mjs",
-    "sdk:generate": "pnpm --filter openwork-server-v2 openapi:generate && pnpm --filter @openwork/server-sdk generate"
+    "sdk:generate": "pnpm --filter openwork-plus-server-v2 openapi:generate && pnpm --filter @openwork-plus/server-sdk generate"
   }
 }
 ```
@@ -225,7 +225,7 @@ Examples:
 - `apps/server-v2/scripts/watch-openapi.mjs`
   - watch `src/**`
   - rerun OpenAPI generation
-- `packages/openwork-server-sdk/scripts/watch.mjs`
+- `packages/openwork-plus-server-sdk/scripts/watch.mjs`
   - watch `../../apps/server-v2/openapi/openapi.json`
   - rerun `openapi-ts`
 - `scripts/dev-server-v2.mjs`
@@ -256,7 +256,7 @@ The CI contract check should reduce to one command or one short chain.
 Preferred shape:
 
 ```bash
-pnpm --filter openwork-server-v2 openapi:generate && pnpm --filter @openwork/server-sdk generate && git diff --exit-code
+pnpm --filter openwork-plus-server-v2 openapi:generate && pnpm --filter @openwork-plus/server-sdk generate && git diff --exit-code
 ```
 
 That gives us:
@@ -272,7 +272,7 @@ The one or two SSE endpoints should still appear in the new server contract, but
 Recommended split:
 
 - normal request/response endpoints: generated with `@hey-api/openapi-ts`
-- SSE helpers: handwritten in `packages/openwork-server-sdk/src/streams/**`
+- SSE helpers: handwritten in `packages/openwork-plus-server-sdk/src/streams/**`
 - typed event payloads: generated or shared contract types only, never imported directly from server source
 
 This keeps the custom surface small.

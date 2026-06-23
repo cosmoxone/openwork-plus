@@ -87,7 +87,7 @@ fn set_dev_app_name() {
     };
 
     objc2_foundation::NSProcessInfo::processInfo()
-        .setProcessName(&objc2_foundation::NSString::from_str("OpenWork - Dev"));
+        .setProcessName(&objc2_foundation::NSString::from_str("OpenWork Plus - Dev"));
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -98,7 +98,9 @@ fn forwarded_deep_links(args: &[String]) -> Vec<String> {
         .skip(1)
         .filter_map(|arg| {
             let trimmed = arg.trim();
-            if trimmed.starts_with("openwork://")
+            if trimmed.starts_with("openwork-plus://")
+                || trimmed.starts_with("openwork-plus-dev://")
+                || trimmed.starts_with("openwork://")
                 || trimmed.starts_with("openwork-dev://")
                 || trimmed.starts_with("https://")
                 || trimmed.starts_with("http://")
@@ -267,7 +269,7 @@ pub fn run() {
 
     // Best-effort cleanup on app exit. Without this, background sidecars can keep
     // running after the UI quits (especially during dev), leading to multiple
-    // orchestrator/opencode/openwork-server processes and stale ports.
+    // orchestrator/opencode/openwork-plus-server processes and stale ports.
     app.run(|app_handle, event| match event {
         RunEvent::ExitRequested { .. } | RunEvent::Exit => stop_managed_services(&app_handle),
         // On macOS the default behavior is to keep the process alive after the

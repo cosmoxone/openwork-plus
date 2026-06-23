@@ -146,8 +146,8 @@ type AuthMode = "none" | "client" | "host";
 
 function normalizeOpenCodeRouterProxyPath(pathname: string): string {
   const trimmed = pathname.trim();
-  if (!trimmed) return "/opencode-router";
-  if (trimmed === "/opencode-router/") return "/opencode-router";
+  if (!trimmed) return "/openwork-plus-opencode-router";
+  if (trimmed === "/openwork-plus-opencode-router/") return "/openwork-plus-opencode-router";
   return trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
 }
 
@@ -159,13 +159,13 @@ function resolveOpenCodeRouterProxyPolicy(
   const upper = method.trim().toUpperCase();
 
   if (upper === "GET") {
-    if (normalized === "/opencode-router" || normalized === "/opencode-router/health") {
+    if (normalized === "/openwork-plus-opencode-router" || normalized === "/openwork-plus-opencode-router/health") {
       return { auth: "client" };
     }
-    if (normalized === "/opencode-router/bindings") {
+    if (normalized === "/openwork-plus-opencode-router/bindings") {
       return { auth: "client", requiredScope: "collaborator" };
     }
-    if (normalized === "/opencode-router/identities/telegram" || normalized === "/opencode-router/identities/slack") {
+    if (normalized === "/openwork-plus-opencode-router/identities/telegram" || normalized === "/openwork-plus-opencode-router/identities/slack") {
       return { auth: "client", requiredScope: "collaborator" };
     }
   }
@@ -299,7 +299,7 @@ export function startServer(config: ServerConfig) {
         }
       }
 
-      if (mount && (mount.restPath === "/opencode-router" || mount.restPath.startsWith("/opencode-router/"))) {
+      if (mount && (mount.restPath === "/openwork-plus-opencode-router" || mount.restPath.startsWith("/openwork-plus-opencode-router/"))) {
         const policy = resolveOpenCodeRouterProxyPolicy(request.method, mount.restPath);
         authMode = policy.auth;
         try {
@@ -362,7 +362,7 @@ export function startServer(config: ServerConfig) {
         }
       }
 
-      if (url.pathname === "/opencode-router" || url.pathname.startsWith("/opencode-router/")) {
+      if (url.pathname === "/openwork-plus-opencode-router" || url.pathname.startsWith("/openwork-plus-opencode-router/")) {
         const policy = resolveOpenCodeRouterProxyPolicy(request.method, url.pathname);
         authMode = policy.auth;
         try {
@@ -416,7 +416,7 @@ export function startServer(config: ServerConfig) {
         return finalize(response);
       } catch (error) {
         if (!(error instanceof ApiError)) {
-          console.error("[openwork-server] Unhandled error:", error);
+          console.error("[openwork-plus-server] Unhandled error:", error);
         }
         const apiError = error instanceof ApiError
           ? error
@@ -532,7 +532,7 @@ async function fetchOpencodeJson(
 
 function buildOpenCodeRouterProxyUrl(baseUrl: string, path: string, search: string) {
   const target = new URL(baseUrl);
-  const trimmedPath = path.replace(/^\/opencode-router/, "");
+  const trimmedPath = path.replace(/^\/openwork-plus-opencode-router/, "");
   const normalized = trimmedPath.startsWith("/") ? trimmedPath : `/${trimmedPath}`;
   target.pathname = normalized === "/" ? "/" : normalized;
   target.search = search;
@@ -719,7 +719,7 @@ function buildCapabilities(config: ServerConfig): Capabilities {
       skills: {
         read: true,
         install: writeEnabled,
-        repo: { owner: "different-ai", name: "openwork-hub", ref: "main" },
+        repo: { owner: "comoxone", name: "openwork-plus-hub", ref: "main" },
       },
     },
     plugins: { read: true, write: writeEnabled },
@@ -1670,7 +1670,7 @@ function createRoutes(
     return jsonResponse({ updatedAt: Date.now() });
   });
 
-  addRoute(routes, "GET", "/workspace/:id/opencode-router/health", "client", async (ctx) => {
+  addRoute(routes, "GET", "/workspace/:id/openwork-plus-opencode-router/health", "client", async (ctx) => {
     requireClientScope(ctx, "collaborator");
     await resolveWorkspace(config, ctx.params.id);
 
@@ -1687,7 +1687,7 @@ function createRoutes(
     throw new ApiError(apply.status ?? 503, "opencodeRouter_unreachable", apply.error ?? "OpenCodeRouter health unavailable");
   });
 
-  addRoute(routes, "POST", "/workspace/:id/opencode-router/telegram-token", "client", async (ctx) => {
+  addRoute(routes, "POST", "/workspace/:id/openwork-plus-opencode-router/telegram-token", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -1774,14 +1774,14 @@ function createRoutes(
     return jsonResponse(result);
   });
 
-  addRoute(routes, "GET", "/workspace/:id/opencode-router/telegram", "client", async (ctx) => {
+  addRoute(routes, "GET", "/workspace/:id/openwork-plus-opencode-router/telegram", "client", async (ctx) => {
     requireClientScope(ctx, "collaborator");
     await resolveWorkspace(config, ctx.params.id);
     const info = await readOpenCodeRouterTelegramInfo();
     return jsonResponse({ ok: true, ...info });
   });
 
-  addRoute(routes, "POST", "/workspace/:id/opencode-router/telegram-enabled", "client", async (ctx) => {
+  addRoute(routes, "POST", "/workspace/:id/openwork-plus-opencode-router/telegram-enabled", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -1821,7 +1821,7 @@ function createRoutes(
     return jsonResponse(response);
   });
 
-  addRoute(routes, "POST", "/workspace/:id/opencode-router/slack-tokens", "client", async (ctx) => {
+  addRoute(routes, "POST", "/workspace/:id/openwork-plus-opencode-router/slack-tokens", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -1904,7 +1904,7 @@ function createRoutes(
     return jsonResponse(result);
   });
 
-  addRoute(routes, "GET", "/workspace/:id/opencode-router/identities/telegram", "client", async (ctx) => {
+  addRoute(routes, "GET", "/workspace/:id/openwork-plus-opencode-router/identities/telegram", "client", async (ctx) => {
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
     const workspaceIdentityId = normalizeOpenCodeRouterIdentityId(workspace.id);
@@ -1952,7 +1952,7 @@ function createRoutes(
     return jsonResponse({ ok: true, items });
   });
 
-  addRoute(routes, "POST", "/workspace/:id/opencode-router/identities/telegram", "client", async (ctx) => {
+  addRoute(routes, "POST", "/workspace/:id/openwork-plus-opencode-router/identities/telegram", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -2074,7 +2074,7 @@ function createRoutes(
     return jsonResponse(response);
   });
 
-  addRoute(routes, "DELETE", "/workspace/:id/opencode-router/identities/telegram/:identityId", "client", async (ctx) => {
+  addRoute(routes, "DELETE", "/workspace/:id/openwork-plus-opencode-router/identities/telegram/:identityId", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -2140,7 +2140,7 @@ function createRoutes(
     return jsonResponse(response);
   });
 
-  addRoute(routes, "GET", "/workspace/:id/opencode-router/identities/slack", "client", async (ctx) => {
+  addRoute(routes, "GET", "/workspace/:id/openwork-plus-opencode-router/identities/slack", "client", async (ctx) => {
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
     const workspaceIdentityId = normalizeOpenCodeRouterIdentityId(workspace.id);
@@ -2183,7 +2183,7 @@ function createRoutes(
     return jsonResponse({ ok: true, items });
   });
 
-  addRoute(routes, "POST", "/workspace/:id/opencode-router/identities/slack", "client", async (ctx) => {
+  addRoute(routes, "POST", "/workspace/:id/openwork-plus-opencode-router/identities/slack", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -2256,7 +2256,7 @@ function createRoutes(
     return jsonResponse(response);
   });
 
-  addRoute(routes, "DELETE", "/workspace/:id/opencode-router/identities/slack/:identityId", "client", async (ctx) => {
+  addRoute(routes, "DELETE", "/workspace/:id/openwork-plus-opencode-router/identities/slack/:identityId", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -2322,7 +2322,7 @@ function createRoutes(
     return jsonResponse(response);
   });
 
-  addRoute(routes, "GET", "/workspace/:id/opencode-router/bindings", "client", async (ctx) => {
+  addRoute(routes, "GET", "/workspace/:id/openwork-plus-opencode-router/bindings", "client", async (ctx) => {
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
     const workspaceIdentityId = normalizeOpenCodeRouterIdentityId(workspace.id);
@@ -2351,7 +2351,7 @@ function createRoutes(
     throw new ApiError(503, "opencodeRouter_unreachable", "OpenCodeRouter is not reachable on this host");
   });
 
-  addRoute(routes, "POST", "/workspace/:id/opencode-router/bindings", "client", async (ctx) => {
+  addRoute(routes, "POST", "/workspace/:id/openwork-plus-opencode-router/bindings", "client", async (ctx) => {
     ensureWritable(config);
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
@@ -2418,7 +2418,7 @@ function createRoutes(
     return jsonResponse({ ok: true });
   });
 
-  addRoute(routes, "POST", "/workspace/:id/opencode-router/send", "client", async (ctx) => {
+  addRoute(routes, "POST", "/workspace/:id/openwork-plus-opencode-router/send", "client", async (ctx) => {
     requireClientScope(ctx, "collaborator");
     const workspace = await resolveWorkspace(config, ctx.params.id);
     const workspaceIdentityId = normalizeOpenCodeRouterIdentityId(workspace.id);
@@ -3179,7 +3179,7 @@ function createRoutes(
     const ref = ctx.url.searchParams.get("ref")?.trim();
     const items = await listHubSkills({
       owner: owner || "different-ai",
-      repo: repo || "openwork-hub",
+      repo: repo || "openwork-plus-hub",
       ref: ref || "main",
     });
     return jsonResponse({ items });
@@ -3879,7 +3879,7 @@ function resolveOpenCodeRouterConfigPath(): string {
   const override = process.env.OPENCODE_ROUTER_CONFIG_PATH?.trim();
   if (override) return expandHome(override);
   const dataDir = process.env.OPENCODE_ROUTER_DATA_DIR?.trim() || join(homedir(), ".openwork", "opencode-router");
-  return join(expandHome(dataDir), "opencode-router.json");
+  return join(expandHome(dataDir), "openwork-plus-opencode-router.json");
 }
 
 function resolveOpenCodeRouterHealthPort(): number {
@@ -4068,7 +4068,7 @@ async function readOpenCodeRouterConfigFile(configPath: string): Promise<OpenCod
   try {
     raw = await readFile(configPath, "utf8");
   } catch (error) {
-    throw new ApiError(500, "opencodeRouter_config_read_failed", "Failed to read opencode-router.json", {
+    throw new ApiError(500, "opencodeRouter_config_read_failed", "Failed to read openwork-plus-opencode-router.json", {
       path: configPath,
       error: String(error),
     });
@@ -4078,7 +4078,7 @@ async function readOpenCodeRouterConfigFile(configPath: string): Promise<OpenCod
     const parsed = JSON.parse(raw) as unknown;
     return ensurePlainObject(parsed) as OpenCodeRouterConfigFile;
   } catch (error) {
-    throw new ApiError(422, "invalid_json", "Failed to parse opencode-router.json", {
+    throw new ApiError(422, "invalid_json", "Failed to parse openwork-plus-opencode-router.json", {
       path: configPath,
       error: String(error),
     });

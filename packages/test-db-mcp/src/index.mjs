@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @openwork/test-db-mcp — 测试结果历史 MCP server（stdio）。
+ * @openwork-plus/test-db-mcp — 测试结果历史 MCP server（stdio）。
  * 与 test-runner JSON 存储格式互通。
  */
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";

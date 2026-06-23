@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/sandbox-bootstrap",
+  "name": "@openwork-plus/sandbox-bootstrap",
   "version": "0.1.0",
   "description": "WSL2/Lima 沙箱初始化（从 Open Cowork 解耦，纯 Node.js）",
   "type": "module",
@@ -10,7 +10,10 @@
   "bin": {
     "sandbox-bootstrap": "bin/sandbox-bootstrap.mjs"
   },
-  "files": ["src", "bin"],
+  "files": [
+    "src",
+    "bin"
+  ],
   "scripts": {
     "test": "node test/bootstrap-smoke.mjs"
   },

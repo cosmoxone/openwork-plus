@@ -64,9 +64,9 @@ test("release runtime assets use manifest versions without reading repo metadata
     throw new Error("Unsupported test target.");
   }
 
-  const releaseRoot = makeTempDir("openwork-server-v2-release-assets");
+  const releaseRoot = makeTempDir("openwork-plus-server-v2-release-assets");
   const opencodePath = path.join(releaseRoot, process.platform === "win32" ? "opencode.exe" : "opencode");
-  const routerPath = path.join(releaseRoot, process.platform === "win32" ? "opencode-router.exe" : "opencode-router");
+  const routerPath = path.join(releaseRoot, process.platform === "win32" ? "openwork-plus-opencode-router.exe" : "opencode-router");
   writeVersionedBinary(opencodePath, "1.4.9");
   writeVersionedBinary(routerPath, "0.11.206");
 
@@ -129,13 +129,13 @@ test("release runtime assets extract into the managed runtime directory and surv
     throw new Error("Unsupported test target.");
   }
 
-  const bundleRoot = makeTempDir("openwork-server-v2-release-bundle");
-  const runtimeRoot = makeTempDir("openwork-server-v2-runtime-root");
+  const bundleRoot = makeTempDir("openwork-plus-server-v2-release-bundle");
+  const runtimeRoot = makeTempDir("openwork-plus-server-v2-runtime-root");
   const runtimeDir = path.join(runtimeRoot, "runtime");
   fs.mkdirSync(runtimeDir, { recursive: true });
 
   const opencodePath = path.join(bundleRoot, process.platform === "win32" ? "opencode.exe" : "opencode");
-  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "opencode-router.exe" : "opencode-router");
+  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "openwork-plus-opencode-router.exe" : "opencode-router");
   writeVersionedBinary(opencodePath, "1.4.9");
   writeVersionedBinary(routerPath, "0.11.206");
 
@@ -205,13 +205,13 @@ test("release runtime assets can extract from an embedded runtime bundle", async
     throw new Error("Unsupported test target.");
   }
 
-  const bundleRoot = makeTempDir("openwork-server-v2-embedded-bundle");
-  const runtimeRoot = makeTempDir("openwork-server-v2-embedded-runtime-root");
+  const bundleRoot = makeTempDir("openwork-plus-server-v2-embedded-bundle");
+  const runtimeRoot = makeTempDir("openwork-plus-server-v2-embedded-runtime-root");
   const runtimeDir = path.join(runtimeRoot, "runtime");
   fs.mkdirSync(runtimeDir, { recursive: true });
 
   const opencodePath = path.join(bundleRoot, process.platform === "win32" ? "opencode.exe" : "opencode");
-  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "opencode-router.exe" : "opencode-router");
+  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "openwork-plus-opencode-router.exe" : "opencode-router");
   const manifestPath = path.join(bundleRoot, "manifest.json");
   writeVersionedBinary(opencodePath, "1.4.9");
   writeVersionedBinary(routerPath, "0.11.206");

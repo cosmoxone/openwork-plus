@@ -15,8 +15,8 @@ function itemsForPlatform(platform: string): PermissionItem[] {
         title: "屏幕录制（Screenshot / 截图）",
         steps: [
           "打开 系统设置 › 隐私与安全性 › 屏幕录制",
-          "启用 OpenWork（或运行 gui-operate MCP 的终端 / Node 进程）",
-          "若已启用仍失败，退出并重启 OpenWork 后再试",
+          "启用 OpenWork Plus（或运行 gui-operate MCP 的终端 / Node 进程）",
+          "若已启用仍失败，退出并重启 OpenWork Plus 后再试",
         ],
       },
       {
@@ -24,7 +24,7 @@ function itemsForPlatform(platform: string): PermissionItem[] {
         title: "辅助功能（Click / Type / 点击输入）",
         steps: [
           "打开 系统设置 › 隐私与安全性 › 辅助功能",
-          "启用 OpenWork 与 Terminal（若 MCP 由 CLI 启动）",
+          "启用 OpenWork Plus 与 Terminal（若 MCP 由 CLI 启动）",
           "首次 click/type 若返回 permission 或 access denied，按上述勾选后重试",
         ],
       },
@@ -37,7 +37,7 @@ function itemsForPlatform(platform: string): PermissionItem[] {
         title: "屏幕捕获",
         steps: [
           "Windows 11：设置 › 隐私和安全性 › 屏幕截图（如系统提示则允许桌面应用）",
-          "确认安全软件未拦截 OpenWork 或 gui-operate MCP 的屏幕访问",
+          "确认安全软件未拦截 OpenWork Plus 或 gui-operate MCP 的屏幕访问",
         ],
       },
       {

@@ -10,7 +10,7 @@ Confirm the repo is on `main` and clean. Keep changes aligned with OpenCode prim
 ---
 
 ## Bump
-Update versions in `packages/app/package.json`, `packages/desktop/package.json`, `packages/orchestrator/package.json` (publishes as `openwork-orchestrator`), `packages/desktop/src-tauri/tauri.conf.json`, and `packages/desktop/src-tauri/Cargo.toml`. Use one of these commands.
+Update versions in `packages/app/package.json`, `packages/desktop/package.json`, `packages/orchestrator/package.json` (publishes as `openwork-plus-orchestrator`), `packages/desktop/src-tauri/tauri.conf.json`, and `packages/desktop/src-tauri/Cargo.toml`. Use one of these commands.
 
 ```bash
 pnpm bump:patch
@@ -40,7 +40,7 @@ git push origin vX.Y.Z
 If a tag needs a rerun, dispatch the workflow.
 
 ```bash
-gh workflow run "Release App" --repo different-ai/openwork -f tag=vX.Y.Z
+gh workflow run "Release App" --repo comoxone/openwork-plus -f tag=vX.Y.Z
 ```
 
 ---
@@ -49,6 +49,6 @@ gh workflow run "Release App" --repo different-ai/openwork -f tag=vX.Y.Z
 Confirm the run and the published release.
 
 ```bash
-gh run list --repo different-ai/openwork --workflow "Release App" --limit 5
-gh release view vX.Y.Z --repo different-ai/openwork
+gh run list --repo comoxone/openwork-plus --workflow "Release App" --limit 5
+gh release view vX.Y.Z --repo comoxone/openwork-plus
 ```

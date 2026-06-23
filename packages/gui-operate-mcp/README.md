@@ -1,4 +1,4 @@
-# @openwork/gui-operate-mcp
+# @openwork-plus/gui-operate-mcp
 
 GUI 自动化 MCP server——点击 / 输入 / 滚动 / 拖拽 / 截图 / 多显示器 / AI 视觉定位。
 从 Open Cowork 的 `gui-operate-server.ts` 提取，**零 Electron 依赖**（仅 MCP SDK + Node 内置 + 可选 `@anthropic-ai/sdk`）。
@@ -47,7 +47,7 @@ get_all_visited_apps / init_app / clear_click_history）。
 ```jsonc
 "mcp": { "servers": { "gui-operate": {
   "command": "npx",
-  "args": ["-y", "@openwork/gui-operate-mcp", "--sandbox", "auto"],
+  "args": ["-y", "@openwork-plus/gui-operate-mcp", "--sandbox", "auto"],
   "env": { "OPENWORK_DATA_DIR": "${HOME}/.openwork" }
 }}}
 ```

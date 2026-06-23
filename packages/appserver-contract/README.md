@@ -1,4 +1,4 @@
-# @openwork/appserver-contract
+# @openwork-plus/appserver-contract
 
 统一 **App-Server JSON-RPC 2.0 契约**的共享 TypeScript 类型、方法名常量与错误码。
 

@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/task-scheduler",
+  "name": "@openwork-plus/task-scheduler",
   "version": "0.1.0",
   "description": "SQLite 持久化定时任务调度（P3-2/P3-3）：CRUD + cron + tick + WSL test_db 闭环",
   "type": "module",
@@ -7,7 +7,12 @@
   "bin": {
     "openwork-schedule": "bin/openwork-schedule.mjs"
   },
-  "files": ["src", "bin", "schema.sql", "README.md"],
+  "files": [
+    "src",
+    "bin",
+    "schema.sql",
+    "README.md"
+  ],
   "scripts": {
     "test": "node test/smoke.mjs && node test/p3-3-smoke.mjs"
   },
@@ -16,5 +21,10 @@
     "sql.js": "^1.13.0"
   },
   "license": "MIT",
-  "keywords": ["openwork", "scheduler", "cron", "sqlite"]
+  "keywords": [
+    "openwork",
+    "scheduler",
+    "cron",
+    "sqlite"
+  ]
 }

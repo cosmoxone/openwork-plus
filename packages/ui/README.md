@@ -1,11 +1,11 @@
-# @openwork/ui
+# @openwork-plus/ui
 
 Shared UI primitives for OpenWork apps.
 
 This package intentionally ships two framework-specific entrypoints:
 
-- `@openwork/ui/react` for React apps like `ee/apps/den-web`
-- `@openwork/ui/solid` for Solid apps like `apps/app`
+- `@openwork-plus/ui/react` for React apps like `ee/apps/den-web`
+- `@openwork-plus/ui/solid` for Solid apps like `apps/app`
 
 The public API should stay aligned across both entrypoints. If you add a new component, add both implementations in the same task unless there is a documented blocker.
 

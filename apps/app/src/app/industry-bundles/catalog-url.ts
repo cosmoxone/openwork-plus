@@ -17,4 +17,5 @@ export function setIndustryBundleCatalogUrl(url: string): void {
   window.localStorage.setItem(CATALOG_URL_KEY, trimmed);
 }
 
+export const DEFAULT_PROD_CATALOG_URL = "https://hub.openwork.plus/catalog.json";
 export const DEFAULT_DEV_CATALOG_URL = "http://127.0.0.1:9123/catalog.json";

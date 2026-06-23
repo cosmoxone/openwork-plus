@@ -391,7 +391,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
       }
     }
 
-    throw new Error("Unable to resolve the local opencode-router version.");
+    throw new Error("Unable to resolve the local openwork-plus-opencode-router version.");
   };
 
   const materializeManifest = async (source: RuntimeAssetSource, opencode: ResolvedRuntimeBinary, router: ResolvedRuntimeBinary) => {
@@ -422,7 +422,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
     const manifestPath =
       source === "release"
         ? path.join(rootDir, "manifest.json")
-        : path.join(rootDir, "manifests", runtimeTarget, `openwork-server-v2-${serverVersion}.json`);
+        : path.join(rootDir, "manifests", runtimeTarget, `openwork-plus-server-v2-${serverVersion}.json`);
     await writeIfChanged(`${manifestPath}`, `${JSON.stringify(manifest, null, 2)}\n`);
     return manifest;
   };
@@ -703,8 +703,8 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
     }
 
     const asset = resolveOpencodeAsset(runtimeTarget);
-    const archivePath = path.join(os.tmpdir(), `openwork-server-v2-opencode-${Date.now()}-${asset}`);
-    const extractDir = await mkdtemp(path.join(os.tmpdir(), "openwork-server-v2-opencode-"));
+    const archivePath = path.join(os.tmpdir(), `openwork-plus-server-v2-opencode-${Date.now()}-${asset}`);
+    const extractDir = await mkdtemp(path.join(os.tmpdir(), "openwork-plus-server-v2-opencode-"));
     const downloadUrl = `https://github.com/anomalyco/opencode/releases/download/v${version}/${asset}`;
 
     try {
@@ -731,7 +731,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
 
   const ensureDevelopmentRouterBinary = async (version: string) => {
     if (!repoRoot) {
-      throw new Error("Cannot build opencode-router in development mode because the repo root could not be resolved.");
+      throw new Error("Cannot build openwork-plus-opencode-router in development mode because the repo root could not be resolved.");
     }
 
     const rootDir = resolveRootDir("development");
@@ -769,7 +769,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
       return outfile;
     } catch (error) {
       throw new Error(
-        `Failed to build the local opencode-router ${version} binary for ${runtimeTarget}: ${error instanceof Error ? error.message : String(error)}`,
+        `Failed to build the local openwork-plus-opencode-router ${version} binary for ${runtimeTarget}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   };

@@ -5,6 +5,10 @@ import { useExtensions } from "../extensions/provider";
 import { usePlatform } from "../context/platform";
 import type { SkillBundleV1 } from "../bundles/types";
 import { saveInstalledSkillToOpenWorkOrg } from "../bundles/skill-org-publish";
+import {
+  OPENWORK_PLUS_DEFAULT_SKILL_HUB_REPO_KEY,
+  OPENWORK_PLUS_SKILL_HUB_REPO,
+} from "../lib/plus-hub";
 
 import Button from "../components/button";
 import SelectMenu, { type SelectMenuOption } from "../components/select-menu";
@@ -256,7 +260,7 @@ export default function SkillsView(props: SkillsViewProps) {
   };
 
   const hubRepoKey = (repo: HubSkillRepo) => `${repo.owner}/${repo.repo}@${repo.ref}`;
-  const defaultHubRepoKey = "different-ai/openwork-hub@main";
+  const defaultHubRepoKey = OPENWORK_PLUS_DEFAULT_SKILL_HUB_REPO_KEY;
 
   const activeHubRepoLabel = createMemo(() => (extensions.hubRepo() ? hubRepoKey(extensions.hubRepo()!) : translate("skills.no_hub_repo_label")));
 
@@ -792,7 +796,7 @@ export default function SkillsView(props: SkillsViewProps) {
                           <div class="flex flex-wrap items-center gap-2">
                             <h4 class="text-[14px] font-semibold text-dls-text truncate">{skill.name}</h4>
                             <Show when={isOpenworkInjectedSkill(skill)}>
-                              <span class={tagClass}>OpenWork</span>
+                              <span class={tagClass}>OpenWork Plus</span>
                             </Show>
                           </div>
                           <Show when={skill.description} fallback={<p class="mt-2 text-[13px] text-dls-secondary">{translate("skills.no_description")}</p>}>
@@ -1024,7 +1028,7 @@ export default function SkillsView(props: SkillsViewProps) {
               <button
                 type="button"
                 onClick={() => {
-                  extensions.addHubRepo({ owner: "different-ai", repo: "openwork-hub", ref: "main" });
+                  extensions.addHubRepo({ ...OPENWORK_PLUS_SKILL_HUB_REPO });
                   void extensions.refreshHubSkills({ force: true });
                 }}
                 class={pillGhostClass}
@@ -1475,7 +1479,7 @@ export default function SkillsView(props: SkillsViewProps) {
                     type="text"
                     value={customRepoOwner()}
                     onInput={(e) => setCustomRepoOwner(e.currentTarget.value)}
-                    placeholder="different-ai"
+                    placeholder="comoxone"
                     class="w-full bg-dls-hover border border-dls-border rounded-lg px-3 py-2 text-xs font-mono text-dls-text focus:outline-none"
                     spellcheck={false}
                   />
@@ -1486,7 +1490,7 @@ export default function SkillsView(props: SkillsViewProps) {
                     type="text"
                     value={customRepoName()}
                     onInput={(e) => setCustomRepoName(e.currentTarget.value)}
-                    placeholder="openwork-hub"
+                    placeholder="openwork-plus-hub"
                     class="w-full bg-dls-hover border border-dls-border rounded-lg px-3 py-2 text-xs font-mono text-dls-text focus:outline-none"
                     spellcheck={false}
                   />

@@ -22,8 +22,8 @@ into a running OpenWork worker stack.
 Today it is responsible for things like:
 
 - starting and supervising `opencode`
-- starting and supervising `openwork-server`
-- optionally starting `opencode-router`
+- starting and supervising `openwork-plus-server`
+- optionally starting `openwork-plus-opencode-router`
 - exposing a daemon API for desktop workspace activation and disposal
 - managing detached and sandboxed runtime flows
 - handling host-side sidecar/binary resolution and upgrade control
@@ -99,13 +99,13 @@ Reasoning: native child supervision exists today in the orchestrator, but even t
 
 ### `startOpenworkServer()`
 
-- What it does: launches `openwork-server` with the bootstrap information needed for host mode today.
+- What it does: launches `openwork-plus-server` with the bootstrap information needed for host mode today.
 - Called from and when: called from `runStart()` and restart paths.
 - Ends up calling: the main OpenWork API/control layer process; over time this bootstrap contract should shrink toward the minimum needed to bring the server up.
 
 ### `startOpenCodeRouter()`
 
-- What it does: launches `opencode-router` when messaging/router support is enabled.
+- What it does: launches `openwork-plus-opencode-router` when messaging/router support is enabled.
 - Called from and when: called from `runStart()` and restart paths.
 - Ends up calling: the router sidecar process; launch may remain host-owned, but router product control should move into the server.
 
@@ -133,11 +133,11 @@ Disposition guidance:
 
 - all major functions in this section -> `Split`
 
-Reasoning: in the current orchestrator these are host/bootstrap concerns, but the Server V2 target changes the default distribution model. When the canonical runtime is `openwork-server-v2` bundling and extracting its own sidecars, the equivalent resolution logic should move into the server for that path. A thinner host shell may still need fallback or external-runtime resolution in some modes, so this boundary is better treated as `Split` than `Stay`.
+Reasoning: in the current orchestrator these are host/bootstrap concerns, but the Server V2 target changes the default distribution model. When the canonical runtime is `openwork-plus-server-v2` bundling and extracting its own sidecars, the equivalent resolution logic should move into the server for that path. A thinner host shell may still need fallback or external-runtime resolution in some modes, so this boundary is better treated as `Split` than `Stay`.
 
 ### `resolveOpenworkServerBin()`
 
-- What it does: decides which `openwork-server` binary to run.
+- What it does: decides which `openwork-plus-server` binary to run.
 - Called from and when: called during startup and upgrade.
 - Ends up calling: local sidecar selection or downloaded/external binary resolution.
 
@@ -258,7 +258,7 @@ Reasoning: local secret and filesystem layout for host relaunches is still host-
 
 ### orchestrator state persistence helpers
 
-- What they do: read and write `openwork-orchestrator-state.json` and related state snapshots.
+- What they do: read and write `openwork-plus-orchestrator-state.json` and related state snapshots.
 - Called from and when: called throughout daemon lifecycle and desktop reconnect flows.
 - Ends up calling: daemon/workspace/binary state persistence on disk.
 
@@ -405,7 +405,7 @@ Disposition guidance:
 - approvals CLI wrappers -> `Move`
 - simple status wrapper -> `Move`
 
-Reasoning: these are not orchestrator responsibilities. They are convenience clients over `openwork-server` APIs.
+Reasoning: these are not orchestrator responsibilities. They are convenience clients over `openwork-plus-server` APIs.
 
 ### `runFiles()`
 

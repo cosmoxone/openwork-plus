@@ -8,7 +8,7 @@ import { BridgeStore } from "../dist/db.js";
 
 test("BridgeStore allowlist and sessions", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "opencodeRouter-"));
-  const dbPath = path.join(dir, "opencode-router.db");
+  const dbPath = path.join(dir, "openwork-plus-opencode-router.db");
   const store = new BridgeStore(dbPath);
 
   assert.equal(store.isAllowed("telegram", "123"), false);

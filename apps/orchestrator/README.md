@@ -1,13 +1,13 @@
 # OpenWork Orchestrator
 
-Host orchestrator for opencode + OpenWork server + opencode-router. This is a CLI-first way to run host mode without the desktop UI.
+Host orchestrator for opencode + OpenWork server + openwork-plus-opencode-router. This is a CLI-first way to run host mode without the desktop UI.
 
-Published on npm as `openwork-orchestrator` and installs the `openwork` command.
+Published on npm as `openwork-plus-orchestrator` and installs the `openwork` command.
 
 ## Quick start
 
 ```bash
-npm install -g openwork-orchestrator
+npm install -g openwork-plus-orchestrator
 openwork start --workspace /path/to/workspace --approval auto
 ```
 
@@ -21,26 +21,26 @@ openwork serve --workspace /path/to/workspace
 `openwork` ships as a compiled binary, so Bun is not required at runtime.
 
 If npm skips the optional platform package, `postinstall` falls back to downloading the matching
-binary from the `openwork-orchestrator-v<version>` GitHub release. Override the download host with
+binary from the `openwork-plus-orchestrator-v<version>` GitHub release. Override the download host with
 `OPENWORK_ORCHESTRATOR_DOWNLOAD_BASE_URL` when you need to use a mirror.
 
-`openwork` downloads and caches the `openwork-server`, `opencode-router`, and `opencode` sidecars on
+`openwork` downloads and caches the `openwork-plus-server`, `openwork-plus-opencode-router`, and `opencode` sidecars on
 first run using a SHA-256 manifest. Use `--sidecar-dir` or `OPENWORK_SIDECAR_DIR` to control the
 cache location, and `--sidecar-base-url` / `--sidecar-manifest` to point at a custom host.
 
-Use `--sidecar-source` to control where `openwork-server` and `opencode-router` are resolved
+Use `--sidecar-source` to control where `openwork-plus-server` and `openwork-plus-opencode-router` are resolved
 (`auto` | `bundled` | `downloaded` | `external`), and `--opencode-source` to control
 `opencode` resolution. Set `OPENWORK_SIDECAR_SOURCE` / `OPENWORK_OPENCODE_SOURCE` to
 apply the same policies via env vars.
 
 By default the manifest is fetched from
-`https://github.com/different-ai/openwork/releases/download/openwork-orchestrator-v<version>/openwork-orchestrator-sidecars.json`.
+`https://github.com/comoxone/openwork-plus/releases/download/openwork-plus-orchestrator-v<version>/openwork-orchestrator-sidecars.json`.
 
 OpenCode Router is optional. If it exits, `openwork` continues running unless you pass
-`--opencode-router-required` or set `OPENWORK_OPENCODE_ROUTER_REQUIRED=1`.
+`--openwork-plus-opencode-router-required` or set `OPENWORK_OPENCODE_ROUTER_REQUIRED=1`.
 
 For development overrides only, set `OPENWORK_ALLOW_EXTERNAL=1` or pass `--allow-external` to use
-locally installed `openwork-server` or `opencode-router` binaries.
+locally installed `openwork-plus-server` or `openwork-plus-opencode-router` binaries.
 
 Add `--verbose` (or `OPENWORK_VERBOSE=1`) to print extra diagnostics about resolved binaries.
 
@@ -63,7 +63,7 @@ Equivalent env vars:
 Or from source:
 
 ```bash
-pnpm --filter openwork-orchestrator dev -- \
+pnpm --filter openwork-plus-orchestrator dev -- \
   start --workspace /path/to/workspace --approval auto --allow-external
 ```
 
@@ -115,7 +115,7 @@ Override with `OPENWORK_SANDBOX_MOUNT_ALLOWLIST`.
 
 ## Logging
 
-`openwork` emits a unified log stream from OpenCode, OpenWork server, and opencode-router. Use JSON format for
+`openwork` emits a unified log stream from OpenCode, OpenWork server, and openwork-plus-opencode-router. Use JSON format for
 structured, OpenTelemetry-friendly logs and a stable run id for correlation.
 
 ```bash
@@ -125,7 +125,7 @@ OPENWORK_LOG_FORMAT=json openwork start --workspace /path/to/workspace
 Use `--run-id` or `OPENWORK_RUN_ID` to supply your own correlation id.
 
 OpenWork server logs every request with method, path, status, and duration. Disable this when running
-`openwork-server` directly by setting `OPENWORK_LOG_REQUESTS=0` or passing `--no-log-requests`.
+`openwork-plus-server` directly by setting `OPENWORK_LOG_REQUESTS=0` or passing `--no-log-requests`.
 
 ## Router daemon (multi-workspace)
 
@@ -224,5 +224,5 @@ openwork start \
   --workspace /path/to/workspace \
   --allow-external \
   --openwork-server-bin apps/server/src/cli.ts \
-  --opencode-router-bin apps/opencode-router/dist/cli.js
+  --openwork-plus-opencode-router-bin apps/openwork-plus-opencode-router/dist/cli.js
 ```

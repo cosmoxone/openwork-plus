@@ -71,9 +71,9 @@ But what you can do is:
 
 ### OpenWork Server
 
-* Runs standalone via `openwork-server` CLI.
+* Runs standalone via `openwork-plus-server` CLI.
 * Provides filesystem-backed config surfaces (skills, plugins, MCP, commands).
-* Sidecar lifecycle is described in `packages/app/pr/openwork-server.md`.
+* Sidecar lifecycle is described in `packages/app/pr/openwork-plus-server.md`.
 * Can also be consumed as a hosted OpenWork Cloud control surface for remote worker lifecycle.
 
 ### OpenWork Cloud Control Plane
@@ -87,7 +87,7 @@ But what you can do is:
 
 ### OpenCode Router
 
-* Runs standalone via `opencode-router` CLI.
+* Runs standalone via `openwork-plus-opencode-router` CLI.
 * Must be able to use OpenWork server for config and approvals.
 
 ## Non-goals
@@ -100,4 +100,4 @@ But what you can do is:
 * `VISION.md`
 * `PRINCIPLES.md`
 * `ARCHITECTURE.md`
-* `packages/app/pr/openwork-server.md`
+* `packages/app/pr/openwork-plus-server.md`

@@ -1,5 +1,5 @@
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
-import { normalizeDesktopConfig, type DesktopConfig as SharedDesktopConfig } from "@openwork/types/den/desktop-app-restrictions";
+import { normalizeDesktopConfig, type DesktopConfig as SharedDesktopConfig } from "@openwork-plus/types/den/desktop-app-restrictions";
 import { isDesktopDeployment } from "./openwork-deployment";
 import {
   dispatchDenSettingsChanged,

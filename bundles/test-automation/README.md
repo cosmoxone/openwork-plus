@@ -9,7 +9,7 @@
 | Skills | `skills/generate-test-cases` `analyze-failure` `create-regression` |
 | 斜杠命令 | `commands/*.md` → `.opencode/commands/` |
 | CLI | `test-runner`（`bin/test-runner-<platform>`） |
-| MCP | `test-db`（`@openwork/test-db-mcp`）、`github-actions`（社区包） |
+| MCP | `test-db`（`@openwork-plus/test-db-mcp`）、`github-actions`（社区包） |
 
 ## 安装
 

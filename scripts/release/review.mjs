@@ -68,19 +68,19 @@ addCheck(
   `${versions.app ?? "?"} vs ${versions.desktop ?? "?"}`,
 );
 addCheck(
-  "App/openwork-orchestrator versions match",
+  "App/openwork-plus-orchestrator versions match",
   versions.app &&
     versions.orchestrator &&
     versions.app === versions.orchestrator,
   `${versions.app ?? "?"} vs ${versions.orchestrator ?? "?"}`,
 );
 addCheck(
-  "App/openwork-server versions match",
+  "App/openwork-plus-server versions match",
   versions.app && versions.server && versions.app === versions.server,
   `${versions.app ?? "?"} vs ${versions.server ?? "?"}`,
 );
 addCheck(
-  "App/opencode-router versions match",
+  "App/openwork-plus-opencode-router versions match",
   versions.app &&
     versions.opencodeRouter &&
     versions.app === versions.opencodeRouter,
@@ -118,10 +118,10 @@ if (versions.opencode) {
 const openworkServerRange = versions.orchestratorOpenworkServerRange ?? "";
 const openworkServerPinned = /^\d+\.\d+\.\d+/.test(openworkServerRange);
 if (!openworkServerRange) {
-  addWarning("openwork-orchestrator is missing an openwork-server dependency.");
+  addWarning("openwork-plus-orchestrator is missing an openwork-plus-server dependency.");
 } else if (!openworkServerPinned) {
   addWarning(
-    `openwork-orchestrator openwork-server dependency is not pinned (${openworkServerRange}).`,
+    `openwork-plus-orchestrator openwork-plus-server dependency is not pinned (${openworkServerRange}).`,
   );
 } else {
   addCheck(
@@ -142,7 +142,7 @@ const sidecarManifestPath = resolve(
 if (existsSync(sidecarManifestPath)) {
   const manifest = readJson(sidecarManifestPath);
   addCheck(
-    "Sidecar manifest version matches openwork-orchestrator",
+    "Sidecar manifest version matches openwork-plus-orchestrator",
     versions.orchestrator && manifest.version === versions.orchestrator,
     `${manifest.version ?? "?"} vs ${versions.orchestrator ?? "?"}`,
   );
@@ -150,21 +150,21 @@ if (existsSync(sidecarManifestPath)) {
   const routerEntry = manifest.entries?.["opencode-router"]?.version;
   if (serverEntry) {
     addCheck(
-      "Sidecar manifest openwork-server version matches",
+      "Sidecar manifest openwork-plus-server version matches",
       versions.server && serverEntry === versions.server,
       `${serverEntry ?? "?"} vs ${versions.server ?? "?"}`,
     );
   }
   if (routerEntry) {
     addCheck(
-      "Sidecar manifest opencode-router version matches",
+      "Sidecar manifest openwork-plus-opencode-router version matches",
       versions.opencodeRouter && routerEntry === versions.opencodeRouter,
       `${routerEntry ?? "?"} vs ${versions.opencodeRouter ?? "?"}`,
     );
   }
 } else {
   addWarning(
-    "Sidecar manifest missing (run pnpm --filter openwork-orchestrator build:sidecars).",
+    "Sidecar manifest missing (run pnpm --filter openwork-plus-orchestrator build:sidecars).",
   );
 }
 

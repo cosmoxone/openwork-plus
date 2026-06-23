@@ -62,7 +62,7 @@ export function startServer(options: StartServerOptions = {}): StartedServer {
         bootstrap: dependencies.database.getStartupDiagnostics(),
         host,
         port: Number(resolvedPort || port),
-        scope: "openwork-server-v2.start",
+        scope: "openwork-plus-server-v2.start",
         url,
       }),
     );

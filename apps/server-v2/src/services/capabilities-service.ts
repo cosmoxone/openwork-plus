@@ -80,7 +80,7 @@ export type CapabilitiesData = {
   };
   transport: {
     rootMounted: true;
-    sdkPackage: "@openwork/server-sdk";
+    sdkPackage: "@openwork-plus/server-sdk";
     v2: true;
   };
 };
@@ -173,7 +173,7 @@ export function createCapabilitiesService(input: {
         },
         transport: {
           rootMounted: true,
-          sdkPackage: "@openwork/server-sdk",
+          sdkPackage: "@openwork-plus/server-sdk",
           v2: true,
         },
       };

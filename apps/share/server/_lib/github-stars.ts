@@ -11,7 +11,7 @@ function formatCompact(value: number): string {
 
 export async function getGithubStars(): Promise<string> {
   try {
-    const response = await fetch("https://api.github.com/repos/different-ai/openwork", {
+    const response = await fetch("https://api.github.com/repos/comoxone/openwork-plus", {
       headers: {
         Accept: "application/vnd.github+json",
       },

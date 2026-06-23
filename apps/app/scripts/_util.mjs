@@ -5,6 +5,7 @@ import net from "node:net";
 import { realpathSync, statSync } from "node:fs";
 
 import { createOpencodeClient } from "@opencode-ai/sdk/v2/client";
+import { findOpencodeBinSync, defaultMonorepoRoot } from "../../../scripts/resolve-opencode-bin.mjs";
 
 function resolveBasicAuthHeader() {
   const password = process.env.OPENCODE_SERVER_PASSWORD?.trim() ?? "";
@@ -26,8 +27,10 @@ export function makeClient({ baseUrl, directory }) {
 }
 
 export function resolveOpencodeCommand() {
-  const override = process.env.OPENCODE_BIN?.trim();
+  const override = process.env.OPENCODE_BIN?.trim() || process.env.OPENWORK_OPENCODE_BIN?.trim();
   if (override) return override;
+  const sidecar = findOpencodeBinSync(defaultMonorepoRoot());
+  if (sidecar) return sidecar;
   return "opencode";
 }
 

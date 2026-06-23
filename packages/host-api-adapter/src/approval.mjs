@@ -3,7 +3,7 @@
  */
 import { Methods } from "../../appserver-contract/src/runtime.mjs";
 
-/** @typedef {(params: import('@openwork/appserver-contract').ExecCommandApprovalParams) => Promise<import('@openwork/appserver-contract').ApprovalDecision>} ApprovalHandler */
+/** @typedef {(params: import('@openwork-plus/appserver-contract').ExecCommandApprovalParams) => Promise<import('@openwork-plus/appserver-contract').ApprovalDecision>} ApprovalHandler */
 
 /** @type {ApprovalHandler | null} */
 let clientHandler = null;
@@ -24,8 +24,8 @@ export function hasClientApprovalCapability() {
 }
 
 /**
- * @param {import('@openwork/appserver-contract').ExecCommandApprovalParams} params
- * @returns {Promise<import('@openwork/appserver-contract').ApprovalDecision>}
+ * @param {import('@openwork-plus/appserver-contract').ExecCommandApprovalParams} params
+ * @returns {Promise<import('@openwork-plus/appserver-contract').ApprovalDecision>}
  */
 export async function requestExecApproval(params) {
   if (clientHandler) {

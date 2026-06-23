@@ -21,7 +21,7 @@ const orchestratorPkg = JSON.parse(
 const orchestratorVersion = String(orchestratorPkg.version ?? "").trim();
 if (!orchestratorVersion) {
   throw new Error(
-    "openwork-orchestrator version missing in apps/orchestrator/package.json",
+    "openwork-plus-orchestrator version missing in apps/orchestrator/package.json",
   );
 }
 
@@ -38,7 +38,7 @@ const serverPkg = JSON.parse(
 const serverVersion = String(serverPkg.version ?? "").trim();
 if (!serverVersion) {
   throw new Error(
-    "openwork-server version missing in apps/server/package.json",
+    "openwork-plus-server version missing in apps/server/package.json",
   );
 }
 
@@ -51,7 +51,7 @@ const routerPkg = JSON.parse(
 const routerVersion = String(routerPkg.version ?? "").trim();
 if (!routerVersion) {
   throw new Error(
-    "opencode-router version missing in apps/opencode-router/package.json",
+    "openwork-plus-opencode-router version missing in apps/openwork-plus-opencode-router/package.json",
   );
 }
 
@@ -90,18 +90,18 @@ const entries = {
 
 for (const target of targets) {
   const ext = target.id.startsWith("windows") ? ".exe" : "";
-  const serverSrc = join(serverDir, `openwork-server-${target.bun}${ext}`);
+  const serverSrc = join(serverDir, `openwork-plus-server-${target.bun}${ext}`);
   if (!existsSync(serverSrc)) {
-    throw new Error(`Missing openwork-server binary at ${serverSrc}`);
+    throw new Error(`Missing openwork-plus-server binary at ${serverSrc}`);
   }
-  const serverDest = join(outdir, `openwork-server-${target.id}${ext}`);
+  const serverDest = join(outdir, `openwork-plus-server-${target.id}${ext}`);
   copyFileSync(serverSrc, serverDest);
 
-  const routerSrc = join(routerDir, `opencode-router-${target.bun}${ext}`);
+  const routerSrc = join(routerDir, `openwork-plus-opencode-router-${target.bun}${ext}`);
   if (!existsSync(routerSrc)) {
-    throw new Error(`Missing opencode-router binary at ${routerSrc}`);
+    throw new Error(`Missing openwork-plus-opencode-router binary at ${routerSrc}`);
   }
-  const routerDest = join(outdir, `opencode-router-${target.id}${ext}`);
+  const routerDest = join(outdir, `openwork-plus-opencode-router-${target.id}${ext}`);
   copyFileSync(routerSrc, routerDest);
 
   entries["openwork-server"].targets[target.id] = {

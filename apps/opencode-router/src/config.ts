@@ -122,7 +122,7 @@ function expandHome(value: string): string {
 function resolveConfigPath(dataDir: string, env: EnvLike): string {
   const override = env.OPENCODE_ROUTER_CONFIG_PATH?.trim();
   if (override) return expandHome(override);
-  return path.join(dataDir, "opencode-router.json");
+  return path.join(dataDir, "openwork-plus-opencode-router.json");
 }
 
 export function readConfigFile(configPath: string): { exists: boolean; config: OpenCodeRouterConfigFile } {
@@ -233,8 +233,8 @@ export function loadConfig(
 
   const defaultDataDir = path.join(os.homedir(), ".openwork", "opencode-router");
   const dataDir = expandHome(env.OPENCODE_ROUTER_DATA_DIR ?? defaultDataDir);
-  const dbPath = expandHome(env.OPENCODE_ROUTER_DB_PATH ?? path.join(dataDir, "opencode-router.db"));
-  const logFile = expandHome(env.OPENCODE_ROUTER_LOG_FILE ?? path.join(dataDir, "logs", "opencode-router.log"));
+  const dbPath = expandHome(env.OPENCODE_ROUTER_DB_PATH ?? path.join(dataDir, "openwork-plus-opencode-router.db"));
+  const logFile = expandHome(env.OPENCODE_ROUTER_LOG_FILE ?? path.join(dataDir, "logs", "openwork-plus-opencode-router.log"));
   const configPath = resolveConfigPath(dataDir, env);
   let { config: configFile } = readConfigFile(configPath);
   const opencodeDirectory = env.OPENCODE_DIRECTORY?.trim() || configFile.opencodeDirectory || "";

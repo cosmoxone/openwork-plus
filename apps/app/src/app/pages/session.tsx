@@ -1316,8 +1316,8 @@ export default function SessionView(props: SessionViewProps) {
       props.busyLabel === "status.connecting"
         ? "Connecting to OpenCode"
         : props.busyLabel === "status.starting_engine"
-          ? "Starting OpenWork"
-          : "Preparing OpenWork";
+          ? "Starting OpenWork Plus"
+          : "Preparing OpenWork Plus";
 
     return {
       label,

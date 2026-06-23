@@ -1,20 +1,20 @@
 # OpenWork Server
 
-Filesystem-backed API for OpenWork remote clients. This package provides the OpenWork server layer described in `apps/app/pr/openwork-server.md` and is intentionally independent from the desktop app.
+Filesystem-backed API for OpenWork remote clients. This package provides the OpenWork server layer described in `apps/app/pr/openwork-plus-server.md` and is intentionally independent from the desktop app.
 
 ## Quick start
 
 ```bash
-npm install -g openwork-server
-openwork-server --workspace /path/to/workspace --approval auto
+npm install -g openwork-plus-server
+openwork-plus-server --workspace /path/to/workspace --approval auto
 ```
 
-`openwork-server` ships as a compiled binary, so Bun is not required at runtime.
+`openwork-plus-server` ships as a compiled binary, so Bun is not required at runtime.
 
 Or from source:
 
 ```bash
-pnpm --filter openwork-server dev -- \
+pnpm --filter openwork-plus-server dev -- \
   --workspace /path/to/workspace \
   --approval auto
 ```
@@ -134,12 +134,12 @@ OpenCode proxy:
 
 OpenCode Router proxy:
 
-- `GET|POST|... /opencode-router/*`
-- `GET|POST|... /w/:id/opencode-router/*`
+- `GET|POST|... /openwork-plus-opencode-router/*`
+- `GET|POST|... /w/:id/openwork-plus-opencode-router/*`
 
 Auth policy:
-- `GET /opencode-router/health` requires client auth.
-- All other `/opencode-router/*` endpoints require host/owner auth.
+- `GET /openwork-plus-opencode-router/health` requires client auth.
+- All other `/openwork-plus-opencode-router/*` endpoints require host/owner auth.
 
 ## Approvals
 

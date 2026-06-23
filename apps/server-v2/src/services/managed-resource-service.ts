@@ -11,7 +11,7 @@ import { RouteError } from "../http.js";
 
 const DEFAULT_HUB_REPO = {
   owner: "different-ai",
-  repo: "openwork-hub",
+  repo: "openwork-plus-hub",
   ref: "main",
 } as const;
 
@@ -1034,7 +1034,7 @@ export function createManagedResourceService(input: {
         ref: normalizeString(repo?.ref) || DEFAULT_HUB_REPO.ref,
       };
       const listing = await fetch(`https://api.github.com/repos/${encodeURIComponent(resolvedRepo.owner)}/${encodeURIComponent(resolvedRepo.repo)}/contents/skills?ref=${encodeURIComponent(resolvedRepo.ref)}`, {
-        headers: { Accept: "application/vnd.github+json", "User-Agent": "openwork-server-v2" },
+        headers: { Accept: "application/vnd.github+json", "User-Agent": "openwork-plus-server-v2" },
       });
       if (!listing.ok) {
         throw new RouteError(502, "bad_gateway", `Failed to fetch hub catalog (${listing.status}).`);
@@ -1050,7 +1050,7 @@ export function createManagedResourceService(input: {
         }
         try {
           const content = await fetch(`${rawBase}/skills/${encodeURIComponent(name)}/SKILL.md`, {
-            headers: { Accept: "text/plain", "User-Agent": "openwork-server-v2" },
+            headers: { Accept: "text/plain", "User-Agent": "openwork-plus-server-v2" },
           }).then((response) => response.ok ? response.text() : "");
           if (!content) {
             continue;
@@ -1082,7 +1082,7 @@ export function createManagedResourceService(input: {
       };
       const rawUrl = `https://raw.githubusercontent.com/${encodeURIComponent(repo.owner)}/${encodeURIComponent(repo.repo)}/${encodeURIComponent(repo.ref)}/skills/${encodeURIComponent(inputValue.name)}/SKILL.md`;
       const response = await fetch(rawUrl, {
-        headers: { Accept: "text/plain", "User-Agent": "openwork-server-v2" },
+        headers: { Accept: "text/plain", "User-Agent": "openwork-plus-server-v2" },
       });
       if (!response.ok) {
         throw new RouteError(404, "not_found", `Hub skill not found: ${inputValue.name}`);

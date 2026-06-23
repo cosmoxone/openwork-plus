@@ -1,9 +1,9 @@
-pkgname=openwork
-pkgver=0.11.212
+pkgname=openwork-plus
+pkgver=0.11.213
 pkgrel=1 # pkgrel should change when PKGBUILD does. Standard is to change back to 1 next time. Any interger is valid.
-pkgdesc="An Open source alternative to Claude Cowork"
+pkgdesc="OpenWork Plus — enhanced OpenWork with industry bundles and automation"
 arch=('x86_64' 'aarch64')
-url="https://github.com/different-ai/openwork"
+url="https://github.com/comoxone/openwork-plus"
 license=('MIT')
 # webkit2gtk-4.1 provides both webkit2gtk-4.1.pc and javascriptcoregtk-4.1.pc
 depends=('gtk3' 'glib2' 'libayatana-appindicator' 'libsoup3' 'webkit2gtk-4.1' 'openssl' 'dbus' 'librsvg')

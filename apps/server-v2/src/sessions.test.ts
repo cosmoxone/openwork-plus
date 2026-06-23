@@ -20,8 +20,8 @@ function createTestApp() {
     environment: "test",
     inMemory: true,
     legacy: {
-      desktopDataDir: `/tmp/openwork-server-v2-phase6-desktop-${Math.random().toString(16).slice(2)}`,
-      orchestratorDataDir: `/tmp/openwork-server-v2-phase6-orchestrator-${Math.random().toString(16).slice(2)}`,
+      desktopDataDir: `/tmp/openwork-plus-server-v2-phase6-desktop-${Math.random().toString(16).slice(2)}`,
+      orchestratorDataDir: `/tmp/openwork-plus-server-v2-phase6-orchestrator-${Math.random().toString(16).slice(2)}`,
     },
     runtime: {
       bootstrapPolicy: "disabled",

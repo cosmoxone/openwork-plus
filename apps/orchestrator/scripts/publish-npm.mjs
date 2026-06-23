@@ -11,7 +11,7 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)))
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"))
 const version = String(pkg.version || "").trim()
 if (!version) {
-  throw new Error("openwork-orchestrator version missing in apps/orchestrator/package.json")
+  throw new Error("openwork-plus-orchestrator version missing in apps/orchestrator/package.json")
 }
 
 const outroot = join(root, "dist", "npm")
@@ -47,7 +47,7 @@ function writeJson(filepath, data) {
 function platformPkgName(target) {
   const platform = target.id.split("-")[0]
   const arch = target.id.split("-").slice(1).join("-")
-  return `openwork-orchestrator-${platform}-${arch}`
+  return `openwork-plus-orchestrator-${platform}-${arch}`
 }
 
 const optionalDependencies = {}
@@ -60,7 +60,7 @@ for (const target of targets) {
   const ext = target.id.startsWith("windows") ? ".exe" : ""
   const src = join(root, "dist", "bin", `openwork-${target.bun}${ext}`)
   if (!existsSync(src)) {
-    throw new Error(`Missing openwork binary at ${src}. Run: pnpm --filter openwork-orchestrator build:bin:all`)
+    throw new Error(`Missing openwork binary at ${src}. Run: pnpm --filter openwork-plus-orchestrator build:bin:all`)
   }
 
   const dir = join(outroot, name)
@@ -76,7 +76,7 @@ for (const target of targets) {
   writeJson(join(dir, "package.json"), {
     name,
     version,
-    description: "Platform binary for openwork-orchestrator",
+    description: "Platform binary for openwork-plus-orchestrator",
     license: "MIT",
     os: [target.os],
     cpu: [target.cpu],
@@ -110,7 +110,7 @@ copyFileSync(constantsSrc, join(meta, "constants.json"))
 writeJson(join(meta, "package.json"), {
   name: "openwork-orchestrator",
   version,
-  description: "OpenWork host orchestrator for opencode + OpenWork server + opencode-router",
+  description: "OpenWork host orchestrator for opencode + OpenWork server + openwork-plus-opencode-router",
   license: "MIT",
   bin: {
     openwork: "./bin/openwork",

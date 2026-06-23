@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const args = process.argv.slice(2);
 
-const binaryName = process.platform === "win32" ? "openwork-server.exe" : "openwork-server";
+const binaryName = process.platform === "win32" ? "openwork-plus-server.exe" : "openwork-server";
 const compiledBinary = fileURLToPath(new URL(`./dist/bin/${binaryName}`, `${new URL("../", import.meta.url)}`));
 const builtCli = fileURLToPath(new URL("./dist/cli.js", `${new URL("../", import.meta.url)}`));
 const sourceCli = fileURLToPath(new URL("./src/cli.ts", `${new URL("../", import.meta.url)}`));

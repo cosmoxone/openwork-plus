@@ -3,7 +3,7 @@ import { startServer } from "./bootstrap/server.js";
 
 function printHelp() {
   process.stdout.write([
-    "openwork-server-v2",
+    "openwork-plus-server-v2",
     "",
     "Options:",
     "  --host <host>   Hostname to bind. Defaults to 127.0.0.1.",
@@ -52,7 +52,7 @@ async function main() {
   const runtime = startServer({ host, port });
 
   const shutdown = async (signal: NodeJS.Signals) => {
-    console.info(JSON.stringify({ scope: "openwork-server-v2.stop", signal }));
+    console.info(JSON.stringify({ scope: "openwork-plus-server-v2.stop", signal }));
     await runtime.stop();
     process.exit(0);
   };

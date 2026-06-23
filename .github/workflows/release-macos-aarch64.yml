@@ -39,12 +39,12 @@ on:
         type: boolean
         default: true
       publish_sidecars:
-        description: "Build + upload openwork-orchestrator sidecar release assets"
+        description: "Build + upload openwork-plus-orchestrator sidecar release assets"
         required: false
         type: boolean
         default: true
       publish_npm:
-        description: "Publish openwork-orchestrator/openwork-server/opencode-router to npm if versions changed"
+        description: "Publish openwork-plus-orchestrator/openwork-plus-server/openwork-plus-opencode-router to npm if versions changed"
         required: false
         type: boolean
         default: true
@@ -606,7 +606,7 @@ jobs:
             --clobber
 
   release-orchestrator-sidecars:
-    name: Build + Upload openwork-orchestrator Sidecars
+    name: Build + Upload openwork-plus-orchestrator Sidecars
     needs: [resolve-release, verify-release]
     if: needs.resolve-release.outputs.publish_sidecars == 'true'
     runs-on: blacksmith-4vcpu-ubuntu-2404
@@ -655,7 +655,7 @@ jobs:
         id: sidecar-versions
         shell: bash
         run: |
-          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
+          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/openwork-plus-opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
 
       - name: Resolve SOURCE_DATE_EPOCH
         id: source-date
@@ -664,14 +664,14 @@ jobs:
           epoch=$(git show -s --format=%ct "${RELEASE_TAG}")
           echo "epoch=$epoch" >> "$GITHUB_OUTPUT"
 
-      - name: Check openwork-orchestrator release
+      - name: Check openwork-plus-orchestrator release
         id: orchestrator-release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag="openwork-orchestrator-v${{ steps.sidecar-versions.outputs.orchestrator }}"
+          tag="openwork-plus-orchestrator-v${{ steps.sidecar-versions.outputs.orchestrator }}"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
@@ -682,25 +682,25 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: ${{ steps.source-date.outputs.epoch }}
         run: |
-          pnpm --filter openwork-orchestrator build:bin:all
-          pnpm --filter openwork-orchestrator build:sidecars
+          pnpm --filter openwork-plus-orchestrator build:bin:all
+          pnpm --filter openwork-plus-orchestrator build:sidecars
 
       - name: Release review (strict)
         env:
           SOURCE_DATE_EPOCH: ${{ steps.source-date.outputs.epoch }}
         run: node scripts/release/review.mjs --strict
 
-      - name: Create openwork-orchestrator release
+      - name: Create openwork-plus-orchestrator release
         if: steps.orchestrator-release.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           version="${{ steps.sidecar-versions.outputs.orchestrator }}"
-          tag="openwork-orchestrator-v${version}"
-          notes="Sidecar bundle for openwork-orchestrator v${version}.\n\nopenwork-server: ${{ steps.sidecar-versions.outputs.server }}\nopencodeRouter: ${{ steps.sidecar-versions.outputs.opencodeRouter }}"
+          tag="openwork-plus-orchestrator-v${version}"
+          notes="Sidecar bundle for openwork-plus-orchestrator v${version}.\n\nopenwork-plus-server: ${{ steps.sidecar-versions.outputs.server }}\nopencodeRouter: ${{ steps.sidecar-versions.outputs.opencodeRouter }}"
           gh release create "$tag" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "openwork-orchestrator v${version}" \
+            --title "openwork-plus-orchestrator v${version}" \
             --notes "$notes" \
             --latest=false
 
@@ -708,7 +708,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="openwork-orchestrator-v${{ steps.sidecar-versions.outputs.orchestrator }}"
+          tag="openwork-plus-orchestrator-v${{ steps.sidecar-versions.outputs.orchestrator }}"
           gh release upload "$tag" apps/orchestrator/dist/bin/* apps/orchestrator/dist/sidecars/* --repo "$GITHUB_REPOSITORY" --clobber
 
   publish-npm:
@@ -766,7 +766,7 @@ jobs:
         id: package-versions
         shell: bash
         run: |
-          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
+          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/openwork-plus-opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
 
       - name: Check npm versions
         id: npm-versions
@@ -779,9 +779,9 @@ jobs:
           set -euo pipefail
           # npm view exits non-zero for packages that don't exist yet (404).
           # Treat missing packages as "not published" so release can publish them.
-          orchestrator_current="$(npm view openwork-orchestrator version 2>/dev/null || true)"
-          server_current="$(npm view openwork-server version 2>/dev/null || true)"
-          opencodeRouter_current="$(npm view opencode-router version 2>/dev/null || true)"
+          orchestrator_current="$(npm view openwork-plus-orchestrator version 2>/dev/null || true)"
+          server_current="$(npm view openwork-plus-server version 2>/dev/null || true)"
+          opencodeRouter_current="$(npm view openwork-plus-opencode-router version 2>/dev/null || true)"
 
           if [ "$orchestrator_current" = "$ORCHESTRATOR_VERSION" ]; then
             echo "publish_orchestrator=false" >> "$GITHUB_OUTPUT"
@@ -830,27 +830,27 @@ jobs:
           npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
           echo "enabled=true" >> "$GITHUB_OUTPUT"
 
-      - name: Publish openwork-server
+      - name: Publish openwork-plus-server
         if: steps.npm-auth.outputs.enabled == 'true' && steps.npm-versions.outputs.publish_server == 'true'
-        run: pnpm --filter openwork-server publish --access public --no-git-checks
+        run: pnpm --filter openwork-plus-server publish --access public --no-git-checks
 
-      - name: Publish opencode-router
+      - name: Publish openwork-plus-opencode-router
         if: steps.npm-auth.outputs.enabled == 'true' && steps.npm-versions.outputs.publish_opencodeRouter == 'true'
-        run: pnpm --filter opencode-router publish --access public --no-git-checks
+        run: pnpm --filter openwork-plus-opencode-router publish --access public --no-git-checks
 
-      - name: Publish openwork-orchestrator
+      - name: Publish openwork-plus-orchestrator
         if: steps.npm-auth.outputs.enabled == 'true' && steps.npm-versions.outputs.publish_orchestrator == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           ORCHESTRATOR_VERSION: ${{ steps.package-versions.outputs.orchestrator }}
         run: |
           set -euo pipefail
-          tag="openwork-orchestrator-v${ORCHESTRATOR_VERSION}"
+          tag="openwork-plus-orchestrator-v${ORCHESTRATOR_VERSION}"
           if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "openwork-orchestrator sidecar release $tag not found. Publish sidecars before openwork-orchestrator." >&2
+            echo "openwork-plus-orchestrator sidecar release $tag not found. Publish sidecars before openwork-plus-orchestrator." >&2
             exit 1
           fi
-          pnpm --filter openwork-orchestrator build:bin:all
+          pnpm --filter openwork-plus-orchestrator build:bin:all
           node apps/orchestrator/scripts/publish-npm.mjs
 
   publish-daytona-snapshot:

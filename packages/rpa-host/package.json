@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/rpa-host",
+  "name": "@openwork-plus/rpa-host",
   "version": "0.1.0",
   "description": "RPA 控制面板 Host API：截图列表、操作历史、MCP 截图调用",
   "type": "module",
@@ -10,7 +10,10 @@
   "bin": {
     "rpa-host": "bin/rpa-host.mjs"
   },
-  "files": ["src", "bin"],
+  "files": [
+    "src",
+    "bin"
+  ],
   "scripts": {
     "test": "node test/rpa-host-smoke.mjs"
   },

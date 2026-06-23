@@ -85,7 +85,7 @@ class FakeBot {
 
 test("createTelegramAdapter sends text/images/audio/files", async () => {
   const logger = createLoggerStub();
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-router-tg-send-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwork-plus-opencode-router-tg-send-"));
   const imagePath = path.join(tempDir, "sample.jpg");
   const audioPath = path.join(tempDir, "sample.ogg");
   const filePath = path.join(tempDir, "sample.txt");
@@ -127,7 +127,7 @@ test("createTelegramAdapter sends text/images/audio/files", async () => {
 test("createTelegramAdapter downloads inbound media to store", async () => {
   const logger = createLoggerStub();
   const inbound = [];
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-router-tg-inbound-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwork-plus-opencode-router-tg-inbound-"));
   const mediaStore = new MediaStore(path.join(tempDir, "media"));
   await mediaStore.ensureReady();
 

@@ -1,6 +1,6 @@
 {
-  "name": "openwork-server",
-  "version": "0.11.212",
+  "name": "openwork-plus-server",
+  "version": "0.11.213",
   "description": "Filesystem-backed API for OpenWork remote clients",
   "type": "module",
   "bin": {
@@ -23,12 +23,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/different-ai/openwork.git",
+    "url": "git+https://github.com/comoxone/openwork-plus.git",
     "directory": "apps/server"
   },
-  "homepage": "https://github.com/different-ai/openwork/tree/dev/apps/server",
+  "homepage": "https://github.com/comoxone/openwork-plus/tree/main/apps/server",
   "bugs": {
-    "url": "https://github.com/different-ai/openwork/issues"
+    "url": "https://github.com/comoxone/openwork-plus/issues"
   },
   "keywords": [
     "openwork",

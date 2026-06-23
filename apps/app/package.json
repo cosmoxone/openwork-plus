@@ -1,7 +1,7 @@
 {
-  "name": "@openwork/app",
+  "name": "@openwork-plus/app",
   "private": true,
-  "version": "0.11.212",
+  "version": "0.11.213",
   "type": "module",
   "scripts": {
     "dev": "OPENWORK_DEV_MODE=1 vite",
@@ -47,8 +47,6 @@
     "@codemirror/view": "^6.38.0",
     "@lexical/react": "^0.35.0",
     "@opencode-ai/sdk": "^1.4.9",
-    "@openwork/types": "workspace:*",
-    "@openwork/ui": "workspace:*",
     "@radix-ui/colors": "^3.0.0",
     "@solid-primitives/event-bus": "^1.1.2",
     "@solid-primitives/storage": "^4.3.3",
@@ -74,7 +72,9 @@
     "recharts": "^3.8.1",
     "remark-gfm": "^4.0.1",
     "solid-js": "^1.9.0",
-    "streamdown": "^2.5.0"
+    "streamdown": "^2.5.0",
+    "@openwork-plus/types": "workspace:*",
+    "@openwork-plus/ui": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

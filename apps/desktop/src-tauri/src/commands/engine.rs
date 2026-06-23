@@ -151,7 +151,7 @@ pub fn engine_info(
 
         // The orchestrator can keep running across app relaunches. In that case, the in-memory
         // EngineManager state (including opencode basic auth) is lost. Persist a small
-        // auth snapshot next to openwork-orchestrator-state.json so the UI can reconnect.
+        // auth snapshot next to openwork-plus-orchestrator-state.json so the UI can reconnect.
         let auth_snapshot = orchestrator::read_orchestrator_auth(&data_dir);
         let opencode_username = fallback_username.or_else(|| {
             auth_snapshot
@@ -501,7 +501,7 @@ pub fn engine_start(
 
         let daemon_base_url = format!("http://{}:{}", daemon_host, daemon_port);
 
-        // openwork-orchestrator doesn't start its daemon HTTP server until it has ensured that
+        // openwork-plus-orchestrator doesn't start its daemon HTTP server until it has ensured that
         // OpenCode is available. On fresh installs (or after schema changes), OpenCode can run a
         // one-time SQLite migration that takes longer than a few seconds.
         //

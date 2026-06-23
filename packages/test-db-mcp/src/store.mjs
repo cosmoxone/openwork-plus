@@ -1,4 +1,4 @@
-// @openwork/test-db-mcp 共享的 JSON 测试结果存储（与 test-runner --record 同格式）。
+// @openwork-plus/test-db-mcp 共享的 JSON 测试结果存储（与 test-runner --record 同格式）。
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";

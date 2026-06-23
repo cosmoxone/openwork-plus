@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+/** Revert accidental path renames from rename-npm-packages (local files keep openwork-server.ts names). */
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const SKIP = new Set(["node_modules", ".git", "docs", "ee", "vendor"]);
+
+const FIXES = [
+  ["../../app/lib/openwork-server", "../../app/lib/openwork-server"],
+  ["../lib/openwork-server", "../lib/openwork-server"],
+  ["./openwork-server", "./openwork-server"],
+  ["../connections/openwork-server-store", "../connections/openwork-server-store"],
+  ["../../connections/openwork-server-store", "../../connections/openwork-server-store"],
+  ["./openwork-server-store", "./openwork-server-store"],
+  ["openwork-server-unavailable", "openwork-server-unavailable"],
+  ["openwork-server-provider", "openwork-server-provider"],
+];
+
+async function walk(dir) {
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    if (SKIP.has(entry.name)) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) await walk(full);
+    else if (/\.(ts|tsx|mjs|js)$/.test(entry.name)) {
+      let text = await fs.readFile(full, "utf8");
+      const before = text;
+      for (const [from, to] of FIXES) text = text.split(from).join(to);
+      if (text !== before) {
+        await fs.writeFile(full, text, "utf8");
+        console.log(path.relative(root, full));
+      }
+    }
+  }
+}
+
+await walk(root);

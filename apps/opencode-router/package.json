@@ -1,6 +1,6 @@
 {
-  "name": "opencode-router",
-  "version": "0.11.212",
+  "name": "openwork-plus-opencode-router",
+  "version": "0.11.213",
   "description": "opencode-router: Slack + Telegram bridge + directory routing for a running opencode server",
   "private": false,
   "type": "module",
@@ -10,7 +10,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/different-ai/openwork.git",
+    "url": "git+https://github.com/comoxone/openwork-plus.git",
     "directory": "apps/opencode-router"
   },
   "keywords": [

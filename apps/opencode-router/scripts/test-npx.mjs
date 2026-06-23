@@ -73,14 +73,14 @@ try {
   );
 
   if (result.code !== 0) {
-    throw new Error(result.stderr || "npx opencode-router failed");
+    throw new Error(result.stderr || "npx openwork-plus-opencode-router failed");
   }
 
   if (!result.stdout.includes("opencode-router") && !result.stdout.includes("owpenbot")) {
     throw new Error("npx output missing expected command name");
   }
 
-  console.log("npx opencode-router ok");
+  console.log("npx openwork-plus-opencode-router ok");
 } finally {
   await fs.rm(tarballPath, { force: true });
   await fs.rm(tempCache, { recursive: true, force: true });

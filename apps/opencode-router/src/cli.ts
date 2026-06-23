@@ -170,7 +170,7 @@ async function runStart(pathOverride?: string, options?: { opencodeUrl?: string 
   }
   const bridge = await startBridge(config, logger, reporter);
   if (process.stdout.isTTY) {
-    reporter.onStatus?.("Commands: opencode-router identities, opencode-router bindings, opencode-router status");
+    reporter.onStatus?.("Commands: openwork-plus-opencode-router identities, openwork-plus-opencode-router bindings, openwork-plus-opencode-router status");
   }
 
   const shutdown = async () => {
@@ -188,7 +188,7 @@ const program = new Command();
 program
   .name("opencode-router")
   .version(VERSION)
-  .description("opencode-router: Slack + Telegram bridge + directory routing")
+  .description("openwork-plus-opencode-router: Slack + Telegram bridge + directory routing")
   .option("--json", "Output in JSON format", false);
 
 program

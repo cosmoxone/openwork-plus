@@ -750,7 +750,7 @@ export function registerManagedRoutes(app: Hono<AppBindings>) {
   });
 
   const workspaceRouterPaths = [
-    "/workspace/:workspaceId/opencode-router",
+    "/workspace/:workspaceId/openwork-plus-opencode-router",
     routePaths.workspaces.router.base(),
   ];
   for (const basePath of workspaceRouterPaths) {

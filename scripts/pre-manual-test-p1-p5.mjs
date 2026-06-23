@@ -6,7 +6,7 @@
  *   OPENWORK_CATALOG_URL   — P1 公网 catalog（可选；未设则仅本地 Hub 模拟，见 P1-local）
  *   SKIP_P0=1              — 跳过 pre-manual-test（已跑过时）
  *   SKIP_PLAYWRIGHT=1      — 跳过 P5 Playwright（无 Chrome / 省时间）
- *   SKIP_OPENCODE=1        — 跳过需 opencode CLI 的会话脚本
+ *   SKIP_OPENCODE=1        — 跳过需 opencode 的会话脚本（默认会 resolve sidecar 或 prepare:sidecar）
  *   OPENWORK_MONOREPO_ROOT — 仓库根（默认自动推断）
  *
  * 用法：pnpm run pre-manual-test:p1-p5
@@ -17,6 +17,7 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureOpencodeBin, findOpencodeBinSync } from "./resolve-opencode-bin.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = process.env.OPENWORK_MONOREPO_ROOT ?? path.join(here, "..");
@@ -25,11 +26,7 @@ const root = process.env.OPENWORK_MONOREPO_ROOT ?? path.join(here, "..");
 const STEPS = [];
 
 function hasOpencode() {
-  const r = spawnSync(process.platform === "win32" ? "where" : "which", ["opencode"], {
-    stdio: "ignore",
-    shell: true,
-  });
-  return r.status === 0;
+  return Boolean(findOpencodeBinSync(root));
 }
 
 function runNode(scriptRel, args = []) {
@@ -37,7 +34,12 @@ function runNode(scriptRel, args = []) {
     const child = spawn(process.execPath, [path.join(root, scriptRel), ...args], {
       cwd: root,
       stdio: "inherit",
-      env: { ...process.env, OPENWORK_MONOREPO_ROOT: root },
+      env: {
+        ...process.env,
+        OPENWORK_MONOREPO_ROOT: root,
+        OPENCODE_BIN: process.env.OPENCODE_BIN,
+        OPENWORK_OPENCODE_BIN: process.env.OPENWORK_OPENCODE_BIN,
+      },
     });
     child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`${scriptRel} exit ${code}`))));
   });
@@ -49,7 +51,12 @@ function runPnpm(args) {
       cwd: root,
       stdio: "inherit",
       shell: true,
-      env: { ...process.env, OPENWORK_MONOREPO_ROOT: root },
+      env: {
+        ...process.env,
+        OPENWORK_MONOREPO_ROOT: root,
+        OPENCODE_BIN: process.env.OPENCODE_BIN,
+        OPENWORK_OPENCODE_BIN: process.env.OPENWORK_OPENCODE_BIN,
+      },
     });
     child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`pnpm ${args.join(" ")} exit ${code}`))));
   });
@@ -130,14 +137,14 @@ function buildSteps() {
     {
       phase: "P2",
       name: "analyze-failure-session",
-      pnpmArgs: ["--filter", "@openwork/app", "test:analyze-failure-session"],
+      pnpmArgs: ["--filter", "@openwork-plus/app", "test:analyze-failure-session"],
       optional: true,
       requiresOpencode: true,
     },
     {
       phase: "P2",
       name: "scenario-a-session-loop",
-      pnpmArgs: ["--filter", "@openwork/app", "test:scenario-a-session-loop"],
+      pnpmArgs: ["--filter", "@openwork-plus/app", "test:scenario-a-session-loop"],
       optional: true,
       requiresOpencode: true,
     },
@@ -179,6 +186,18 @@ async function main() {
   buildSteps();
   console.log(`[pre-manual-test:p1-p5] root=${root}`);
   console.log(`[pre-manual-test:p1-p5] OPENWORK_CATALOG_URL=${process.env.OPENWORK_CATALOG_URL ?? "(unset — skip public P1)"}`);
+
+  if (!process.env.SKIP_OPENCODE) {
+    const bin = await ensureOpencodeBin({ root, allowDownload: true });
+    if (bin) {
+      process.env.OPENCODE_BIN = bin;
+      process.env.OPENWORK_OPENCODE_BIN = bin;
+      console.log(`[pre-manual-test:p1-p5] OPENCODE_BIN=${bin}`);
+    } else {
+      console.log("[pre-manual-test:p1-p5] opencode not resolved — session E2E will SKIP");
+    }
+  }
+
   console.log(`[pre-manual-test:p1-p5] ${STEPS.length} steps\n`);
 
   /** @type {string[]} */

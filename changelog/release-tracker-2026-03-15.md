@@ -371,7 +371,7 @@ Unreleased tag only. No published GitHub release. Tagged at `2026-03-15T12:43:37
 Orchestrator npm publish runs from package cwd
 
 #### One-line summary
-Fixes the release workflow so `openwork-orchestrator` publishes from `packages/orchestrator`, with no visible app or web workflow change.
+Fixes the release workflow so `openwork-plus-orchestrator` publishes from `packages/orchestrator`, with no visible app or web workflow change.
 
 #### Main changes
 Corrects the orchestrator publish job to run from the package directory so sidecar build and npm publish steps use the right paths.
@@ -1118,10 +1118,10 @@ None.
 Server package naming and session traces line up
 
 #### One-line summary
-Renames the published server package to `openwork-server` and polishes trace-row icon and chevron alignment so session runs scan more cleanly.
+Renames the published server package to `openwork-plus-server` and polishes trace-row icon and chevron alignment so session runs scan more cleanly.
 
 #### Main changes
-- Renamed the published server package to `openwork-server`, updating orchestrator, release, and dev tooling to resolve the same package consistently.
+- Renamed the published server package to `openwork-plus-server`, updating orchestrator, release, and dev tooling to resolve the same package consistently.
 - Tightened trace-row icon and chevron alignment so session summaries read cleanly.
 
 #### Lines of code changed since previous release
@@ -1156,7 +1156,7 @@ True
 1
 
 #### Deprecated details
-- Replaced prior published server package references with the standardized `openwork-server` naming.
+- Replaced prior published server package references with the standardized `openwork-plus-server` naming.
 
 ## v0.11.173
 

@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/appserver-stub",
+  "name": "@openwork-plus/appserver-stub",
   "version": "0.1.0",
   "description": "最小 App-Server JSON-RPC 2.0 stdio 宿主（P0-ARC-1 验证用）",
   "type": "module",
@@ -7,14 +7,23 @@
     "openwork-appserver-stub": "bin/openwork-appserver-stub.mjs"
   },
   "main": "src/stdio-server.mjs",
-  "files": ["src", "bin", "test"],
+  "files": [
+    "src",
+    "bin",
+    "test"
+  ],
   "scripts": {
     "start": "node src/stdio-server.mjs",
     "test": "node test/handshake-smoke.mjs"
   },
   "dependencies": {
-    "@openwork/appserver-contract": "workspace:*"
+    "@openwork-plus/appserver-contract": "workspace:*"
   },
   "license": "MIT",
-  "keywords": ["openwork", "jsonrpc", "app-server", "stub"]
+  "keywords": [
+    "openwork",
+    "jsonrpc",
+    "app-server",
+    "stub"
+  ]
 }

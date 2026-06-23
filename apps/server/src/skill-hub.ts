@@ -11,8 +11,8 @@ import { projectSkillsDir } from "./workspace-files.js";
 type HubRepo = { owner: string; repo: string; ref: string };
 
 const DEFAULT_HUB_REPO: HubRepo = {
-  owner: "different-ai",
-  repo: "openwork-hub",
+  owner: "comoxone",
+  repo: "openwork-plus-hub",
   ref: "main",
 };
 

@@ -1,5 +1,14 @@
 {
-  "name": "@different-ai/openwork-workspace",
+  "name": "@openwork-plus/workspace",
+  "description": "OpenWork Plus — enhanced OpenWork distribution with industry bundles and super-automation",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comoxone/openwork-plus.git"
+  },
+  "homepage": "https://openwork.plus",
+  "bugs": {
+    "url": "https://github.com/comoxone/openwork-plus/issues"
+  },
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -11,14 +20,9 @@
     "dev:ui": "OPENWORK_DEV_MODE=1 pnpm --filter @openwork/app dev",
     "dev:ui-demo": "pnpm --filter @openwork/ui-demo dev",
     "dev:story": "OPENWORK_DEV_MODE=1 pnpm --filter @openwork/story-book dev",
-    "dev:web": "OPENWORK_DEV_MODE=1 pnpm --filter @openwork-ee/den-web dev",
-    "dev:web-local": "pnpm dev:den-local",
-    "dev:den-local": "node scripts/dev-local.mjs",
-    "dev:den-docker": "bash packaging/docker/den-dev-up.sh",
     "dev:headless-web": "OPENWORK_DEV_MODE=1 bun scripts/dev-headless-web.ts",
     "build": "node scripts/build.mjs",
     "build:ui": "pnpm --filter @openwork/app build",
-    "build:web": "pnpm --filter @openwork-ee/den-web build",
     "preview": "pnpm --filter @openwork/app preview",
     "sdk:generate": "pnpm --filter openwork-server-v2 openapi:generate && pnpm --filter @openwork/server-sdk generate",
     "sdk:watch": "pnpm --filter @openwork/server-sdk watch",
@@ -57,6 +61,7 @@
     "release:prepare:dry": "node scripts/release/prepare.mjs --dry-run",
     "release:ship": "node scripts/release/ship.mjs",
     "release:ship:watch": "node scripts/release/ship.mjs --watch",
+    "package:local-test": "node scripts/package-local-test-release.mjs",
     "tauri": "pnpm --filter @openwork/desktop exec tauri"
   },
   "devDependencies": {

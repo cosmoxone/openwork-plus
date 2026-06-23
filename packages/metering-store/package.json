@@ -1,13 +1,23 @@
 {
-  "name": "@openwork/metering-store",
+  "name": "@openwork-plus/metering-store",
   "version": "0.1.0",
   "description": "统一会话/用量/Credit 计量持久层。默认 JSON 后端可即用，生产用 SQLite(better-sqlite3)。衔接 App-Server 契约的 usage 事件与商业线钱包。",
   "type": "module",
   "main": "./src/store.mjs",
-  "files": ["src", "schema.sql", "README.md"],
+  "files": [
+    "src",
+    "schema.sql",
+    "README.md"
+  ],
   "scripts": {
     "test": "node test/metering-smoke.mjs"
   },
   "license": "MIT",
-  "keywords": ["openwork", "metering", "credit", "wallet", "usage"]
+  "keywords": [
+    "openwork",
+    "metering",
+    "credit",
+    "wallet",
+    "usage"
+  ]
 }

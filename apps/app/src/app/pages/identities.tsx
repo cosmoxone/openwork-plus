@@ -41,7 +41,7 @@ export type IdentitiesViewProps = {
   showHeader?: boolean;
 };
 
-const OPENCODE_ROUTER_AGENT_FILE_PATH = ".opencode/agents/opencode-router.md";
+const OPENCODE_ROUTER_AGENT_FILE_PATH = ".opencode/agents/openwork-plus-opencode-router.md";
 const OPENCODE_ROUTER_AGENT_FILE_TEMPLATE = `# OpenCodeRouter Messaging Agent
 
 Use this file to define how the assistant responds in Slack/Telegram for this workspace.

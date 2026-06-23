@@ -154,7 +154,7 @@ Notes:
 
 Recommended split:
 
-- `packages/openwork-server-sdk`
+- `packages/openwork-plus-server-sdk`
   - generated SDK for Server V2 only
 - `apps/app/.../checkServerFlag.ts` or equivalent
   - one shared helper for rollout checks

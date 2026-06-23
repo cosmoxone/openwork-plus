@@ -20,13 +20,13 @@ OpenWorkは、エージェントワークフローを再現可能なプロダク
 
 ## 代替UI
 - **OpenWork Orchestrator（CLIホスト）**: デスクトップUIなしでOpenCode + OpenWorkサーバーを実行します。
-  - インストール: `npm install -g openwork-orchestrator`
+  - インストール: `npm install -g openwork-plus-orchestrator`
   - 実行: `openwork start --workspace /path/to/workspace --approval auto`
   - ドキュメント: [apps/orchestrator/README.md](../apps/orchestrator/README.md)
 
 ## クイックスタート
 
-デスクトップアプリを[openworklabs.com/download](https://openworklabs.com/download)からダウンロードするか、最新の[GitHubリリース](https://github.com/different-ai/openwork/releases)を取得するか、以下の手順でソースからインストールしてください。
+デスクトップアプリを [openwork.plus](https://openwork.plus) からダウンロードするか、最新の [GitHub リリース](https://github.com/comoxone/openwork-plus/releases) を取得するか、以下の手順でソースからインストールしてください。
 
 - macOSおよびLinux向けのダウンロードが直接利用可能です。
 - Windowsへのアクセスは現在、[openworklabs.com/pricing#windows-support](https://openworklabs.com/pricing#windows-support)の有料サポートプランで提供されています。
@@ -95,7 +95,7 @@ pnpm install --frozen-lockfile
 
 which bun
 bun --version
-pnpm --filter @openwork/desktop exec tauri --version
+pnpm --filter @openwork-plus/desktop exec tauri --version
 ```
 
 ### インストール
@@ -132,7 +132,7 @@ curl -fsSL https://opencode.ai/install | bash -s -- --version "$(node -e "const 
 ## アーキテクチャ（概要）
 
 - **ホストモード**では、OpenWorkはローカルホストスタックを実行し、UIをそれに接続します。
-  - デフォルトランタイム: `openwork`（`openwork-orchestrator` からインストール）。`opencode`、`openwork-server`、およびオプションで `opencode-router` をオーケストレーションします。
+  - デフォルトランタイム: `openwork`（`openwork-plus-orchestrator` からインストール）。`opencode`、`openwork-plus-server`、およびオプションで `openwork-plus-opencode-router` をオーケストレーションします。
   - フォールバックランタイム: `direct`。デスクトップアプリが直接 `opencode serve --hostname 127.0.0.1 --port <free-port>` を起動します。
 
 プロジェクトフォルダを選択すると、OpenWorkはそのフォルダを使用してローカルでホストスタックを実行し、デスクトップUIを接続します。

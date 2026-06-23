@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/types",
+  "name": "@openwork-plus/types",
   "private": true,
   "type": "module",
   "exports": {

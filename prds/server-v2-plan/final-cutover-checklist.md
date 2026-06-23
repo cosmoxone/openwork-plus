@@ -57,13 +57,13 @@ Run from repo root unless noted.
 ```bash
 pnpm sdk:generate
 pnpm contract:check
-pnpm --filter openwork-server-v2 test
-pnpm --filter openwork-server-v2 typecheck
-pnpm --filter @openwork/app test:server-v2-boundary
-pnpm --filter @openwork/app typecheck
+pnpm --filter openwork-plus-server-v2 test
+pnpm --filter openwork-plus-server-v2 typecheck
+pnpm --filter @openwork-plus/app test:server-v2-boundary
+pnpm --filter @openwork-plus/app typecheck
 cargo test --manifest-path apps/desktop/src-tauri/Cargo.toml --locked
-pnpm --filter openwork-server-v2 build:bin
-pnpm --filter openwork-server-v2 build:bin:embedded --bundle-dir ../desktop/src-tauri/sidecars
+pnpm --filter openwork-plus-server-v2 build:bin
+pnpm --filter openwork-plus-server-v2 build:bin:embedded --bundle-dir ../desktop/src-tauri/sidecars
 ```
 
 ## macOS Manual Validation
@@ -78,7 +78,7 @@ Suggested validation flow:
 
 ```bash
 pnpm -C apps/desktop prepare:sidecar
-pnpm --filter openwork-server-v2 build:bin:embedded --bundle-dir ../desktop/src-tauri/sidecars
+pnpm --filter openwork-plus-server-v2 build:bin:embedded --bundle-dir ../desktop/src-tauri/sidecars
 codesign --deep --force -vvvv --sign "<APPLE_IDENTITY>" --entitlements apps/desktop/src-tauri/entitlements.plist apps/server-v2/dist/bin/openwork-server-v2
 codesign -vvv --verify apps/server-v2/dist/bin/openwork-server-v2
 xcrun notarytool submit apps/server-v2/dist/bin/openwork-server-v2 --key <KEY_ID> --key-id <KEY_ID> --issuer <ISSUER_ID> --wait
@@ -106,17 +106,17 @@ Suggested validation flow:
 ```powershell
 pnpm install --frozen-lockfile
 pnpm -C apps/desktop prepare:sidecar
-pnpm --filter openwork-server-v2 build:bin:embedded --bundle-dir ../desktop/src-tauri/sidecars --target bun-windows-x64
-signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f codesign.pfx /p <PASSWORD> apps\server-v2\dist\bin\openwork-server-v2-bun-windows-x64.exe
-signtool verify /pa /v apps\server-v2\dist\bin\openwork-server-v2-bun-windows-x64.exe
+pnpm --filter openwork-plus-server-v2 build:bin:embedded --bundle-dir ../desktop/src-tauri/sidecars --target bun-windows-x64
+signtool sign /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 /f codesign.pfx /p <PASSWORD> apps\server-v2\dist\bin\openwork-plus-server-v2-bun-windows-x64.exe
+signtool verify /pa /v apps\server-v2\dist\bin\openwork-plus-server-v2-bun-windows-x64.exe
 ```
 
 SmartScreen / AV validation:
 
 ```powershell
-$env:OPENWORK_SERVER_V2_WORKDIR = Join-Path $env:TEMP "openwork-server-v2-smoke"
+$env:OPENWORK_SERVER_V2_WORKDIR = Join-Path $env:TEMP "openwork-plus-server-v2-smoke"
 New-Item -ItemType Directory -Force -Path $env:OPENWORK_SERVER_V2_WORKDIR | Out-Null
-apps\server-v2\dist\bin\openwork-server-v2-bun-windows-x64.exe --port 32123
+apps\server-v2\dist\bin\openwork-plus-server-v2-bun-windows-x64.exe --port 32123
 Invoke-WebRequest http://127.0.0.1:32123/system/opencode/health
 Invoke-WebRequest http://127.0.0.1:32123/system/runtime/summary
 ```

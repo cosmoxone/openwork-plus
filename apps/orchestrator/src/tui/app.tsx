@@ -682,7 +682,7 @@ export function startOrchestratorTui(options: TuiOptions): TuiHandle {
           <Show when={state.view === "router"}>
             <box flexDirection="column" paddingTop={1} gap={1}>
               <text fg={theme.text} attributes={TextAttributes.BOLD}>
-                opencode-router
+                openwork-plus-opencode-router
               </text>
 
               <text fg={theme.textMuted}>Health: {routerStatus()}</text>

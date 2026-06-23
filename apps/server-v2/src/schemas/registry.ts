@@ -125,7 +125,7 @@ export const capabilitiesDataSchema = z.object({
   }),
   transport: z.object({
     rootMounted: z.literal(true),
-    sdkPackage: z.literal("@openwork/server-sdk"),
+    sdkPackage: z.literal("@openwork-plus/server-sdk"),
     v2: z.literal(true),
   }),
 }).meta({ ref: "OpenWorkServerV2CapabilitiesData" });
@@ -240,7 +240,7 @@ export const systemStatusDataSchema = z.object({
     source: z.enum(["development", "release"]),
     target: z.enum(["darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64", "windows-arm64", "windows-x64"]),
   }),
-  service: z.literal("openwork-server-v2"),
+  service: z.literal("openwork-plus-server-v2"),
   startedAt: isoTimestampSchema,
   status: z.literal("ok"),
   uptimeMs: z.number().int().nonnegative(),

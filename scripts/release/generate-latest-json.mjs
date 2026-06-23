@@ -14,7 +14,7 @@ function normalizeArch(arch) {
 function parseArgs(argv) {
   const options = {
     tag: process.env.RELEASE_TAG || "",
-    repo: process.env.GITHUB_REPOSITORY || "different-ai/openwork",
+    repo: process.env.GITHUB_REPOSITORY || "comoxone/openwork-plus",
     output: "latest.json",
   };
 

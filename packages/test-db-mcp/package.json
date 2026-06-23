@@ -1,5 +1,5 @@
 {
-  "name": "@openwork/test-db-mcp",
+  "name": "@openwork-plus/test-db-mcp",
   "version": "0.1.0",
   "description": "测试结果历史 MCP server（JSON 存储，与 test-runner 互通）",
   "type": "module",
@@ -7,7 +7,12 @@
     "test-db-mcp": "bin/test-db-mcp.mjs"
   },
   "main": "src/index.mjs",
-  "files": ["src", "bin", "schema.sql", "README.md"],
+  "files": [
+    "src",
+    "bin",
+    "schema.sql",
+    "README.md"
+  ],
   "scripts": {
     "test": "node test/smoke.mjs"
   },
@@ -15,5 +20,10 @@
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
   "license": "MIT",
-  "keywords": ["openwork", "mcp", "testing", "test-automation"]
+  "keywords": [
+    "openwork",
+    "mcp",
+    "testing",
+    "test-automation"
+  ]
 }

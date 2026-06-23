@@ -41,6 +41,7 @@ import {
   type CloudImportedSkillHub,
 } from "../cloud/import-state";
 import { createWorkspaceContextKey } from "./workspace-context";
+import { OPENWORK_PLUS_SKILL_HUB_REPO } from "../lib/plus-hub";
 import type { OpenworkServerStore } from "../connections/openwork-server-store";
 
 
@@ -137,11 +138,7 @@ export function createExtensionsStore(options: {
 
   const formatSkillPath = (location: string) => location.replace(/[/\\]SKILL\.md$/i, "");
 
-  const DEFAULT_HUB_REPO: HubSkillRepo = {
-    owner: "different-ai",
-    repo: "openwork-hub",
-    ref: "main",
-  };
+  const DEFAULT_HUB_REPO: HubSkillRepo = { ...OPENWORK_PLUS_SKILL_HUB_REPO };
 
   const [hubRepo, setHubRepoSignal] = createSignal<HubSkillRepo | null>(DEFAULT_HUB_REPO);
   const [hubRepos, setHubRepos] = createSignal<HubSkillRepo[]>([DEFAULT_HUB_REPO]);

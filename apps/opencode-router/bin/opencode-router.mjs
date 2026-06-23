@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const args = process.argv.slice(2);
 
-const compiledBinaryName = process.platform === "win32" ? "opencode-router.exe" : "opencode-router";
+const compiledBinaryName = process.platform === "win32" ? "openwork-plus-opencode-router.exe" : "opencode-router";
 const compiledBinary = fileURLToPath(new URL(`./dist/bin/${compiledBinaryName}`, `${new URL("../", import.meta.url)}`));
 const builtCli = fileURLToPath(new URL("./dist/cli.js", `${new URL("../", import.meta.url)}`));
 const sourceCli = fileURLToPath(new URL("./src/cli.ts", `${new URL("../", import.meta.url)}`));
@@ -38,6 +38,6 @@ if (existsSync(sourceCli)) {
 }
 
 console.error(
-  `Unable to find an opencode-router entrypoint in ${basename(packageRoot)}. Build the package or run it from a source checkout with Bun available.`,
+  `Unable to find an openwork-plus-opencode-router entrypoint in ${basename(packageRoot)}. Build the package or run it from a source checkout with Bun available.`,
 );
 process.exit(1);

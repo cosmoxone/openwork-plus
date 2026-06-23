@@ -1,4 +1,4 @@
-# opencode-router
+# openwork-plus-opencode-router
 
 Simple Slack + Telegram bridge + directory router for a running `opencode` server.
 
@@ -9,19 +9,19 @@ Runtime requirement: Bun 1.3+ (`bun --version`).
 One-command install (recommended):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/different-ai/openwork/dev/apps/opencode-router/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/comoxone/openwork-plus/main/apps/openwork-plus-opencode-router/install.sh | bash
 ```
 
 Install from npm:
 
 ```bash
-npm install -g opencode-router
+npm install -g openwork-plus-opencode-router
 ```
 
 Quick run without global install:
 
 ```bash
-npx --yes opencode-router --help
+npx --yes openwork-plus-opencode-router --help
 ```
 
 Then configure identities and start.
@@ -29,10 +29,10 @@ Then configure identities and start.
 1) One-command setup (installs deps, builds, creates `.env` if missing):
 
 ```bash
-pnpm -C apps/opencode-router setup
+pnpm -C apps/openwork-plus-opencode-router setup
 ```
 
-2) (Optional) Fill in `apps/opencode-router/.env` (see `.env.example`).
+2) (Optional) Fill in `apps/openwork-plus-opencode-router/.env` (see `.env.example`).
 
 Required:
 - `OPENCODE_URL`
@@ -45,18 +45,18 @@ Recommended:
 3) Run the router:
 
 ```bash
-opencode-router start
+openwork-plus-opencode-router start
 ```
 
 ## Telegram
 
 Telegram support is configured via identities. You can either:
 - Use env vars for a single bot: `TELEGRAM_BOT_TOKEN=...`
-  - Or add multiple bots to the config file (`opencode-router.json`) using the CLI:
+  - Or add multiple bots to the config file (`openwork-plus-opencode-router.json`) using the CLI:
 
 ```bash
-opencode-router telegram add <token> --id default
-opencode-router telegram list
+openwork-plus-opencode-router telegram add <token> --id default
+openwork-plus-opencode-router telegram list
 ```
 
 Important for direct sends and bindings:
@@ -80,7 +80,7 @@ Slack support uses Socket Mode and replies in threads when @mentioned in channel
 4) Subscribe to events (bot events):
    - `app_mention`
    - `message.im`
-5) Set env vars (or save via `opencode-router slack add ...`):
+5) Set env vars (or save via `openwork-plus-opencode-router slack add ...`):
     - `SLACK_BOT_TOKEN=xoxb-...`
     - `SLACK_APP_TOKEN=xapp-...`
     - `SLACK_ENABLED=true`
@@ -88,8 +88,8 @@ Slack support uses Socket Mode and replies in threads when @mentioned in channel
 To add multiple Slack apps:
 
 ```bash
-opencode-router slack add <xoxb> <xapp> --id default
-opencode-router slack list
+openwork-plus-opencode-router slack add <xoxb> <xapp> --id default
+openwork-plus-opencode-router slack list
 ```
 
 ## Identity-Scoped Routing
@@ -97,8 +97,8 @@ opencode-router slack list
 The router routes messages based on `(channel, identityId, peerId) -> directory` bindings.
 
 ```bash
-opencode-router bindings set --channel telegram --identity default --peer <chatId> --dir /path/to/workdir
-opencode-router bindings list
+openwork-plus-opencode-router bindings set --channel telegram --identity default --peer <chatId> --dir /path/to/workdir
+openwork-plus-opencode-router bindings list
 ```
 
 ## Health Server (Local HTTP)
@@ -147,27 +147,27 @@ Each media part accepts:
 ## Commands
 
 ```bash
-opencode-router start
-opencode-router status
+openwork-plus-opencode-router start
+openwork-plus-opencode-router status
 
-opencode-router telegram list
-opencode-router telegram add <token> --id default
+openwork-plus-opencode-router telegram list
+openwork-plus-opencode-router telegram add <token> --id default
 
-opencode-router slack list
-opencode-router slack add <xoxb> <xapp> --id default
+openwork-plus-opencode-router slack list
+openwork-plus-opencode-router slack add <xoxb> <xapp> --id default
 
-opencode-router bindings list
-opencode-router bindings set --channel telegram --identity default --peer <chatId> --dir /path/to/workdir
+openwork-plus-opencode-router bindings list
+openwork-plus-opencode-router bindings set --channel telegram --identity default --peer <chatId> --dir /path/to/workdir
 
-opencode-router send --channel telegram --identity default --to <chatId> --message "hello"
-opencode-router send --channel telegram --identity default --to <chatId> --image ./plot.png --caption "plot"
-opencode-router send --channel slack --identity default --to D123 --file ./report.pdf
+openwork-plus-opencode-router send --channel telegram --identity default --to <chatId> --message "hello"
+openwork-plus-opencode-router send --channel telegram --identity default --to <chatId> --image ./plot.png --caption "plot"
+openwork-plus-opencode-router send --channel slack --identity default --to D123 --file ./report.pdf
 ```
 
 ## Defaults
 
-- SQLite at `~/.openwork/opencode-router/opencode-router.db` unless overridden.
-- Config stored at `~/.openwork/opencode-router/opencode-router.json` (created by `opencode-router` or `pnpm -C apps/opencode-router setup`).
+- SQLite at `~/.openwork/openwork-plus-opencode-router/openwork-plus-opencode-router.db` unless overridden.
+- Config stored at `~/.openwork/openwork-plus-opencode-router/openwork-plus-opencode-router.json` (created by `openwork-plus-opencode-router` or `pnpm -C apps/openwork-plus-opencode-router setup`).
 - Group chats are disabled unless `GROUPS_ENABLED=true`.
 
 ## Tests
@@ -176,13 +176,13 @@ opencode-router send --channel slack --identity default --to D123 --file ./repor
 
 ```bash
 opencode serve --port 4096 --hostname 127.0.0.1
-pnpm -C apps/opencode-router test:smoke
+pnpm -C apps/openwork-plus-opencode-router test:smoke
 ```
 
 Other test suites:
 
 ```bash
-pnpm -C apps/opencode-router test:unit
-pnpm -C apps/opencode-router test:cli
-pnpm -C apps/opencode-router test:npx
+pnpm -C apps/openwork-plus-opencode-router test:unit
+pnpm -C apps/openwork-plus-opencode-router test:cli
+pnpm -C apps/openwork-plus-opencode-router test:npx
 ```

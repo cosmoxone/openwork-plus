@@ -16,7 +16,7 @@ function resolveOpencodeRouterRepo() {
     }
   }
 
-  throw new Error("OpenCodeRouter package not found. Expected apps/opencode-router in the monorepo.");
+  throw new Error("OpenCodeRouter package not found. Expected apps/openwork-plus-opencode-router in the monorepo.");
 }
 
 function run(command, args, cwd) {
@@ -35,5 +35,5 @@ if (scripts["build:bin"]) {
 } else if (scripts["build:binary"]) {
   run("pnpm", ["--filter", "opencode-router", "build:binary"], repoRoot);
 } else {
-  run("bun", ["build", "--compile", "src/cli.ts", "--outfile", "dist/bin/opencode-router"], routerRepo);
+  run("bun", ["build", "--compile", "src/cli.ts", "--outfile", "dist/bin/openwork-plus-opencode-router"], routerRepo);
 }
