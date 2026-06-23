@@ -2,6 +2,12 @@
 node_modules/
 packages/*/node_modules/
 apps/*/node_modules/
+# Enterprise edition (FSL) — excluded from open-source release
+ee/
+
+# Local planning / design docs — not part of open-source release
+docs/
+
 ee/apps/*/node_modules/
 ee/packages/*/node_modules/
 .next/
