@@ -1,6 +1,12 @@
+import { createRequire } from "node:module";
 import { mkdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
-import solidPlugin from "../node_modules/@opentui/solid/scripts/solid-plugin";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const orchestratorRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(join(orchestratorRoot, "package.json"));
+const solidPluginModule = require("@opentui/solid/scripts/solid-plugin");
+const solidPlugin = solidPluginModule.default ?? solidPluginModule;
 
 const bunRuntime = (globalThis as typeof globalThis & {
   Bun?: {
