@@ -62,6 +62,8 @@
     "release:ship": "node scripts/release/ship.mjs",
     "release:ship:watch": "node scripts/release/ship.mjs --watch",
     "package:local-test": "node scripts/package-local-test-release.mjs",
+    "verify:windows-build": "node scripts/verify-windows-desktop-build.mjs",
+    "verify:windows-build:full": "node scripts/verify-windows-desktop-build.mjs --full",
     "tauri": "pnpm --filter @openwork/desktop exec tauri"
   },
   "devDependencies": {

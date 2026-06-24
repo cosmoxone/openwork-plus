@@ -68,11 +68,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Write CI Tauri config (skip updater signing)
+        run: node -e "require('fs').writeFileSync('apps/desktop/src-tauri/tauri.ci.json', JSON.stringify({ bundle: { createUpdaterArtifacts: false } }))"
+
       - name: Build desktop (Tauri MSI)
         shell: pwsh
         run: |
           $bundles = "${{ github.event.inputs.bundles || 'msi' }}"
-          pnpm --filter @openwork-plus/desktop exec tauri build --target $env:TAURI_TARGET --bundles $bundles
+          pnpm --filter @openwork-plus/desktop exec tauri build --target $env:TAURI_TARGET --bundles $bundles --config src-tauri/tauri.ci.json
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
