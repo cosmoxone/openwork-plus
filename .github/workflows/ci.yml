@@ -14,7 +14,7 @@ permissions:
 jobs:
   build-web:
     name: Build Web
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
 
   build-den:
     name: Build Den services
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -65,7 +65,7 @@ jobs:
 
   build-orchestrator-binary:
     name: Build openwork orchestrator binary
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout

@@ -1,0 +1,81 @@
+name: Build Windows Desktop
+
+# Windows-only desktop build (MSI). No Release, no code signing, no macOS/Linux jobs.
+# For signed production builds see windows-signed-artifacts.yml (requires cert secrets).
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or SHA to build (default: branch that triggered the run)"
+        required: false
+        type: string
+      bundles:
+        description: "Tauri bundle types (comma-separated)"
+        required: false
+        default: msi
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: Build Windows MSI
+    runs-on: windows-latest
+    timeout-minutes: 180
+    env:
+      TAURI_TARGET: x86_64-pc-windows-msvc
+      OPENCODE_GITHUB_REPO: ${{ vars.OPENCODE_GITHUB_REPO || 'anomalyco/opencode' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Enable git long paths
+        shell: pwsh
+        run: git config --global core.longpaths true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.27.0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.3.10"
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build desktop (Tauri MSI)
+        shell: pwsh
+        run: |
+          $bundles = "${{ github.event.inputs.bundles || 'msi' }}"
+          pnpm --filter @openwork-plus/desktop exec tauri build --target $env:TAURI_TARGET --bundles $bundles
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwork-plus-windows-${{ github.run_number }}
+          path: |
+            apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.msi
+            apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.exe
+          if-no-files-found: error

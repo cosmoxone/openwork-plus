@@ -50,7 +50,7 @@ concurrency:
 jobs:
   publish-daytona-snapshot:
     name: Build and Push Daytona Snapshot
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     outputs:
       release_tag: ${{ steps.resolve.outputs.release_tag }}
       snapshot_name: ${{ steps.resolve.outputs.snapshot_name }}

@@ -65,7 +65,7 @@ concurrency:
 jobs:
   resolve-release:
     name: Resolve Release Metadata
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     outputs:
       release_tag: ${{ steps.resolve.outputs.release_tag }}
       release_name: ${{ steps.resolve.outputs.release_name }}
@@ -217,7 +217,7 @@ jobs:
   verify-release:
     name: Verify Release Versions
     needs: resolve-release
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ needs.resolve-release.outputs.release_tag }}
     steps:
@@ -576,7 +576,7 @@ jobs:
     name: Publish consolidated latest.json
     needs: [resolve-release, verify-release, publish-tauri]
     if: needs.resolve-release.outputs.build_tauri == 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ needs.resolve-release.outputs.release_tag }}
     steps:
@@ -609,7 +609,7 @@ jobs:
     name: Build + Upload openwork-plus-orchestrator Sidecars
     needs: [resolve-release, verify-release]
     if: needs.resolve-release.outputs.publish_sidecars == 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ needs.resolve-release.outputs.release_tag }}
     steps:
@@ -720,7 +720,7 @@ jobs:
       needs.verify-release.result == 'success' &&
       (needs.release-orchestrator-sidecars.result == 'success' || needs.release-orchestrator-sidecars.result == 'skipped') &&
       needs.resolve-release.outputs.publish_npm == 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ needs.resolve-release.outputs.release_tag }}
     steps:
@@ -875,7 +875,7 @@ jobs:
       needs.resolve-release.result == 'success' &&
       (needs.publish-tauri.result == 'success' || needs.publish-tauri.result == 'skipped') &&
       (needs.publish-release.result == 'success' || needs.publish-release.result == 'skipped')
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     env:
@@ -940,7 +940,7 @@ jobs:
       (needs.release-orchestrator-sidecars.result == 'success' || needs.release-orchestrator-sidecars.result == 'skipped') &&
       (needs.publish-npm.result == 'success' || needs.publish-npm.result == 'skipped') &&
       (needs.publish-daytona-snapshot.result == 'success' || needs.publish-daytona-snapshot.result == 'skipped')
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     env:
       RELEASE_TAG: ${{ needs.resolve-release.outputs.release_tag }}
       RELEASE_PRERELEASE: ${{ needs.resolve-release.outputs.prerelease }}

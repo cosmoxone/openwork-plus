@@ -25,7 +25,7 @@ jobs:
   deploy-den:
     if: false # Disabled: Den enterprise stack not shipped in comoxone/openwork-plus
     name: Update Render Daytona Snapshot
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-24.04
     env:
       RENDER_API_BASE: https://api.render.com/v1
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
