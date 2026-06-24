@@ -4,6 +4,9 @@ name: Build Windows Desktop
 # For signed production builds see windows-signed-artifacts.yml (requires cert secrets).
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       ref:
