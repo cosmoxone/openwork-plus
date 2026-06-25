@@ -655,7 +655,7 @@ jobs:
         id: sidecar-versions
         shell: bash
         run: |
-          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/openworkplus-opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
+          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
 
       - name: Resolve SOURCE_DATE_EPOCH
         id: source-date
@@ -766,7 +766,7 @@ jobs:
         id: package-versions
         shell: bash
         run: |
-          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/openworkplus-opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
+          node -e "const fs=require('fs'); const orchestrator=JSON.parse(fs.readFileSync('apps/orchestrator/package.json','utf8')); const server=JSON.parse(fs.readFileSync('apps/server/package.json','utf8')); const opencodeRouter=JSON.parse(fs.readFileSync('apps/opencode-router/package.json','utf8')); console.log('orchestrator=' + orchestrator.version); console.log('server=' + server.version); console.log('opencodeRouter=' + opencodeRouter.version);" >> "$GITHUB_OUTPUT"
 
       - name: Check npm versions
         id: npm-versions
