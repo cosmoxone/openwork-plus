@@ -48,8 +48,8 @@
     "@opentui/core": "0.1.77",
     "@opentui/solid": "0.1.77",
     "solid-js": "1.9.9",
-    "openworkplus-opencode-router": "0.11.213",
-    "openworkplus-server": "0.11.213"
+    "openworkplus-opencode-router": "workspace:*",
+    "openworkplus-server": "workspace:*"
   },
   "devDependencies": {
     "@opentui/core-darwin-arm64": "0.1.77",
