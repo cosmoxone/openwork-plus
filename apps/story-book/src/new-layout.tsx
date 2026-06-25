@@ -15,7 +15,7 @@ import {
 import { MCP_QUICK_CONNECT, SUGGESTED_PLUGINS } from "../../app/src/app/constants";
 import { createWorkspaceShellLayout } from "../../app/src/app/lib/workspace-shell-layout";
 import { getModelBehaviorSummary, sanitizeModelBehaviorValue } from "../../app/src/app/lib/model-behavior";
-import type { OpenworkServerClient } from "../../app/src/app/lib/openwork-plus-server";
+import type { OpenworkServerClient } from "../../app/src/app/lib/openworkplus-server";
 import ExtensionsView from "../../app/src/app/pages/extensions";
 import IdentitiesView from "../../app/src/app/pages/identities";
 import AutomationsView from "../../app/src/app/pages/automations";
@@ -264,7 +264,7 @@ const initialScheduledJobs: ScheduledJob[] = [
     source: "story-book",
     run: {
       command: "pnpm",
-      arguments: "--filter @openwork-plus/app test remote-onboarding",
+      arguments: "--filter @openworkplus/app test remote-onboarding",
       agent: "openwork-factory",
       model: "claude-sonnet-4-5",
     },
@@ -387,7 +387,7 @@ export default function NewLayoutApp() {
   const [hubSkills] = createSignal<HubSkillCard[]>(initialHubSkills);
   const [pluginScope, setPluginScope] = createSignal<PluginScope>("project");
   const [pluginInput, setPluginInput] = createSignal("");
-  const [pluginList, setPluginList] = createSignal<string[]>(["opencode-scheduler", "@openwork-plus/browser-mcp"]);
+  const [pluginList, setPluginList] = createSignal<string[]>(["opencode-scheduler", "@openworkplus/browser-mcp"]);
   const [pluginStatus, setPluginStatus] = createSignal<string | null>("Sandbox plugin config loaded.");
   const [activePluginGuide, setActivePluginGuide] = createSignal<string | null>(null);
   const [selectedMcp, setSelectedMcp] = createSignal<string | null>("notion");
@@ -746,7 +746,7 @@ export default function NewLayoutApp() {
     },
     agent: {
       scope: "workspace" as const,
-      path: ".opencode/agents/openwork-plus-opencode-router.md",
+      path: ".opencode/agents/openworkplus-opencode-router.md",
       loaded: true,
       selected: "openwork-router",
     },

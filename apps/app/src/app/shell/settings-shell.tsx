@@ -34,7 +34,7 @@ import {
   createOpenworkServerClient,
   OpenworkServerError,
   parseOpenworkWorkspaceIdFromUrl,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 import type {
   OpenworkAuditEntry,
   OpenworkServerClient,
@@ -44,7 +44,7 @@ import type {
   OpenworkServerStatus,
   OpenworkWorkspaceExportSensitiveMode,
   OpenworkWorkspaceExportWarning,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 import type { EngineInfo, OrchestratorStatus, OpenworkServerInfo, OpenCodeRouterInfo, WorkspaceInfo } from "../lib/tauri";
 
 import Button from "../components/button";
@@ -232,8 +232,8 @@ export type SettingsShellProps = {
   setEngineSource: (value: "path" | "sidecar" | "custom") => void;
   engineCustomBinPath: string;
   setEngineCustomBinPath: (value: string) => void;
-  engineRuntime: "direct" | "openwork-orchestrator";
-  setEngineRuntime: (value: "direct" | "openwork-orchestrator") => void;
+  engineRuntime: "direct" | "openworkplus-orchestrator";
+  setEngineRuntime: (value: "direct" | "openworkplus-orchestrator") => void;
   isWindows: boolean;
   toggleDeveloperMode: () => void;
   developerMode: boolean;

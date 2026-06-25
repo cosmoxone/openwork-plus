@@ -22,7 +22,7 @@ function createTempRoot(label: string) {
 }
 
 function createTestApp() {
-  const root = createTempRoot("openwork-plus-server-v2-phase7");
+  const root = createTempRoot("openworkplus-server-v2-phase7");
   const dependencies = createAppDependencies({
     environment: "test",
     inMemory: true,

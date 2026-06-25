@@ -60,8 +60,8 @@ async function runConfigCommands() {
   const env = {
     ...process.env,
     OPENCODE_ROUTER_DATA_DIR: tempDir,
-    OPENCODE_ROUTER_DB_PATH: path.join(tempDir, "openwork-plus-opencode-router.db"),
-    OPENCODE_ROUTER_CONFIG_PATH: path.join(tempDir, "openwork-plus-opencode-router.json"),
+    OPENCODE_ROUTER_DB_PATH: path.join(tempDir, "openworkplus-opencode-router.db"),
+    OPENCODE_ROUTER_CONFIG_PATH: path.join(tempDir, "openworkplus-opencode-router.json"),
     OPENCODE_DIRECTORY: tempDir,
   };
 

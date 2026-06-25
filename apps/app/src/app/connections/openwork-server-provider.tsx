@@ -1,6 +1,6 @@
 import { createContext, type ParentProps } from "solid-js";
 
-import type { OpenworkServerStore } from "./openwork-server-store";
+import type { OpenworkServerStore } from "./openworkplus-server-store";
 
 const OpenworkServerContext = createContext<OpenworkServerStore>();
 

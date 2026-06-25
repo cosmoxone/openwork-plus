@@ -205,9 +205,9 @@ pub fn spawn_openwork_server(
     opencode_password: Option<&str>,
     opencode_router_health_port: Option<u16>,
 ) -> Result<(Receiver<CommandEvent>, CommandChild), String> {
-    let command = match app.shell().sidecar("openwork-server") {
+    let command = match app.shell().sidecar("openworkplus-server") {
         Ok(command) => command,
-        Err(_) => app.shell().command("openwork-server"),
+        Err(_) => app.shell().command("openworkplus-server"),
     };
 
     let args = build_openwork_args(

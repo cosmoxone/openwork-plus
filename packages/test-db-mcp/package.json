@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/test-db-mcp",
+  "name": "@openworkplus/test-db-mcp",
   "version": "0.1.0",
   "description": "测试结果历史 MCP server（JSON 存储，与 test-runner 互通）",
   "type": "module",

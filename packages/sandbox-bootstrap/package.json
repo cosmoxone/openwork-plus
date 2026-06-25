@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/sandbox-bootstrap",
+  "name": "@openworkplus/sandbox-bootstrap",
   "version": "0.1.0",
   "description": "WSL2/Lima 沙箱初始化（从 Open Cowork 解耦，纯 Node.js）",
   "type": "module",

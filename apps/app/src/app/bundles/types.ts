@@ -1,4 +1,4 @@
-import type { OpenworkWorkspaceExport } from "../lib/openwork-server";
+import type { OpenworkWorkspaceExport } from "../lib/openworkplus-server";
 import type { WorkspacePreset } from "../types";
 
 export type SkillBundleItem = {

@@ -1,4 +1,4 @@
-# @openwork-plus/test-db-mcp
+# @openworkplus/test-db-mcp
 
 测试结果历史 MCP server（stdio）。默认 JSON 存储，与 `test-runner --record` 同文件格式。
 

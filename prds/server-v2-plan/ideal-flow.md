@@ -265,7 +265,7 @@ At minimum, the UI should be able to ask whether OpenCode is running and which v
 
 ## OpenCode Router Startup Flow
 
-`openwork-plus-opencode-router` should be started by the new OpenWork server, not by the desktop app.
+`openworkplus-opencode-router` should be started by the new OpenWork server, not by the desktop app.
 
 Current baseline being replaced:
 
@@ -279,7 +279,7 @@ Target flow:
 2. The server boots its sqlite state and runtime registry.
 3. The server evaluates whether router support is needed.
 4. If router support is needed, the server:
-   - resolves the `openwork-plus-opencode-router` binary
+   - resolves the `openworkplus-opencode-router` binary
    - materializes the effective router config from server-owned state
    - launches the router child process
    - waits for router health
@@ -288,9 +288,9 @@ Target flow:
 
 The desktop app should not:
 
-- launch `openwork-plus-opencode-router` directly
-- supervise `openwork-plus-opencode-router` directly
-- talk to `openwork-plus-opencode-router` directly
+- launch `openworkplus-opencode-router` directly
+- supervise `openworkplus-opencode-router` directly
+- talk to `openworkplus-opencode-router` directly
 
 The server should own the full lifecycle.
 
@@ -324,7 +324,7 @@ The server should also own:
 - router config apply/reload behavior
 - router status reporting to the UI
 
-That makes `openwork-plus-opencode-router` just another runtime dependency of the OpenWork server, not a separate app-owned or orchestrator-owned control surface.
+That makes `openworkplus-opencode-router` just another runtime dependency of the OpenWork server, not a separate app-owned or orchestrator-owned control surface.
 
 ## Session Ownership Model
 

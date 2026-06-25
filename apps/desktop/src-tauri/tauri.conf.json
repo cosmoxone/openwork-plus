@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenWork-Plus",
+  "productName": "OpenWorkPlus",
   "version": "0.11.213",
   "identifier": "com.openwork.plus",
   "build": {
@@ -24,6 +24,11 @@
   },
   "bundle": {
     "createUpdaterArtifacts": true,
+    "windows": {
+      "wix": {
+        "template": "./windows/main.wxs"
+      }
+    },
     "macOS": {
       "bundleName": "OpenWork Plus",
       "entitlements": "./entitlements.plist"
@@ -37,9 +42,9 @@
     ],
     "externalBin": [
       "sidecars/opencode",
-      "sidecars/openwork-server",
-      "sidecars/opencode-router",
-      "sidecars/openwork-orchestrator",
+      "sidecars/openworkplus-server",
+      "sidecars/openworkplus-opencode-router",
+      "sidecars/openworkplus-orchestrator",
       "sidecars/chrome-devtools-mcp",
       "sidecars/versions.json"
     ],

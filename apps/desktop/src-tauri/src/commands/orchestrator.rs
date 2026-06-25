@@ -508,8 +508,8 @@ fn to_command_debug(result: DockerCommandResult) -> SandboxDoctorCommandDebug {
 }
 
 fn derive_orchestrator_container_name(run_id: &str) -> String {
-    // Must match openwork-plus-orchestrator's docker naming scheme:
-    // `openwork-plus-orchestrator-${runId.replace(/[^a-zA-Z0-9_.-]+/g, "-").slice(0, 24)}`
+    // Must match openworkplus-orchestrator's docker naming scheme:
+    // `openworkplus-orchestrator-${runId.replace(/[^a-zA-Z0-9_.-]+/g, "-").slice(0, 24)}`
     let mut sanitized = String::new();
     for ch in run_id.chars() {
         let ok = ch.is_ascii_alphanumeric() || ch == '_' || ch == '.' || ch == '-';
@@ -518,11 +518,11 @@ fn derive_orchestrator_container_name(run_id: &str) -> String {
     if sanitized.len() > 24 {
         sanitized.truncate(24);
     }
-    format!("openwork-plus-orchestrator-{sanitized}")
+    format!("openworkplus-orchestrator-{sanitized}")
 }
 
 fn is_openwork_managed_container(name: &str) -> bool {
-    name.starts_with("openwork-plus-orchestrator-")
+    name.starts_with("openworkplus-orchestrator-")
         || name.starts_with("openwork-dev-")
         || name.starts_with("openwrk-")
 }
@@ -901,8 +901,8 @@ pub fn orchestrator_start_detached(
         );
     }
 
-    let (command, command_label) = match app.shell().sidecar("openwork-orchestrator") {
-        Ok(command) => (command, "sidecar:openwork-plus-orchestrator".to_string()),
+    let (command, command_label) = match app.shell().sidecar("openworkplus-orchestrator") {
+        Ok(command) => (command, "sidecar:openworkplus-orchestrator".to_string()),
         Err(_) => (app.shell().command("openwork"), "path:openwork".to_string()),
     };
 
@@ -915,7 +915,7 @@ pub fn orchestrator_start_detached(
             workspace_path.clone(),
             "--approval".to_string(),
             "auto".to_string(),
-            "--openwork-plus-opencode-router".to_string(),
+            "--openworkplus-opencode-router".to_string(),
             "true".to_string(),
             "--detach".to_string(),
             "--openwork-port".to_string(),
@@ -1335,9 +1335,9 @@ pub fn sandbox_stop(container_name: String) -> Result<ExecResult, String> {
     if name.is_empty() {
         return Err("containerName is required".to_string());
     }
-    if !name.starts_with("openwork-plus-orchestrator-") {
+    if !name.starts_with("openworkplus-orchestrator-") {
         return Err(
-            "Refusing to stop container: expected name starting with 'openwork-plus-orchestrator-'"
+            "Refusing to stop container: expected name starting with 'openworkplus-orchestrator-'"
                 .to_string(),
         );
     }

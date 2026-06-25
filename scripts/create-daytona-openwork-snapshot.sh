@@ -38,7 +38,7 @@ OPENWORK_ORCHESTRATOR_VERSION="${OPENWORK_ORCHESTRATOR_VERSION:-$(node -e 'const
 OPENCODE_VERSION="$(node -e 'const fs=require("fs"); const parsed=JSON.parse(fs.readFileSync(process.argv[1], "utf8")); process.stdout.write(String(parsed.opencodeVersion || "").trim().replace(/^v/, ""));' "$ROOT_DIR/constants.json")"
 
 echo "Building local image $LOCAL_IMAGE_TAG" >&2
-echo "- openwork-plus-orchestrator@$OPENWORK_ORCHESTRATOR_VERSION" >&2
+echo "- openworkplus-orchestrator@$OPENWORK_ORCHESTRATOR_VERSION" >&2
 echo "- opencode@$OPENCODE_VERSION" >&2
 
 docker buildx build \

@@ -154,7 +154,7 @@ export type View = "settings" | "session" | "signin" | "plugin";
 
 export type StartupPreference = "local" | "server";
 
-export type EngineRuntime = "direct" | "openwork-orchestrator";
+export type EngineRuntime = "direct" | "openworkplus-orchestrator";
 
 export type OnboardingStep = "welcome" | "local" | "server" | "connecting";
 

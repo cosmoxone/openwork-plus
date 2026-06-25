@@ -252,7 +252,7 @@ function legacyOrchestratorDirCandidates(explicitDir?: string) {
   }
 
   const home = os.homedir();
-  for (const name of ["openwork-orchestrator-dev-react", "openwork-orchestrator-dev", "openwork-orchestrator"]) {
+  for (const name of ["openworkplus-orchestrator-dev-react", "openworkplus-orchestrator-dev", "openworkplus-orchestrator"]) {
     candidates.push(path.join(home, ".openwork", name));
   }
 
@@ -495,7 +495,7 @@ export function createServerPersistence(options: CreateServerPersistenceOptions)
 
   const orchestratorStateFile = resolveExistingFile(
     legacyOrchestratorDirCandidates(options.legacy?.orchestratorDataDir),
-    "openwork-plus-orchestrator-state.json",
+    "openworkplus-orchestrator-state.json",
   );
   const orchestratorStateReport = !shouldImportLegacyWorkspaceState
     ? createEmptyReport("skipped", orchestratorStateFile, {
@@ -578,7 +578,7 @@ export function createServerPersistence(options: CreateServerPersistenceOptions)
 
   const orchestratorAuthFile = resolveExistingFile(
     legacyOrchestratorDirCandidates(options.legacy?.orchestratorDataDir),
-    "openwork-plus-orchestrator-auth.json",
+    "openworkplus-orchestrator-auth.json",
   );
   const orchestratorAuthReport = orchestratorAuthFile
     ? createEmptyReport("skipped", orchestratorAuthFile)

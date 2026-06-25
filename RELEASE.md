@@ -14,27 +14,27 @@ OpenWork releases should be deterministic, easy to reproduce, and fully verifiab
     - `pnpm bump:patch` or `pnpm bump:minor` or `pnpm bump:major`
 2. Re-run `pnpm release:review`.
 3. Build sidecars for the desktop bundle:
-   - `pnpm --filter @openwork-plus/desktop run prepare:sidecar`
+   - `pnpm --filter @openworkplus/desktop run prepare:sidecar`
 4. Commit the version bump.
 5. Tag and push:
    - `git tag vX.Y.Z`
    - `git push origin vX.Y.Z`
 
-## openwork-plus-orchestrator (npm + sidecars)
+## openworkplus-orchestrator (npm + sidecars)
 
 1. Bump versions (includes `packages/orchestrator/package.json`):
    - `pnpm bump:patch` or `pnpm bump:minor` or `pnpm bump:major`
 2. Build sidecar assets and manifest:
-   - `pnpm --filter openwork-plus-orchestrator build:sidecars`
+   - `pnpm --filter openworkplus-orchestrator build:sidecars`
 3. Create the GitHub release for sidecars:
-   - `gh release create openwork-plus-orchestrator-vX.Y.Z packages/orchestrator/dist/sidecars/* --repo comoxone/openwork-plus`
+   - `gh release create openworkplus-orchestrator-vX.Y.Z packages/orchestrator/dist/sidecars/* --repo comoxone/openwork-plus`
 4. Publish the package:
-   - `pnpm --filter openwork-plus-orchestrator publish --access public`
+   - `pnpm --filter openworkplus-orchestrator publish --access public`
 
-## openwork-plus-server + openwork-plus-opencode-router (if version changed)
+## openworkplus-server + openworkplus-opencode-router (if version changed)
 
-- `pnpm --filter openwork-plus-server publish --access public`
-- `pnpm --filter openwork-plus-opencode-router publish --access public`
+- `pnpm --filter openworkplus-server publish --access public`
+- `pnpm --filter openworkplus-opencode-router publish --access public`
 
 ## Verification
 
@@ -57,7 +57,7 @@ Required repo config:
 
 ## npm publishing
 
-If you want `Release App` to publish `openwork-plus-orchestrator`, `openwork-plus-server`, and `openwork-plus-opencode-router` to npm, configure:
+If you want `Release App` to publish `openworkplus-orchestrator`, `openworkplus-server`, and `openworkplus-opencode-router` to npm, configure:
 
 - GitHub Actions secret: `NPM_TOKEN` (npm automation token)
 

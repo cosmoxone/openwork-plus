@@ -13,13 +13,13 @@ test("classifyAsset buckets manual installer assets", () => {
 
 test("classifyAsset buckets updater and non-desktop assets separately", () => {
   const desktopRelease = { tag_name: "v0.11.135" }
-  const sidecarRelease = { tag_name: "openwork-plus-orchestrator-v0.11.135" }
+  const sidecarRelease = { tag_name: "openworkplus-orchestrator-v0.11.135" }
 
   assert.equal(classifyAsset(desktopRelease, { name: "latest.json" }), "updater")
   assert.equal(classifyAsset(desktopRelease, { name: "openwork-desktop-darwin-aarch64.app.tar.gz" }), "updater")
   assert.equal(classifyAsset(desktopRelease, { name: "openwork-desktop-darwin-aarch64.app.tar.gz.sig" }), "updater")
   assert.equal(classifyAsset(desktopRelease, { name: "openwork-desktop-linux-aarch64.rpm.sig" }), "other")
-  assert.equal(classifyAsset(sidecarRelease, { name: "openwork-plus-server-darwin-arm64" }), "other")
+  assert.equal(classifyAsset(sidecarRelease, { name: "openworkplus-server-darwin-arm64" }), "other")
 })
 
 test("calculate aggregates legacy total and v2 buckets", () => {
@@ -34,8 +34,8 @@ test("calculate aggregates legacy total and v2 buckets", () => {
       ],
     },
     {
-      tag_name: "openwork-plus-orchestrator-v0.11.135",
-      assets: [{ name: "openwork-plus-server-darwin-arm64", download_count: 8 }],
+      tag_name: "openworkplus-orchestrator-v0.11.135",
+      assets: [{ name: "openworkplus-server-darwin-arm64", download_count: 8 }],
     },
   ]
 

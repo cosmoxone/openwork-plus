@@ -65,7 +65,7 @@ const tarballPath = path.join(packageDir, tarball);
 try {
   const result = await run(
     "npx",
-    ["--yes", "--package", tarballPath, "opencode-router", "--help"],
+    ["--yes", "--package", tarballPath, "openworkplus-opencode-router", "--help"],
     {
       env,
       timeoutMs: 60000,
@@ -73,14 +73,14 @@ try {
   );
 
   if (result.code !== 0) {
-    throw new Error(result.stderr || "npx openwork-plus-opencode-router failed");
+    throw new Error(result.stderr || "npx openworkplus-opencode-router failed");
   }
 
-  if (!result.stdout.includes("opencode-router") && !result.stdout.includes("owpenbot")) {
+  if (!result.stdout.includes("openworkplus-opencode-router") && !result.stdout.includes("owpenbot")) {
     throw new Error("npx output missing expected command name");
   }
 
-  console.log("npx openwork-plus-opencode-router ok");
+  console.log("npx openworkplus-opencode-router ok");
 } finally {
   await fs.rm(tarballPath, { force: true });
   await fs.rm(tempCache, { recursive: true, force: true });

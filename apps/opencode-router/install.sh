@@ -9,7 +9,7 @@ OPENCODE_ROUTER_INSTALL_METHOD="${OPENCODE_ROUTER_INSTALL_METHOD:-npm}"
 
 usage() {
   cat <<'EOF'
-openwork-plus-opencode-router installer
+openworkplus-opencode-router installer
 
 Requires: bun (runtime) and node/npm.
 
@@ -21,7 +21,7 @@ Environment variables:
   OPENCODE_ROUTER_INSTALL_METHOD  Install method: npm|git (default: npm)
 
 Example:
-  OPENCODE_ROUTER_INSTALL_DIR=~/openwork-plus-opencode-router curl -fsSL https://raw.githubusercontent.com/comoxone/openwork-plus/main/apps/openwork-plus-opencode-router/install.sh | bash
+  OPENCODE_ROUTER_INSTALL_DIR=~/openworkplus-opencode-router curl -fsSL https://raw.githubusercontent.com/comoxone/openwork-plus/main/apps/openwork-plus-opencode-router/install.sh | bash
 EOF
 }
 
@@ -44,8 +44,8 @@ CUSTOM_SHIM_CREATED=false
 
 if [[ "$OPENCODE_ROUTER_INSTALL_METHOD" == "npm" ]]; then
   require_bin npm
-  echo "Installing openwork-plus-opencode-router via npm..."
-  npm install -g openwork-plus-opencode-router
+  echo "Installing openworkplus-opencode-router via npm..."
+  npm install -g openworkplus-opencode-router
 else
   require_bin git
   if ! command -v pnpm >/dev/null 2>&1; then
@@ -59,7 +59,7 @@ else
   fi
 
   if [[ -d "$OPENCODE_ROUTER_INSTALL_DIR/.git" ]]; then
-    echo "Updating openwork-plus-opencode-router source in $OPENCODE_ROUTER_INSTALL_DIR"
+    echo "Updating openworkplus-opencode-router source in $OPENCODE_ROUTER_INSTALL_DIR"
     git -C "$OPENCODE_ROUTER_INSTALL_DIR" fetch origin --prune
     if git -C "$OPENCODE_ROUTER_INSTALL_DIR" show-ref --verify --quiet "refs/remotes/origin/$OPENCODE_ROUTER_REF"; then
       git -C "$OPENCODE_ROUTER_INSTALL_DIR" checkout -B "$OPENCODE_ROUTER_REF" "origin/$OPENCODE_ROUTER_REF"
@@ -69,7 +69,7 @@ else
       git -C "$OPENCODE_ROUTER_INSTALL_DIR" pull --ff-only
     fi
   else
-    echo "Cloning openwork-plus-opencode-router source to $OPENCODE_ROUTER_INSTALL_DIR"
+    echo "Cloning openworkplus-opencode-router source to $OPENCODE_ROUTER_INSTALL_DIR"
     mkdir -p "$OPENCODE_ROUTER_INSTALL_DIR"
     git clone --depth 1 "$OPENCODE_ROUTER_REPO" "$OPENCODE_ROUTER_INSTALL_DIR"
     if git -C "$OPENCODE_ROUTER_INSTALL_DIR" show-ref --verify --quiet "refs/remotes/origin/$OPENCODE_ROUTER_REF"; then
@@ -77,8 +77,8 @@ else
     fi
   fi
 
-  if [[ ! -d "$OPENCODE_ROUTER_INSTALL_DIR/apps/openwork-plus-opencode-router" ]]; then
-    echo "openwork-plus-opencode-router package not found on ref '$OPENCODE_ROUTER_REF'. Trying dev/main..." >&2
+  if [[ ! -d "$OPENCODE_ROUTER_INSTALL_DIR/apps/openworkplus-opencode-router" ]]; then
+    echo "openworkplus-opencode-router package not found on ref '$OPENCODE_ROUTER_REF'. Trying dev/main..." >&2
     git -C "$OPENCODE_ROUTER_INSTALL_DIR" fetch origin --prune
     if git -C "$OPENCODE_ROUTER_INSTALL_DIR" show-ref --verify --quiet refs/remotes/origin/dev; then
       git -C "$OPENCODE_ROUTER_INSTALL_DIR" checkout -B dev origin/dev
@@ -87,16 +87,16 @@ else
     fi
   fi
 
-  if [[ ! -d "$OPENCODE_ROUTER_INSTALL_DIR/apps/openwork-plus-opencode-router" ]]; then
-    echo "openwork-plus-opencode-router package not found after checkout. Aborting." >&2
+  if [[ ! -d "$OPENCODE_ROUTER_INSTALL_DIR/apps/openworkplus-opencode-router" ]]; then
+    echo "openworkplus-opencode-router package not found after checkout. Aborting." >&2
     exit 1
   fi
 
   echo "Installing dependencies..."
   pnpm -C "$OPENCODE_ROUTER_INSTALL_DIR" install
 
-  echo "Building openwork-plus-opencode-router..."
-  pnpm -C "$OPENCODE_ROUTER_INSTALL_DIR/apps/openwork-plus-opencode-router" build
+  echo "Building openworkplus-opencode-router..."
+  pnpm -C "$OPENCODE_ROUTER_INSTALL_DIR/apps/openworkplus-opencode-router" build
 
   ENV_PATH="$OPENCODE_ROUTER_INSTALL_DIR/apps/openwork-plus-opencode-router/.env"
   ENV_EXAMPLE="$OPENCODE_ROUTER_INSTALL_DIR/apps/openwork-plus-opencode-router/.env.example"
@@ -117,12 +117,12 @@ EOF
   fi
 
   mkdir -p "$OPENCODE_ROUTER_BIN_DIR"
-  cat <<EOF > "$OPENCODE_ROUTER_BIN_DIR/openwork-plus-opencode-router"
+  cat <<EOF > "$OPENCODE_ROUTER_BIN_DIR/openworkplus-opencode-router"
 #!/usr/bin/env bash
 set -euo pipefail
 bun "$OPENCODE_ROUTER_INSTALL_DIR/apps/openwork-plus-opencode-router/dist/cli.js" "$@"
 EOF
-  chmod 755 "$OPENCODE_ROUTER_BIN_DIR/openwork-plus-opencode-router"
+  chmod 755 "$OPENCODE_ROUTER_BIN_DIR/openworkplus-opencode-router"
   CUSTOM_SHIM_CREATED=true
 fi
 
@@ -146,10 +146,10 @@ fi
 
 cat <<EOF
 
-openwork-plus-opencode-router installed.
+openworkplus-opencode-router installed.
 
 Next steps:
-1) Verify install: openwork-plus-opencode-router --help
-2) Add Telegram identity: openwork-plus-opencode-router telegram add <token> --id default
-3) Start router: openwork-plus-opencode-router start
+1) Verify install: openworkplus-opencode-router --help
+2) Add Telegram identity: openworkplus-opencode-router telegram add <token> --id default
+3) Start router: openworkplus-opencode-router start
 EOF

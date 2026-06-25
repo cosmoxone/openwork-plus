@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/task-scheduler",
+  "name": "@openworkplus/task-scheduler",
   "version": "0.1.0",
   "description": "SQLite 持久化定时任务调度（P3-2/P3-3）：CRUD + cron + tick + WSL test_db 闭环",
   "type": "module",

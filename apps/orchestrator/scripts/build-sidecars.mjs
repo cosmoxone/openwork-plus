@@ -21,7 +21,7 @@ const orchestratorPkg = JSON.parse(
 const orchestratorVersion = String(orchestratorPkg.version ?? "").trim();
 if (!orchestratorVersion) {
   throw new Error(
-    "openwork-plus-orchestrator version missing in apps/orchestrator/package.json",
+    "openworkplus-orchestrator version missing in apps/orchestrator/package.json",
   );
 }
 
@@ -38,20 +38,20 @@ const serverPkg = JSON.parse(
 const serverVersion = String(serverPkg.version ?? "").trim();
 if (!serverVersion) {
   throw new Error(
-    "openwork-plus-server version missing in apps/server/package.json",
+    "openworkplus-server version missing in apps/server/package.json",
   );
 }
 
 const routerPkg = JSON.parse(
   readFileSync(
-    resolve(repoRoot, "apps", "opencode-router", "package.json"),
+    resolve(repoRoot, "apps", "openworkplus-opencode-router", "package.json"),
     "utf8",
   ),
 );
 const routerVersion = String(routerPkg.version ?? "").trim();
 if (!routerVersion) {
   throw new Error(
-    "openwork-plus-opencode-router version missing in apps/openwork-plus-opencode-router/package.json",
+    "openworkplus-opencode-router version missing in apps/openworkplus-opencode-router/package.json",
   );
 }
 
@@ -62,8 +62,8 @@ const run = (command, args, cwd) => {
   }
 };
 
-run("pnpm", ["--filter", "openwork-server", "build:bin:all"], repoRoot);
-run("pnpm", ["--filter", "opencode-router", "build:bin:all"], repoRoot);
+run("pnpm", ["--filter", "openworkplus-server", "build:bin:all"], repoRoot);
+run("pnpm", ["--filter", "openworkplus-opencode-router", "build:bin:all"], repoRoot);
 
 const targets = [
   { id: "darwin-arm64", bun: "bun-darwin-arm64" },
@@ -79,37 +79,37 @@ const sha256File = (path) => {
 };
 
 const serverDir = resolve(repoRoot, "apps", "server", "dist", "bin");
-const routerDir = resolve(repoRoot, "apps", "opencode-router", "dist", "bin");
+const routerDir = resolve(repoRoot, "apps", "openworkplus-opencode-router", "dist", "bin");
 
 mkdirSync(outdir, { recursive: true });
 
 const entries = {
-  "openwork-server": { version: serverVersion, targets: {} },
-  "opencode-router": { version: routerVersion, targets: {} },
+  "openworkplus-server": { version: serverVersion, targets: {} },
+  "openworkplus-opencode-router": { version: routerVersion, targets: {} },
 };
 
 for (const target of targets) {
   const ext = target.id.startsWith("windows") ? ".exe" : "";
-  const serverSrc = join(serverDir, `openwork-plus-server-${target.bun}${ext}`);
+  const serverSrc = join(serverDir, `openworkplus-server-${target.bun}${ext}`);
   if (!existsSync(serverSrc)) {
-    throw new Error(`Missing openwork-plus-server binary at ${serverSrc}`);
+    throw new Error(`Missing openworkplus-server binary at ${serverSrc}`);
   }
-  const serverDest = join(outdir, `openwork-plus-server-${target.id}${ext}`);
+  const serverDest = join(outdir, `openworkplus-server-${target.id}${ext}`);
   copyFileSync(serverSrc, serverDest);
 
-  const routerSrc = join(routerDir, `openwork-plus-opencode-router-${target.bun}${ext}`);
+  const routerSrc = join(routerDir, `openworkplus-opencode-router-${target.bun}${ext}`);
   if (!existsSync(routerSrc)) {
-    throw new Error(`Missing openwork-plus-opencode-router binary at ${routerSrc}`);
+    throw new Error(`Missing openworkplus-opencode-router binary at ${routerSrc}`);
   }
-  const routerDest = join(outdir, `openwork-plus-opencode-router-${target.id}${ext}`);
+  const routerDest = join(outdir, `openworkplus-opencode-router-${target.id}${ext}`);
   copyFileSync(routerSrc, routerDest);
 
-  entries["openwork-server"].targets[target.id] = {
+  entries["openworkplus-server"].targets[target.id] = {
     asset: basename(serverDest),
     sha256: sha256File(serverDest),
     size: statSync(serverDest).size,
   };
-  entries["opencode-router"].targets[target.id] = {
+  entries["openworkplus-opencode-router"].targets[target.id] = {
     asset: basename(routerDest),
     sha256: sha256File(routerDest),
     size: statSync(routerDest).size,
@@ -123,7 +123,7 @@ const manifest = {
 };
 
 writeFileSync(
-  join(outdir, "openwork-orchestrator-sidecars.json"),
+  join(outdir, "openworkplus-orchestrator-sidecars.json"),
   `${JSON.stringify(manifest, null, 2)}\n`,
   "utf8",
 );

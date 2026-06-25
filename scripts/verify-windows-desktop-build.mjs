@@ -33,7 +33,7 @@ try {
     "--outdir",
     "../../apps/desktop/src-tauri/sidecars",
     "--filename",
-    "openwork-orchestrator",
+    "openworkplus-orchestrator",
     "--target",
     "bun-windows-x64",
   ], { cwd: path.join(root, "apps/orchestrator") });
@@ -50,7 +50,7 @@ try {
     ]);
     run("tauri build (MSI, no updater signing)", "pnpm", [
       "--filter",
-      "@openwork-plus/desktop",
+      "@openworkplus/desktop",
       "exec",
       "tauri",
       "build",

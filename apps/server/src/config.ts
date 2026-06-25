@@ -175,7 +175,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
 
 export function printHelp(): void {
   const message = [
-    "openwork-server",
+    "openworkplus-server",
     "",
     "Options:",
     "  --config <path>          Path to server.json",

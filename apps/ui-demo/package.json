@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/ui-demo",
+  "name": "@openworkplus/ui-demo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "@openwork-plus/ui": "workspace:*"
+    "@openworkplus/ui": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.2.14",

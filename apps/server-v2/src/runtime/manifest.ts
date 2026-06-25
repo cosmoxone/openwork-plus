@@ -6,7 +6,7 @@ export type RuntimeTarget =
   | "windows-arm64"
   | "windows-x64";
 
-export type RuntimeAssetName = "opencode" | "opencode-router";
+export type RuntimeAssetName = "opencode" | "openworkplus-opencode-router";
 export type RuntimeAssetSource = "development" | "release";
 
 export type RuntimeManifestFile = {
@@ -79,7 +79,7 @@ export function resolveRuntimeTarget(): RuntimeTarget | null {
 }
 
 export function runtimeBinaryFilename(name: RuntimeAssetName, target: RuntimeTarget) {
-  const base = name === "opencode" ? "opencode" : "opencode-router";
+  const base = name === "opencode" ? "opencode" : "openworkplus-opencode-router";
   return target.startsWith("windows") ? `${base}.exe` : base;
 }
 

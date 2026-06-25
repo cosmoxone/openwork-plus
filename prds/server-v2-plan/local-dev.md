@@ -53,7 +53,7 @@ For Server V2 local development, runtime ownership should match production, but 
 Recommended model:
 
 - `apps/server-v2` runs directly with Bun in dev/watch mode
-- `openwork-plus-opencode-router` is built from the local workspace source in `apps/openwork-plus-opencode-router`
+- `openworkplus-opencode-router` is built from the local workspace source in `apps/openworkplus-opencode-router`
 - `opencode` is downloaded from a pinned release artifact, not committed into the repo and not resolved from `PATH`
 - both binaries are staged into a gitignored local runtime-assets directory
 - Server V2 launches those staged binaries by absolute path
@@ -72,7 +72,7 @@ That means the local-dev flow should:
 
 1. On first local Server V2 run, check the local runtime-assets cache for the pinned `opencode` binary.
 2. If the pinned binary is missing, download the matching release artifact for the current platform.
-3. Build `apps/openwork-plus-opencode-router` locally and stage the resulting binary in the same gitignored runtime-assets area.
+3. Build `apps/openworkplus-opencode-router` locally and stage the resulting binary in the same gitignored runtime-assets area.
 4. Start Server V2 in Bun watch mode.
 5. Have Server V2 spawn the staged binaries by absolute path.
 
@@ -89,7 +89,7 @@ That means the local-dev flow should:
 apps/server-v2/src/**
 -> server watch reloads server runtime
 -> OpenAPI watch regenerates apps/server-v2/openapi/openapi.json
--> SDK watch regenerates packages/openwork-plus-server-sdk/generated/**
+-> SDK watch regenerates packages/openworkplus-server-sdk/generated/**
 -> app dev server sees workspace package changes
 -> app recompiles with updated types and methods
 ```
@@ -109,7 +109,7 @@ Inputs:
 Should ignore:
 
 - `apps/server-v2/openapi/**`
-- `packages/openwork-plus-server-sdk/**`
+- `packages/openworkplus-server-sdk/**`
 
 Reason:
 
@@ -147,7 +147,7 @@ Input:
 
 Output:
 
-- `packages/openwork-plus-server-sdk/generated/**`
+- `packages/openworkplus-server-sdk/generated/**`
 
 Notes:
 
@@ -164,7 +164,7 @@ Purpose:
 Inputs:
 
 - `apps/app/**`
-- `packages/openwork-plus-server-sdk/**`
+- `packages/openworkplus-server-sdk/**`
 
 Notes:
 
@@ -174,7 +174,7 @@ Notes:
 
 ## Preferred SDK Package Dev Shape
 
-To keep iteration fast, `packages/openwork-plus-server-sdk` should ideally work like this in development:
+To keep iteration fast, `packages/openworkplus-server-sdk` should ideally work like this in development:
 
 - generated files land in `generated/**`
 - handwritten SDK files like `src/index.ts` and SSE helpers live beside them
@@ -259,7 +259,7 @@ Recommended approach:
 
 - document the SSE endpoints in the new server contract
 - keep event payloads typed from generated or shared contract types
-- expose small handwritten SSE helpers from `packages/openwork-plus-server-sdk`
+- expose small handwritten SSE helpers from `packages/openworkplus-server-sdk`
 - let the app consume those helpers through the same `createSdk({ serverId })` entrypoint
 
 That means SSE changes still fit the same watch graph:
@@ -304,7 +304,7 @@ apps/server-v2
 - openapi:generate    # one-shot spec generation
 - openapi:watch       # watch new-server sources and regenerate spec
 
-packages/openwork-plus-server-sdk
+packages/openworkplus-server-sdk
 - generate            # one-shot SDK generation
 - watch               # watch spec and regenerate sdk
 

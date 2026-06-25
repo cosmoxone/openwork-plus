@@ -59,7 +59,7 @@ async function main() {
     assert.ok(!existsSync(path.join(workspaceRoot, ".opencode", "skills", "browser-automation")));
 
     console.log("PASS: computer-use bundle install/list/uninstall");
-    console.log("NOTE: 会话 E2E：`pnpm --filter @openwork-plus/app test:gui-screenshot-session`");
+    console.log("NOTE: 会话 E2E：`pnpm --filter @openworkplus/app test:gui-screenshot-session`");
   } finally {
     delete process.env.OPENWORK_MONOREPO_ROOT;
     await rm(workspaceRoot, { recursive: true, force: true });

@@ -34,7 +34,7 @@ impl OrchestratorManager {
         };
 
         if let Some(child) = state.child.take() {
-            // Prefer daemon-owned graceful shutdown so openwork-plus-orchestrator can
+            // Prefer daemon-owned graceful shutdown so openworkplus-orchestrator can
             // terminate its managed OpenCode child before exiting.
             if !shutdown_requested {
                 let _ = child.kill();

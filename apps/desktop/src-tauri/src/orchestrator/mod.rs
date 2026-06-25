@@ -89,20 +89,20 @@ pub fn resolve_orchestrator_data_dir() -> String {
     if let Some(home) = home_dir() {
         return home
             .join(".openwork")
-            .join("openwork-orchestrator")
+            .join("openworkplus-orchestrator")
             .to_string_lossy()
             .to_string();
     }
 
-    ".openwork/openwork-plus-orchestrator".to_string()
+    ".openwork/openworkplus-orchestrator".to_string()
 }
 
 fn orchestrator_state_path(data_dir: &str) -> PathBuf {
-    Path::new(data_dir).join("openwork-plus-orchestrator-state.json")
+    Path::new(data_dir).join("openworkplus-orchestrator-state.json")
 }
 
 fn orchestrator_auth_path(data_dir: &str) -> PathBuf {
-    Path::new(data_dir).join("openwork-plus-orchestrator-auth.json")
+    Path::new(data_dir).join("openworkplus-orchestrator-auth.json")
 }
 
 pub fn read_orchestrator_auth(data_dir: &str) -> Option<OrchestratorAuthFile> {
@@ -246,7 +246,7 @@ pub fn spawn_orchestrator_daemon(
     app: &AppHandle,
     options: &OrchestratorSpawnOptions,
 ) -> Result<(tauri::async_runtime::Receiver<CommandEvent>, CommandChild), String> {
-    let command = match app.shell().sidecar("openwork-orchestrator") {
+    let command = match app.shell().sidecar("openworkplus-orchestrator") {
         Ok(command) => command,
         Err(_) => app.shell().command("openwork"),
     };
@@ -336,7 +336,7 @@ mod tests {
     #[test]
     fn request_shutdown_returns_false_without_state() {
         let dir = std::env::temp_dir().join(format!(
-            "openwork-plus-orchestrator-shutdown-missing-{}",
+            "openworkplus-orchestrator-shutdown-missing-{}",
             Uuid::new_v4()
         ));
         fs::create_dir_all(&dir).expect("create test dir");
@@ -366,11 +366,11 @@ mod tests {
         });
 
         let dir = std::env::temp_dir().join(format!(
-            "openwork-plus-orchestrator-shutdown-state-{}",
+            "openworkplus-orchestrator-shutdown-state-{}",
             Uuid::new_v4()
         ));
         fs::create_dir_all(&dir).expect("create state dir");
-        let state_path = dir.join("openwork-plus-orchestrator-state.json");
+        let state_path = dir.join("openworkplus-orchestrator-state.json");
         fs::write(
             &state_path,
             format!(

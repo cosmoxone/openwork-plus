@@ -4,7 +4,7 @@ import { BookOpen, MessageCircle, Settings } from "lucide-solid";
 import { t } from "../../i18n";
 import { useConnections } from "../connections/provider";
 import { usePlatform } from "../context/platform";
-import type { OpenworkServerStatus } from "../lib/openwork-server";
+import type { OpenworkServerStatus } from "../lib/openworkplus-server";
 
 const DOCS_URL = "https://openworklabs.com/docs";
 

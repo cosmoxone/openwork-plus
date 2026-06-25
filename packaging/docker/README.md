@@ -111,7 +111,7 @@ This is usually the fastest path for UI/auth/control-plane iteration because it 
 
 ## Pre-baked Micro-Sandbox Image
 
-For micro-sandbox work, use the pre-baked image that compiles `openwork` and `openwork-plus-server` from source and downloads the pinned `opencode` binary during `docker build`.
+For micro-sandbox work, use the pre-baked image that compiles `openwork` and `openworkplus-server` from source and downloads the pinned `opencode` binary during `docker build`.
 
 Build it from the repo root:
 
@@ -152,7 +152,7 @@ This is a minimal packaging template to run the OpenWork Host contract in a sing
 It runs:
 
 - `opencode serve` (engine) bound to `127.0.0.1:4096` inside the container
-- `openwork-plus-server` published on `0.0.0.0:8787` via an explicit `--remote-access` launch path (the only published surface)
+- `openworkplus-server` published on `0.0.0.0:8787` via an explicit `--remote-access` launch path (the only published surface)
 
 ### Local run (compose)
 

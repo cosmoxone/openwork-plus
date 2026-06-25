@@ -29,7 +29,7 @@ const runtimeManifestSchema = z.object({
       sha256: z.string(),
       size: z.number().int().nonnegative(),
     }),
-    "opencode-router": z.object({
+    "openworkplus-opencode-router": z.object({
       path: z.string(),
       sha256: z.string(),
       size: z.number().int().nonnegative(),

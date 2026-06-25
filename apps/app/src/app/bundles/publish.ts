@@ -3,7 +3,7 @@ import type {
   OpenworkServerClient,
   OpenworkWorkspaceExport,
   OpenworkWorkspaceExportSensitiveMode,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 import type { SkillsSetBundleV1, WorkspaceProfileBundleV1 } from "./types";
 
 export function buildWorkspaceProfileBundle(

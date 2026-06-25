@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @openwork-plus/sqlite-vec-mcp — 知识库 RAG MCP server（stdio）。
+ * @openworkplus/sqlite-vec-mcp — 知识库 RAG MCP server（stdio）。
  * MVP：JSON 文件存储 + 本地/OpenAI embedding；后续可换 sqlite-vec 后端。
  */
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";

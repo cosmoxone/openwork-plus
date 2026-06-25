@@ -1,4 +1,4 @@
-# @openwork-plus/metering-store
+# @openworkplus/metering-store
 
 统一会话 / 用量 / Credit 计量持久层。衔接 [App-Server 契约](../../docs/) 的 `event/notify` usage 事件与商业线钱包（充值 / 扣费 / 余额 / 低余额提醒）。
 
@@ -11,7 +11,7 @@
 ## 用法
 
 ```js
-import { MeteringStore } from "@openwork-plus/metering-store";
+import { MeteringStore } from "@openworkplus/metering-store";
 
 const store = new MeteringStore({ dataDir: process.env.OPENWORK_DATA_DIR });
 await store.topUp({ amountUsd: 10, deviceId: "box-1" });

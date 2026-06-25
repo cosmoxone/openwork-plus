@@ -80,7 +80,7 @@ async function canonicalPath(input) {
   }
 }
 
-const root = await mkdtemp(join(tmpdir(), "openwork-plus-orchestrator-router-"));
+const root = await mkdtemp(join(tmpdir(), "openworkplus-orchestrator-router-"));
 const dataDir = join(root, "data");
 const workspaceA = join(root, "ws-a");
 const workspaceB = join(root, "ws-b");

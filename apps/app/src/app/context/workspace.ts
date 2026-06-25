@@ -33,7 +33,7 @@ import {
   OpenworkServerError,
   type OpenworkServerClient,
   type OpenworkWorkspaceInfo,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 import { downloadDir, homeDir } from "@tauri-apps/api/path";
 import {
   engineDoctor,
@@ -72,7 +72,7 @@ import type { OpencodeConnectStatus, ProviderListItem } from "../types";
 import { t, currentLocale } from "../../i18n";
 import { filterProviderList, mapConfigProvidersToList } from "../utils/providers";
 import { buildDefaultWorkspaceBlueprint, normalizeWorkspaceOpenworkConfig } from "../lib/workspace-blueprints";
-import type { OpenworkServerStore } from "../connections/openwork-server-store";
+import type { OpenworkServerStore } from "../connections/openworkplus-server-store";
 import { resolveSandboxCreateMode, type SandboxBackendType } from "./sandbox-create-mode";
 
 export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>;
@@ -884,7 +884,7 @@ export function createWorkspaceStore(options: {
     };
   };
 
-  const resolveEngineRuntime = () => options.engineRuntime?.() ?? "openwork-orchestrator";
+  const resolveEngineRuntime = () => options.engineRuntime?.() ?? "openworkplus-orchestrator";
 
   const resolveWorkspacePaths = () => {
     const active = selectedWorkspacePath().trim();
@@ -1730,7 +1730,7 @@ export function createWorkspaceStore(options: {
         existingEngineProjectDir: existingEngine?.projectDir ?? null,
       });
 
-      if (canReuseHost && runtime === "openwork-orchestrator") {
+      if (canReuseHost && runtime === "openworkplus-orchestrator") {
         try {
           const reuseStart = Date.now();
           await orchestratorWorkspaceActivate({
@@ -1790,7 +1790,7 @@ export function createWorkspaceStore(options: {
 
       try {
         const runtime = resolveEngineRuntime();
-        if (runtime === "openwork-orchestrator") {
+        if (runtime === "openworkplus-orchestrator") {
           await orchestratorWorkspaceActivate({
             workspacePath: next.path,
             name: next.displayName?.trim() || next.name?.trim() || null,
@@ -3575,7 +3575,7 @@ export function createWorkspaceStore(options: {
 
     try {
       const runtime = engine()?.runtime ?? resolveEngineRuntime();
-      if (runtime === "openwork-orchestrator") {
+      if (runtime === "openworkplus-orchestrator") {
         await orchestratorInstanceDispose(root);
         await orchestratorWorkspaceActivate({
           workspacePath: root,

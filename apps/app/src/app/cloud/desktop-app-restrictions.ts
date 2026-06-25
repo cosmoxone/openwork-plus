@@ -1,4 +1,4 @@
-import type { DesktopAppRestrictions } from "@openwork-plus/types/den/desktop-app-restrictions";
+import type { DesktopAppRestrictions } from "@openworkplus/types/den/desktop-app-restrictions";
 import type { DenDesktopConfig } from "../lib/den";
 import type { ModelRef } from "../types";
 

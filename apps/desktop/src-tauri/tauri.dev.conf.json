@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "OpenWork-Plus-Dev",
+  "productName": "OpenWorkPlusDev",
   "identifier": "com.openwork.plus.dev",
   "bundle": {
     "icon": [
@@ -10,14 +10,14 @@
       "icons/icon-dev.icns"
     ],
     "macOS": {
-      "bundleName": "OpenWork Plus - Dev",
+      "bundleName": "OpenWork Plus Dev",
       "infoPlist": "./Info.dev.plist"
     }
   },
   "app": {
     "windows": [
       {
-        "title": "OpenWork Plus - Dev",
+        "title": "OpenWork Plus Dev",
         "width": 1180,
         "height": 820,
         "resizable": true

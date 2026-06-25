@@ -26,8 +26,8 @@ fi
 args+=("$ROOT_DIR")
 
 printf 'Building micro-sandbox image %s\n' "$IMAGE_REF"
-printf '  openwork-plus-orchestrator@%s\n' "$OPENWORK_ORCHESTRATOR_VERSION"
-printf '  openwork-plus-server@%s\n' "$OPENWORK_SERVER_VERSION"
+printf '  openworkplus-orchestrator@%s\n' "$OPENWORK_ORCHESTRATOR_VERSION"
+printf '  openworkplus-server@%s\n' "$OPENWORK_SERVER_VERSION"
 printf '  opencode@%s\n' "$OPENCODE_VERSION"
 
 docker "${args[@]}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Revert accidental path renames from rename-npm-packages (local files keep openwork-server.ts names). */
+/** Revert accidental path renames from rename-npm-packages (local files keep openworkplus-server.ts names). */
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,14 +8,14 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SKIP = new Set(["node_modules", ".git", "docs", "ee", "vendor"]);
 
 const FIXES = [
-  ["../../app/lib/openwork-server", "../../app/lib/openwork-server"],
-  ["../lib/openwork-server", "../lib/openwork-server"],
-  ["./openwork-server", "./openwork-server"],
-  ["../connections/openwork-server-store", "../connections/openwork-server-store"],
-  ["../../connections/openwork-server-store", "../../connections/openwork-server-store"],
-  ["./openwork-server-store", "./openwork-server-store"],
-  ["openwork-server-unavailable", "openwork-server-unavailable"],
-  ["openwork-server-provider", "openwork-server-provider"],
+  ["../../app/lib/openworkplus-server", "../../app/lib/openworkplus-server"],
+  ["../lib/openworkplus-server", "../lib/openworkplus-server"],
+  ["./openworkplus-server", "./openworkplus-server"],
+  ["../connections/openworkplus-server-store", "../connections/openworkplus-server-store"],
+  ["../../connections/openworkplus-server-store", "../../connections/openworkplus-server-store"],
+  ["./openworkplus-server-store", "./openworkplus-server-store"],
+  ["openworkplus-server-unavailable", "openworkplus-server-unavailable"],
+  ["openworkplus-server-provider", "openworkplus-server-provider"],
 ];
 
 async function walk(dir) {

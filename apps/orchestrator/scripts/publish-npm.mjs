@@ -11,7 +11,7 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)))
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"))
 const version = String(pkg.version || "").trim()
 if (!version) {
-  throw new Error("openwork-plus-orchestrator version missing in apps/orchestrator/package.json")
+  throw new Error("openworkplus-orchestrator version missing in apps/orchestrator/package.json")
 }
 
 const outroot = join(root, "dist", "npm")
@@ -47,7 +47,7 @@ function writeJson(filepath, data) {
 function platformPkgName(target) {
   const platform = target.id.split("-")[0]
   const arch = target.id.split("-").slice(1).join("-")
-  return `openwork-plus-orchestrator-${platform}-${arch}`
+  return `openworkplus-orchestrator-${platform}-${arch}`
 }
 
 const optionalDependencies = {}
@@ -60,7 +60,7 @@ for (const target of targets) {
   const ext = target.id.startsWith("windows") ? ".exe" : ""
   const src = join(root, "dist", "bin", `openwork-${target.bun}${ext}`)
   if (!existsSync(src)) {
-    throw new Error(`Missing openwork binary at ${src}. Run: pnpm --filter openwork-plus-orchestrator build:bin:all`)
+    throw new Error(`Missing openwork binary at ${src}. Run: pnpm --filter openworkplus-orchestrator build:bin:all`)
   }
 
   const dir = join(outroot, name)
@@ -76,13 +76,13 @@ for (const target of targets) {
   writeJson(join(dir, "package.json"), {
     name,
     version,
-    description: "Platform binary for openwork-plus-orchestrator",
+    description: "Platform binary for openworkplus-orchestrator",
     license: "MIT",
     os: [target.os],
     cpu: [target.cpu],
     bin: {
       openwork: `./bin/openwork${ext}`,
-      "openwork-orchestrator": `./bin/openwork${ext}`,
+      "openworkplus-orchestrator": `./bin/openwork${ext}`,
     },
     files: ["bin"],
   })
@@ -90,7 +90,7 @@ for (const target of targets) {
   published.push({ name, dir })
 }
 
-const meta = join(outroot, "openwork-orchestrator")
+const meta = join(outroot, "openworkplus-orchestrator")
 mkdirSync(join(meta, "bin"), { recursive: true })
 
 const wrapperSrc = join(root, "bin", "openwork")
@@ -108,13 +108,13 @@ copyFileSync(postinstallSrc, join(meta, basename(postinstallSrc)))
 copyFileSync(constantsSrc, join(meta, "constants.json"))
 
 writeJson(join(meta, "package.json"), {
-  name: "openwork-orchestrator",
+  name: "openworkplus-orchestrator",
   version,
-  description: "OpenWork host orchestrator for opencode + OpenWork server + openwork-plus-opencode-router",
+  description: "OpenWork host orchestrator for opencode + OpenWork server + openworkplus-opencode-router",
   license: "MIT",
   bin: {
     openwork: "./bin/openwork",
-    "openwork-orchestrator": "./bin/openwork",
+    "openworkplus-orchestrator": "./bin/openwork",
   },
   scripts: {
     postinstall: "node ./postinstall.mjs",
@@ -123,7 +123,7 @@ writeJson(join(meta, "package.json"), {
   files: ["bin", "postinstall.mjs", "constants.json"],
 })
 
-published.push({ name: "openwork-orchestrator", dir: meta })
+published.push({ name: "openworkplus-orchestrator", dir: meta })
 
 for (const item of published) {
   if (dry) {

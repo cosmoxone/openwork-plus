@@ -40,7 +40,7 @@ function createPersistence(overrides: Partial<Parameters<typeof createServerPers
 }
 
 test("fresh bootstrap seeds the local server and hidden workspaces", () => {
-  const workingDirectory = makeTempDir("openwork-plus-server-v2-phase2-fresh");
+  const workingDirectory = makeTempDir("openworkplus-server-v2-phase2-fresh");
   const persistence = createPersistence({ workingDirectory });
 
   expect(persistence.diagnostics.mode).toBe("fresh");
@@ -57,7 +57,7 @@ test("fresh bootstrap seeds the local server and hidden workspaces", () => {
 });
 
 test("migration runner upgrades an existing database from the first migration", () => {
-  const rootDir = makeTempDir("openwork-plus-server-v2-phase2-upgrade");
+  const rootDir = makeTempDir("openworkplus-server-v2-phase2-upgrade");
   const workingDirectory = resolveServerWorkingDirectory({ environment: "development", explicitRootDir: rootDir });
   ensureServerWorkingDirectoryLayout(workingDirectory);
   const database = new Database(workingDirectory.databasePath, { create: true });
@@ -74,11 +74,11 @@ test("migration runner upgrades an existing database from the first migration", 
 });
 
 test("legacy workspace import only runs once across repeated boots", () => {
-  const rootDir = makeTempDir("openwork-plus-server-v2-phase2-idempotent");
-  const desktopDataDir = makeTempDir("openwork-plus-server-v2-phase2-desktop");
-  const orchestratorDataDir = makeTempDir("openwork-plus-server-v2-phase2-orchestrator");
-  const localWorkspaceDir = makeTempDir("openwork-plus-server-v2-phase2-local-workspace");
-  const orchestratorOnlyWorkspaceDir = makeTempDir("openwork-plus-server-v2-phase2-orch-only-workspace");
+  const rootDir = makeTempDir("openworkplus-server-v2-phase2-idempotent");
+  const desktopDataDir = makeTempDir("openworkplus-server-v2-phase2-desktop");
+  const orchestratorDataDir = makeTempDir("openworkplus-server-v2-phase2-orchestrator");
+  const localWorkspaceDir = makeTempDir("openworkplus-server-v2-phase2-local-workspace");
+  const orchestratorOnlyWorkspaceDir = makeTempDir("openworkplus-server-v2-phase2-orch-only-workspace");
 
   fs.writeFileSync(
     path.join(desktopDataDir, "openwork-workspaces.json"),
@@ -112,7 +112,7 @@ test("legacy workspace import only runs once across repeated boots", () => {
   );
 
   fs.writeFileSync(
-    path.join(orchestratorDataDir, "openwork-plus-orchestrator-state.json"),
+    path.join(orchestratorDataDir, "openworkplus-orchestrator-state.json"),
     JSON.stringify(
       {
         activeId: "orch-1",
@@ -189,9 +189,9 @@ test("legacy workspace import only runs once across repeated boots", () => {
 });
 
 test("deleted legacy-imported workspace stays deleted after restart", () => {
-  const rootDir = makeTempDir("openwork-plus-server-v2-phase2-delete-persist");
-  const desktopDataDir = makeTempDir("openwork-plus-server-v2-phase2-delete-desktop");
-  const localWorkspaceDir = makeTempDir("openwork-plus-server-v2-phase2-delete-workspace");
+  const rootDir = makeTempDir("openworkplus-server-v2-phase2-delete-persist");
+  const desktopDataDir = makeTempDir("openworkplus-server-v2-phase2-delete-desktop");
+  const localWorkspaceDir = makeTempDir("openworkplus-server-v2-phase2-delete-workspace");
 
   fs.writeFileSync(
     path.join(desktopDataDir, "openwork-workspaces.json"),
@@ -250,9 +250,9 @@ test("deleted legacy-imported workspace stays deleted after restart", () => {
 });
 
 test("corrupt legacy workspace state is surfaced without blocking bootstrap", () => {
-  const rootDir = makeTempDir("openwork-plus-server-v2-phase2-corrupt");
-  const desktopDataDir = makeTempDir("openwork-plus-server-v2-phase2-corrupt-desktop");
-  const orchestratorDataDir = makeTempDir("openwork-plus-server-v2-phase2-corrupt-orchestrator");
+  const rootDir = makeTempDir("openworkplus-server-v2-phase2-corrupt");
+  const desktopDataDir = makeTempDir("openworkplus-server-v2-phase2-corrupt-desktop");
+  const orchestratorDataDir = makeTempDir("openworkplus-server-v2-phase2-corrupt-orchestrator");
   fs.writeFileSync(path.join(desktopDataDir, "openwork-workspaces.json"), "{not-json");
 
   const persistence = createPersistence({

@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/server-sdk",
+  "name": "@openworkplus/server-sdk",
   "private": true,
   "type": "module",
   "exports": {

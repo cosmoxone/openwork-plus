@@ -7,12 +7,12 @@ import type {
   View,
   WorkspacePreset,
 } from "../types";
-import { normalizeOpenworkServerUrl, parseOpenworkWorkspaceIdFromUrl } from "../lib/openwork-server";
+import { normalizeOpenworkServerUrl, parseOpenworkWorkspaceIdFromUrl } from "../lib/openworkplus-server";
 import { t } from "../../i18n";
 import { isSandboxWorkspace, isTauriRuntime, safeStringify, addOpencodeCacheHint } from "../utils";
 import type { WorkspaceStore } from "../context/workspace";
 import type { StartupPreference } from "../types";
-import type { OpenworkServerStore } from "../connections/openwork-server-store";
+import type { OpenworkServerStore } from "../connections/openworkplus-server-store";
 import {
   buildImportPayloadFromBundle,
   describeWorkspaceForBundleToasts,

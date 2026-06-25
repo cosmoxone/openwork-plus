@@ -71,7 +71,7 @@ async function main() {
 
     await uninstallBundle({ id: "test-automation", dataDir });
     console.log("PASS: S1-A7 analyze-failure 链路预检（命令/技能/MCP）");
-    console.log("NOTE: 完整会话 E2E：`pnpm --filter @openwork-plus/app test:analyze-failure-session`；桌面手工见 MANUAL-TEST.md §5");
+    console.log("NOTE: 完整会话 E2E：`pnpm --filter @openworkplus/app test:analyze-failure-session`；桌面手工见 MANUAL-TEST.md §5");
   } finally {
     delete process.env.OPENWORK_MONOREPO_ROOT;
     await rm(workspaceRoot, { recursive: true, force: true });

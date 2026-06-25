@@ -36,7 +36,7 @@ export const IMPLEMENTED_METHODS = [
   Methods.turn.steer,
 ];
 
-/** @type {import('@openwork-plus/metering-store').MeteringStore | null} */
+/** @type {import('@openworkplus/metering-store').MeteringStore | null} */
 let metering = null;
 
 function getMetering() {
@@ -47,7 +47,7 @@ function getMetering() {
 /**
  * @param {string} method
  * @param {unknown} params
- * @param {import('@openwork-plus/appserver-contract').JsonRpcId} id
+ * @param {import('@openworkplus/appserver-contract').JsonRpcId} id
  */
 export async function dispatchAppServerMethod(method, params, id) {
   if (method === Methods.initialize) {

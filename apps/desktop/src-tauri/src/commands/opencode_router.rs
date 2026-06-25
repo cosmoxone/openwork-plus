@@ -446,9 +446,9 @@ pub async fn opencodeRouter_config_set(
 ) -> Result<(), String> {
     use tauri_plugin_shell::ShellExt;
 
-    let command = match app.shell().sidecar("opencode-router") {
+    let command = match app.shell().sidecar("openworkplus-opencode-router") {
         Ok(command) => command,
-        Err(_) => app.shell().command("opencode-router"),
+        Err(_) => app.shell().command("openworkplus-opencode-router"),
     };
 
     let output = command
@@ -472,9 +472,9 @@ async fn opencodeRouter_json(
 ) -> Result<serde_json::Value, String> {
     use tauri_plugin_shell::ShellExt;
 
-    let command = match app.shell().sidecar("opencode-router") {
+    let command = match app.shell().sidecar("openworkplus-opencode-router") {
         Ok(command) => command,
-        Err(_) => app.shell().command("opencode-router"),
+        Err(_) => app.shell().command("openworkplus-opencode-router"),
     };
 
     let output = command
@@ -495,9 +495,9 @@ async fn opencodeRouter_json(
 async fn opencodeRouter_version(app: &AppHandle) -> Option<String> {
     use tauri_plugin_shell::ShellExt;
 
-    let command = match app.shell().sidecar("opencode-router") {
+    let command = match app.shell().sidecar("openworkplus-opencode-router") {
         Ok(command) => command,
-        Err(_) => app.shell().command("opencode-router"),
+        Err(_) => app.shell().command("openworkplus-opencode-router"),
     };
 
     let output = command.args(["--version"]).output().await.ok()?;

@@ -103,7 +103,7 @@ These values are baked into the desktop build as the initial bootstrap seed. Aft
 OPENWORK_DESKTOP_DEN_BASE_URL="https://client.example.com" \
 OPENWORK_DESKTOP_DEN_API_BASE_URL="https://client.example.com/api/den" \
 OPENWORK_DESKTOP_DEN_REQUIRE_SIGNIN="1" \
-pnpm --filter @openwork-plus/desktop build
+pnpm --filter @openworkplus/desktop build
 ```
 
 ### Accepted boolean values

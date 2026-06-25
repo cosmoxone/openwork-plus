@@ -59,7 +59,7 @@ fn openwork_server_token_store_path(app: &AppHandle) -> Result<PathBuf, String> 
         .path()
         .app_data_dir()
         .map_err(|e| format!("Failed to resolve app data dir: {e}"))?;
-    Ok(data_dir.join("openwork-plus-server-tokens.json"))
+    Ok(data_dir.join("openworkplus-server-tokens.json"))
 }
 
 fn openwork_server_state_path(app: &AppHandle) -> Result<PathBuf, String> {
@@ -67,7 +67,7 @@ fn openwork_server_state_path(app: &AppHandle) -> Result<PathBuf, String> {
         .path()
         .app_data_dir()
         .map_err(|e| format!("Failed to resolve app data dir: {e}"))?;
-    Ok(data_dir.join("openwork-plus-server-state.json"))
+    Ok(data_dir.join("openworkplus-server-state.json"))
 }
 
 fn normalize_workspace_key(workspace_key: &str) -> String {
@@ -473,7 +473,7 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .expect("clock before unix epoch")
             .as_nanos();
-        std::env::temp_dir().join(format!("openwork-plus-server-{name}-{nonce}.json"))
+        std::env::temp_dir().join(format!("openworkplus-server-{name}-{nonce}.json"))
     }
 
     #[test]

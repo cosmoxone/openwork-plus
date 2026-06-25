@@ -134,12 +134,12 @@ const levelColor: Record<TuiLogLevel, RGBA> = {
 
 const levelCycle: Array<"all" | TuiLogLevel> = ["all", "info", "warn", "error", "debug"];
 
-const serviceCycle = ["all", "openwork-orchestrator", "opencode", "openwork-server", "router"];
+const serviceCycle = ["all", "openworkplus-orchestrator", "opencode", "openworkplus-server", "router"];
 
 const viewTabs: Array<{ name: string; description: string; value: ViewName }> = [
   { name: "Overview", description: "Overview", value: "overview" },
   { name: "Logs", description: "Logs", value: "logs" },
-  { name: "Router", description: "opencode-router", value: "router" },
+  { name: "Router", description: "openworkplus-opencode-router", value: "router" },
   { name: "Help", description: "Help", value: "help" },
 ];
 
@@ -682,7 +682,7 @@ export function startOrchestratorTui(options: TuiOptions): TuiHandle {
           <Show when={state.view === "router"}>
             <box flexDirection="column" paddingTop={1} gap={1}>
               <text fg={theme.text} attributes={TextAttributes.BOLD}>
-                openwork-plus-opencode-router
+                openworkplus-opencode-router
               </text>
 
               <text fg={theme.textMuted}>Health: {routerStatus()}</text>

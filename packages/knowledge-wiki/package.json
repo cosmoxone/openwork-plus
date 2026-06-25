@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/knowledge-wiki",
+  "name": "@openworkplus/knowledge-wiki",
   "version": "0.1.0",
   "description": "LLM Wiki 知识库：目录骨架、Corpus Scan、ingest 与 INDEX 维护",
   "type": "module",

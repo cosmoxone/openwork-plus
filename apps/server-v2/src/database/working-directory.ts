@@ -63,7 +63,7 @@ function resolveRootDir(options: ResolveServerWorkingDirectoryOptions) {
   }
 
   if (options.environment === "test") {
-    return path.join(process.cwd(), ".openwork-plus-server-v2-test");
+    return path.join(process.cwd(), ".openworkplus-server-v2-test");
   }
 
   return path.join(resolvePlatformDataRoot(), "server-v2");
@@ -76,7 +76,7 @@ export function resolveServerWorkingDirectory(options: ResolveServerWorkingDirec
 
   return {
     databaseDir,
-    databasePath: path.join(databaseDir, "openwork-plus-server-v2.sqlite"),
+    databasePath: path.join(databaseDir, "openworkplus-server-v2.sqlite"),
     importsDir: path.join(rootDir, "imports"),
     managedDir,
     managedMcpDir: path.join(managedDir, "mcps"),

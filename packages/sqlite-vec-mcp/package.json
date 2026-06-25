@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/sqlite-vec-mcp",
+  "name": "@openworkplus/sqlite-vec-mcp",
   "version": "0.1.0",
   "description": "知识库 RAG MCP server（JSON 向量存储 + 语义检索，MVP 无需原生 sqlite-vec）",
   "type": "module",

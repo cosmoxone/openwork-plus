@@ -26,7 +26,7 @@ function readArgs(argv: string[]): BuildOptions {
   const options: BuildOptions = {
     targets: [],
     outdir: resolve("dist", "bin"),
-    filename: "opencode-router",
+    filename: "openworkplus-opencode-router",
   };
 
   for (let index = 0; index < argv.length; index += 1) {

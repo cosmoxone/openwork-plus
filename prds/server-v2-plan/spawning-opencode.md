@@ -33,7 +33,7 @@ The SDK should not be used for server startup.
 
 In the target Server V2 distribution model:
 
-- `openwork-plus-server-v2` is the primary executable
+- `openworkplus-server-v2` is the primary executable
 - it embeds `opencode`
 - it extracts `opencode` into a managed runtime directory
 - it launches that exact binary path
@@ -416,7 +416,7 @@ This helper is important because it connects the runtime distribution plan to th
 
 In the target distribution model:
 
-- `openwork-plus-server-v2` embeds `opencode`
+- `openworkplus-server-v2` embeds `opencode`
 - extracts it to a managed runtime directory
 - then uses this helper to launch the extracted binary by absolute path
 

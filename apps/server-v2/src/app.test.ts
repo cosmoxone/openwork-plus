@@ -17,8 +17,8 @@ function createTestApp(options?: { requireAuth?: boolean; seedRegistry?: boolean
     environment: "test",
     inMemory: true,
     legacy: {
-      desktopDataDir: `/tmp/openwork-plus-server-v2-test-desktop-${Math.random().toString(16).slice(2)}`,
-      orchestratorDataDir: `/tmp/openwork-plus-server-v2-test-orchestrator-${Math.random().toString(16).slice(2)}`,
+      desktopDataDir: `/tmp/openworkplus-server-v2-test-desktop-${Math.random().toString(16).slice(2)}`,
+      orchestratorDataDir: `/tmp/openworkplus-server-v2-test-orchestrator-${Math.random().toString(16).slice(2)}`,
     },
     runtime: {
       bootstrapPolicy: "disabled",
@@ -66,7 +66,7 @@ test("root info uses the shared success envelope and route conventions", async (
   expect(body).toMatchObject({
     ok: true,
     data: {
-      service: "openwork-plus-server-v2",
+      service: "openworkplus-server-v2",
       routes: {
         system: "/system",
         workspaces: "/workspaces",
@@ -74,7 +74,7 @@ test("root info uses the shared success envelope and route conventions", async (
       },
       contract: {
         source: "hono-openapi",
-        sdkPackage: "@openwork-plus/server-sdk",
+        sdkPackage: "@openworkplus/server-sdk",
       },
     },
   });

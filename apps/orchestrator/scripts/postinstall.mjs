@@ -28,7 +28,7 @@ function detect() {
 
 function packageName() {
   const { platform, arch } = detect()
-  return `openwork-plus-orchestrator-${platform}-${arch}`
+  return `openworkplus-orchestrator-${platform}-${arch}`
 }
 
 function binaryName() {
@@ -49,7 +49,7 @@ function readOwnVersion() {
   const pkg = JSON.parse(readFileSync(join(rootDir, "package.json"), "utf8"))
   const version = String(pkg.version || "").trim()
   if (!version) {
-    throw new Error("openwork-plus-orchestrator: package version is missing")
+    throw new Error("openworkplus-orchestrator: package version is missing")
   }
   return version
 }
@@ -59,7 +59,7 @@ function resolveFallbackBaseUrl(version) {
   if (override) {
     return override.replace(/\/$/, "")
   }
-  return `https://github.com/comoxone/openwork-plus/releases/download/openwork-plus-orchestrator-v${version}`
+  return `https://github.com/comoxone/openwork-plus/releases/download/openworkplus-orchestrator-v${version}`
 }
 
 async function downloadFallbackBinary() {
@@ -68,7 +68,7 @@ async function downloadFallbackBinary() {
   const url = `${resolveFallbackBaseUrl(version)}/${asset}`
   const destination = fallbackBinaryPath()
 
-  console.log(`openwork-plus-orchestrator: downloading fallback binary ${asset}`)
+  console.log(`openworkplus-orchestrator: downloading fallback binary ${asset}`)
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error(`download failed (${response.status} ${response.statusText}) from ${url}`)
@@ -81,18 +81,18 @@ async function downloadFallbackBinary() {
     chmodSync(destination, 0o755)
   }
 
-  console.log(`openwork-plus-orchestrator: installed fallback binary at ${destination}`)
+  console.log(`openworkplus-orchestrator: installed fallback binary at ${destination}`)
 }
 
 async function main() {
   try {
     const pkg = packageName()
     require.resolve(`${pkg}/package.json`)
-    console.log(`openwork-plus-orchestrator: verified platform package: ${pkg}`)
+    console.log(`openworkplus-orchestrator: verified platform package: ${pkg}`)
     return
   } catch {
     if (existsSync(fallbackBinaryPath())) {
-      console.log(`openwork-plus-orchestrator: using existing fallback binary at ${fallbackBinaryPath()}`)
+      console.log(`openworkplus-orchestrator: using existing fallback binary at ${fallbackBinaryPath()}`)
       return
     }
   }
@@ -103,7 +103,7 @@ async function main() {
     const pkg = packageName()
     const message = error instanceof Error ? error.message : String(error)
     console.error(
-      `openwork-plus-orchestrator: failed to locate platform binary package (${pkg}).\n` +
+      `openworkplus-orchestrator: failed to locate platform binary package (${pkg}).\n` +
         `Your package manager may have skipped optionalDependencies, or the package asset is unavailable.\n` +
         `Fallback download failed: ${message}\n` +
         `Try installing it manually: npm i -g ${pkg}`,

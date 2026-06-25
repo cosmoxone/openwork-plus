@@ -5,8 +5,8 @@ import { Methods, ErrorCode, makeError } from "../../appserver-contract/src/runt
 import { dispatchAppServerMethod } from "./core-handlers.mjs";
 
 /**
- * @param {import('@openwork-plus/appserver-contract').JsonRpcRequest | import('@openwork-plus/appserver-contract').JsonRpcNotification} msg
- * @returns {Promise<import('@openwork-plus/appserver-contract').JsonRpcResponse | null>}
+ * @param {import('@openworkplus/appserver-contract').JsonRpcRequest | import('@openworkplus/appserver-contract').JsonRpcNotification} msg
+ * @returns {Promise<import('@openworkplus/appserver-contract').JsonRpcResponse | null>}
  */
 export async function handleJsonRpcMessage(msg) {
   if (msg.jsonrpc !== "2.0" || typeof msg.method !== "string") {

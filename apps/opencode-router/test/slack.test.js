@@ -153,7 +153,7 @@ test("createSlackAdapter routes DM + app mentions", async () => {
   await adapter.sendText("D123", "ok");
   await adapter.sendText("C123|1700000000.000100", "ok-thread");
 
-  const mediaFile = path.join(os.tmpdir(), `openwork-plus-opencode-router-slack-${Date.now()}.txt`);
+  const mediaFile = path.join(os.tmpdir(), `openworkplus-opencode-router-slack-${Date.now()}.txt`);
   fs.writeFileSync(mediaFile, "hello from file");
   const mediaResult = await adapter.sendMessage("D123", {
     parts: [{ type: "file", filePath: mediaFile }],
@@ -210,7 +210,7 @@ test("createSlackAdapter downloads inbound files into media store", async () => 
     }
   }
 
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openwork-plus-opencode-router-slack-media-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "openworkplus-opencode-router-slack-media-"));
   const mediaStore = new MediaStore(path.join(tempDir, "media"));
   await mediaStore.ensureReady();
 

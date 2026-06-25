@@ -16,7 +16,7 @@ async function getRules() {
 
 /**
  * @param {unknown} params
- * @param {import('@openwork-plus/appserver-contract').JsonRpcId} id
+ * @param {import('@openworkplus/appserver-contract').JsonRpcId} id
  */
 export async function handleExecRun(params, id) {
   const p = params ?? {};

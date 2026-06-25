@@ -9,7 +9,7 @@ The current server architecture is not the one we want to keep.
 
 We want to build a whole new server as its own server package and process, make that server the real owner of product/runtime/workspace behavior, and then switch the desktop app to start and consume that new server directly.
 
-For planning purposes in this doc set, `openwork-plus-server-v2` is the working name for that new package, binary, and runtime bundle. We can rename it later without changing the architecture direction.
+For planning purposes in this doc set, `openworkplus-server-v2` is the working name for that new package, binary, and runtime bundle. We can rename it later without changing the architecture direction.
 
 ## Goals
 
@@ -217,7 +217,7 @@ apps/server-v2/
 └── openapi/
     └── openapi.json             # generated
 
-packages/openwork-plus-server-sdk/
+packages/openworkplus-server-sdk/
 ├── generated/                  # generated from OpenAPI
 ├── src/index.ts                # stable server-agnostic exports
 └── package.json
@@ -281,10 +281,10 @@ Desired loop:
 Recommended local setup:
 
 - `apps/server-v2` watches `src/**` and regenerates `openapi/openapi.json`
-- `packages/openwork-plus-server-sdk` watches `openapi/openapi.json` and regenerates the reusable generated client package
-- `packages/openwork-plus-server-sdk` regenerates the reusable server-agnostic client package
+- `packages/openworkplus-server-sdk` watches `openapi/openapi.json` and regenerates the reusable generated client package
+- `packages/openworkplus-server-sdk` regenerates the reusable server-agnostic client package
 - the app watches its own `createSdk({ serverId })` adapter alongside normal app code
-- the app depends on `openwork-plus-server-sdk` through the workspace so type updates are visible immediately
+- the app depends on `openworkplus-server-sdk` through the workspace so type updates are visible immediately
 - if the SDK needs a build step, run that build in watch mode too
 
 To avoid restart loops, the server runtime watcher should ignore generated spec and SDK files.

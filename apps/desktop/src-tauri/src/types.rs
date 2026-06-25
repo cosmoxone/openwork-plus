@@ -65,7 +65,7 @@ impl WorkspaceOpenworkConfig {
 #[serde(rename_all = "lowercase")]
 pub enum EngineRuntime {
     Direct,
-    #[serde(rename = "openwork-orchestrator")]
+    #[serde(rename = "openworkplus-orchestrator")]
     Orchestrator,
 }
 

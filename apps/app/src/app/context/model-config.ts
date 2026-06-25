@@ -19,7 +19,7 @@ import type {
   OpenworkServerCapabilities,
   OpenworkServerClient,
   OpenworkServerStatus,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 import type {
   Client,
   MessageWithParts,

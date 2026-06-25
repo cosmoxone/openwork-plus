@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const force = process.argv.includes("--force");
 const secretsDir = path.join(root, ".secrets");
-const privateKeyPath = path.join(secretsDir, "openwork-plus-tauri.key");
+const privateKeyPath = path.join(secretsDir, "openworkplus-tauri.key");
 const publicKeyPath = `${privateKeyPath}.pub`;
 const tauriConfPath = path.join(root, "apps", "desktop", "src-tauri", "tauri.conf.json");
 
@@ -49,7 +49,7 @@ run(
   "pnpm",
   [
     "--filter",
-    "@openwork-plus/desktop",
+    "@openworkplus/desktop",
     "exec",
     "tauri",
     "signer",

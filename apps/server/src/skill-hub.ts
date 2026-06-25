@@ -35,7 +35,7 @@ async function fetchJson(url: string): Promise<any> {
   const res = await fetch(url, {
     headers: {
       Accept: "application/vnd.github+json",
-      "User-Agent": "openwork-server",
+      "User-Agent": "openworkplus-server",
     },
   });
   if (!res.ok) {
@@ -49,7 +49,7 @@ async function fetchText(url: string): Promise<string> {
   const res = await fetch(url, {
     headers: {
       Accept: "text/plain",
-      "User-Agent": "openwork-server",
+      "User-Agent": "openworkplus-server",
     },
   });
   if (!res.ok) {
@@ -231,7 +231,7 @@ export async function installHubSkill(
 
     await mkdir(dirname(destPath), { recursive: true });
     const res = await fetch(`${rawBase}/${file.path}`, {
-      headers: { "User-Agent": "openwork-server" },
+      headers: { "User-Agent": "openworkplus-server" },
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");

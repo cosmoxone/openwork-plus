@@ -201,11 +201,11 @@ fn ensure_orchestrator_sidecar() {
     let sidecar_dir = manifest_dir.join("sidecars");
 
     let canonical_name = if target.contains("windows") {
-        "openwork-plus-orchestrator.exe"
+        "openworkplus-orchestrator.exe"
     } else {
-        "openwork-orchestrator"
+        "openworkplus-orchestrator"
     };
-    let mut target_name = format!("openwork-plus-orchestrator-{target}");
+    let mut target_name = format!("openworkplus-orchestrator-{target}");
     if target.contains("windows") {
         target_name.push_str(".exe");
     }
@@ -245,7 +245,7 @@ fn ensure_orchestrator_sidecar() {
 
     let Some(source_path) = source_path else {
         println!(
-            "cargo:warning=orchestrator sidecar missing at {} (set OPENWORK_ORCHESTRATOR_BIN_PATH or install openwork-plus-orchestrator)",
+            "cargo:warning=orchestrator sidecar missing at {} (set OPENWORK_ORCHESTRATOR_BIN_PATH or install openworkplus-orchestrator)",
             dest_path.display()
         );
         create_debug_stub(&dest_path, &sidecar_dir, &profile, &target);
@@ -387,12 +387,12 @@ fn ensure_openwork_server_sidecar() {
     let sidecar_dir = manifest_dir.join("sidecars");
 
     let canonical_name = if target.contains("windows") {
-        "openwork-plus-server.exe"
+        "openworkplus-server.exe"
     } else {
-        "openwork-server"
+        "openworkplus-server"
     };
 
-    let mut target_name = format!("openwork-plus-server-{target}");
+    let mut target_name = format!("openworkplus-server-{target}");
     if target.contains("windows") {
         target_name.push_str(".exe");
     }
@@ -416,9 +416,9 @@ fn ensure_openwork_server_sidecar() {
         .filter(|path| path.is_file())
         .or_else(|| {
             find_in_path(if target.contains("windows") {
-                "openwork-plus-server.exe"
+                "openworkplus-server.exe"
             } else {
-                "openwork-server"
+                "openworkplus-server"
             })
         });
 
@@ -426,7 +426,7 @@ fn ensure_openwork_server_sidecar() {
 
     let Some(source_path) = source_path else {
         println!(
-      "cargo:warning=OpenWork server sidecar missing at {} (set OPENWORK_SERVER_BIN_PATH or install openwork-plus-server)",
+      "cargo:warning=OpenWork server sidecar missing at {} (set OPENWORK_SERVER_BIN_PATH or install openworkplus-server)",
       dest_path.display()
     );
 
@@ -480,12 +480,12 @@ fn ensure_opencode_router_sidecar() {
     let sidecar_dir = manifest_dir.join("sidecars");
 
     let canonical_name = if target.contains("windows") {
-        "openwork-plus-opencode-router.exe"
+        "openworkplus-opencode-router.exe"
     } else {
-        "opencode-router"
+        "openworkplus-opencode-router"
     };
 
-    let mut target_name = format!("openwork-plus-opencode-router-{target}");
+    let mut target_name = format!("openworkplus-opencode-router-{target}");
     if target.contains("windows") {
         target_name.push_str(".exe");
     }
@@ -509,9 +509,9 @@ fn ensure_opencode_router_sidecar() {
         .filter(|path| path.is_file())
         .or_else(|| {
             find_in_path(if target.contains("windows") {
-                "openwork-plus-opencode-router.exe"
+                "openworkplus-opencode-router.exe"
             } else {
-                "opencode-router"
+                "openworkplus-opencode-router"
             })
         });
 
@@ -519,7 +519,7 @@ fn ensure_opencode_router_sidecar() {
 
     let Some(source_path) = source_path else {
         println!(
-      "cargo:warning=OpenCodeRouter sidecar missing at {} (set OPENCODE_ROUTER_BIN_PATH or install openwork-plus-opencode-router)",
+      "cargo:warning=OpenCodeRouter sidecar missing at {} (set OPENCODE_ROUTER_BIN_PATH or install openworkplus-opencode-router)",
       dest_path.display()
     );
 

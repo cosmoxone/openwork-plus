@@ -22,7 +22,7 @@ const stopStaleSidecars = () => {
   const targetDir = tauriDebugDir.replace(/\\/g, "\\\\");
   const command = [
     `$targetDir = \"${targetDir}\"`,
-    "$names = @('opencode.exe','openwork-plus-opencode-router.exe','openwork-plus-server.exe','openwork-plus-orchestrator.exe','chrome-devtools-mcp.exe')",
+    "$names = @('opencode.exe','openworkplus-opencode-router.exe','openworkplus-server.exe','openworkplus-orchestrator.exe','chrome-devtools-mcp.exe')",
     "Get-CimInstance Win32_Process | Where-Object {",
     "  $_.ExecutablePath -and $_.ExecutablePath.StartsWith($targetDir, [System.StringComparison]::OrdinalIgnoreCase) -and $names.Contains([System.IO.Path]::GetFileName($_.ExecutablePath))",
     "} | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }",
@@ -77,7 +77,7 @@ const env = {
   OPENWORK_DEV_MODE: process.env.OPENWORK_DEV_MODE || "1",
   OPENWORK_DATA_DIR:
     process.env.OPENWORK_DATA_DIR ||
-    `${homedir()}${process.platform === "win32" ? "\\" : "/"}.openwork${process.platform === "win32" ? "\\" : "/"}openwork-orchestrator-dev`,
+    `${homedir()}${process.platform === "win32" ? "\\" : "/"}.openwork${process.platform === "win32" ? "\\" : "/"}openworkplus-orchestrator-dev`,
   OPENWORK_USE_COREPACK_PNPM: "1",
   PORT: String(resolvedPort),
   CC: process.env.CC || "clang",

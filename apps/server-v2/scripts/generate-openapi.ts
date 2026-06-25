@@ -26,7 +26,7 @@ async function writeIfChanged(filePath: string, contents: string) {
 }
 
 async function main() {
-  const workingDirectory = await mkdtemp(join(os.tmpdir(), "openwork-plus-server-v2-openapi-"));
+  const workingDirectory = await mkdtemp(join(os.tmpdir(), "openworkplus-server-v2-openapi-"));
   const dependencies = createAppDependencies({
     environment: "test",
     inMemory: true,
@@ -45,7 +45,7 @@ async function main() {
     const contents = `${JSON.stringify(document, null, 2)}\n`;
     const changed = await writeIfChanged(outputPath, contents);
 
-    process.stdout.write(`[openwork-plus-server-v2] ${changed ? "wrote" : "verified"} ${outputPath}\n`);
+    process.stdout.write(`[openworkplus-server-v2] ${changed ? "wrote" : "verified"} ${outputPath}\n`);
   } finally {
     await dependencies.close();
     await rm(workingDirectory, { force: true, recursive: true });

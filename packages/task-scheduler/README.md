@@ -1,4 +1,4 @@
-# @openwork-plus/task-scheduler
+# @openworkplus/task-scheduler
 
 SQLite 持久化定时任务（P3-2/P3-3）：CRUD、cron 表达式、`tick` 触发、`schedule_runs` 审计表，以及 WSL/bash → test_db 闭环。存储引擎：`sql.js`（SQLite WASM，零原生编译）。
 
@@ -53,7 +53,7 @@ node packages/task-scheduler/test/p3-3-smoke.mjs   # Windows 需 WSL；Linux/mac
 ## 库 API
 
 ```javascript
-import { TaskSchedulerStore, tickScheduler, getTestSummary } from "@openwork-plus/task-scheduler";
+import { TaskSchedulerStore, tickScheduler, getTestSummary } from "@openworkplus/task-scheduler";
 
 const store = new TaskSchedulerStore({ dataDir });
 await store.add({

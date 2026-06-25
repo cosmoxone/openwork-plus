@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/rpa-host",
+  "name": "@openworkplus/rpa-host",
   "version": "0.1.0",
   "description": "RPA 控制面板 Host API：截图列表、操作历史、MCP 截图调用",
   "type": "module",

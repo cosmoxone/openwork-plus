@@ -91,7 +91,7 @@ async function writeTestingMd(outDir, version) {
 
 ## 安装桌面
 
-1. 安装 \`desktop/OpenWork-Plus_${version}_x64_en-US.msi\`（或同目录其它 .msi）。
+1. 安装 \`desktop/OpenWorkPlus_${version}_x64_en-US.msi\`（或同目录其它 .msi）。
 2. 首次启动 OpenWork，选择或创建工作区。
 
 ## 内置行业包（无需 Hub）

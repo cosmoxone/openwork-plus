@@ -1,5 +1,5 @@
 /**
- * App-Server stdio 宿主：委托 @openwork-plus/host-api-adapter 共享核心。
+ * App-Server stdio 宿主：委托 @openworkplus/host-api-adapter 共享核心。
  */
 import readline from "node:readline";
 import process from "node:process";

@@ -39,9 +39,9 @@ pub fn spawn_opencode_router(
     opencode_password: Option<&str>,
     health_port: u16,
 ) -> Result<(Receiver<CommandEvent>, CommandChild), String> {
-    let command = match app.shell().sidecar("opencode-router") {
+    let command = match app.shell().sidecar("openworkplus-opencode-router") {
         Ok(command) => command,
-        Err(_) => app.shell().command("opencode-router"),
+        Err(_) => app.shell().command("openworkplus-opencode-router"),
     };
 
     let args = build_opencode_router_args(workspace_path, opencode_url);

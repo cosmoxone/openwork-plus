@@ -67,7 +67,7 @@ services:
         # The orchestrator can spawn .ts files via Bun directly, which avoids bind-mount
         # issues from bun --compile inside Docker on macOS.
         export OPENWORK_SERVER_BIN="/app/apps/server/src/cli.ts"
-        export OPENCODE_ROUTER_BIN="/app/apps/openwork-plus-opencode-router/src/cli.ts"
+        export OPENCODE_ROUTER_BIN="/app/apps/openworkplus-opencode-router/src/cli.ts"
 
         # --- Resolve tokens ---
         if [ -z "$$OPENWORK_TOKEN" ]; then
@@ -94,14 +94,14 @@ services:
         echo "============================================"
         echo ""
 
-        exec pnpm --filter openwork-plus-orchestrator dev -- start \
+        exec pnpm --filter openworkplus-orchestrator dev -- start \
           --workspace /workspace \
           --remote-access \
           --openwork-port 8787 \
           --openwork-token "$$OPENWORK_TOKEN" \
           --openwork-host-token "$$OPENWORK_HOST_TOKEN" \
-          --openwork-server-bin "$$OPENWORK_SERVER_BIN" \
-          --openwork-plus-opencode-router-bin "$$OPENCODE_ROUTER_BIN" \
+          --openworkplus-server-bin "$$OPENWORK_SERVER_BIN" \
+          --openworkplus-opencode-router-bin "$$OPENCODE_ROUTER_BIN" \
           --approval auto \
           --allow-external \
           --cors "*"
@@ -169,7 +169,7 @@ services:
         export HOST="0.0.0.0"
         export PORT="5173"
 
-        exec pnpm --filter @openwork-plus/app exec vite \
+        exec pnpm --filter @openworkplus/app exec vite \
           --host 0.0.0.0 \
           --port 5173 \
           --strictPort

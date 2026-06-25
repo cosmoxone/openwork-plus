@@ -51,7 +51,7 @@ function createTestApp(label: string) {
 }
 
 test("managed resource routes cover MCPs, plugins, skills, shares, export/import, cloud signin, bundles, and router state", async () => {
-  const { app, dependencies, root } = createTestApp("openwork-plus-server-v2-phase8-managed");
+  const { app, dependencies, root } = createTestApp("openworkplus-server-v2-phase8-managed");
   const workspaceRoot = path.join(root, "workspace-managed");
   fs.mkdirSync(path.join(workspaceRoot, ".opencode", "tools"), { recursive: true });
   fs.writeFileSync(path.join(workspaceRoot, ".opencode", "tools", "demo.txt"), "tool-secret", "utf8");
@@ -240,17 +240,17 @@ test("managed resource routes cover MCPs, plugins, skills, shares, export/import
       version: "test",
     });
     dependencies.services.runtime.applyRouterConfig = async () => dependencies.services.runtime.getRouterHealth();
-    const telegramIdentity = await app.request(`http://openwork.local/workspace/${workspaceId}/openwork-plus-opencode-router/identities/telegram`, {
+    const telegramIdentity = await app.request(`http://openwork.local/workspace/${workspaceId}/openworkplus-opencode-router/identities/telegram`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ access: "private", token: "123456:demo" }),
     });
-    const bindings = await app.request(`http://openwork.local/workspace/${workspaceId}/openwork-plus-opencode-router/bindings`, {
+    const bindings = await app.request(`http://openwork.local/workspace/${workspaceId}/openworkplus-opencode-router/bindings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ channel: "telegram", directory: workspaceRoot, peerId: "peer-1" }),
     });
-    const send = await app.request(`http://openwork.local/workspace/${workspaceId}/openwork-plus-opencode-router/send`, {
+    const send = await app.request(`http://openwork.local/workspace/${workspaceId}/openworkplus-opencode-router/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ channel: "telegram", directory: workspaceRoot, text: "hello" }),
@@ -266,9 +266,9 @@ test("managed resource routes cover MCPs, plugins, skills, shares, export/import
 });
 
 test("scheduler routes list and delete jobs for a local workspace", async () => {
-  const root = createTempRoot("openwork-plus-server-v2-scheduler");
+  const root = createTempRoot("openworkplus-server-v2-scheduler");
   process.env.HOME = root;
-  const { app } = createTestApp("openwork-plus-server-v2-phase8-scheduler");
+  const { app } = createTestApp("openworkplus-server-v2-phase8-scheduler");
   const workspaceRoot = path.join(root, "workspace-scheduler");
   const jobsDir = path.join(root, ".config", "opencode", "jobs");
   fs.mkdirSync(jobsDir, { recursive: true });

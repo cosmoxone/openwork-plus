@@ -195,9 +195,9 @@ fn run_orchestrator_bundle(app: &AppHandle, args: Vec<String>) -> Result<String,
         .and_then(|path| path.parent().map(|parent| parent.to_path_buf()));
     let candidates = sidecar_path_candidates(resource_dir.as_deref(), current_bin_dir.as_deref());
     let bin_name = if cfg!(target_os = "windows") {
-        "openwork-plus-orchestrator.exe"
+        "openworkplus-orchestrator.exe"
     } else {
-        "openwork-orchestrator"
+        "openworkplus-orchestrator"
     };
 
     for dir in candidates {
@@ -224,7 +224,7 @@ fn run_orchestrator_bundle(app: &AppHandle, args: Vec<String>) -> Result<String,
         });
     }
 
-    Err("openwork-plus-orchestrator not found (dev: set OPENWORK_MONOREPO_ROOT)".to_string())
+    Err("openworkplus-orchestrator not found (dev: set OPENWORK_MONOREPO_ROOT)".to_string())
 }
 
 fn parse_catalog(stdout: &str) -> Result<Vec<IndustryBundleCatalogEntry>, String> {

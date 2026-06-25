@@ -15,7 +15,7 @@ The OpenWork app is 100% SolidJS. The session UI has resilience issues (white sc
 - **Session view**: `pages/session.tsx` (~2,000 lines) — SolidJS, receives all state as props via `SessionViewProps`.
 - **State**: SolidJS signals + `createStore()`. No external state libs.
 - **Router**: `@solidjs/router`, imperative navigation.
-- **Prepared seam**: `@openwork-plus/ui` already exports both React and Solid components. `SessionViewProps` is a clean data-only interface.
+- **Prepared seam**: `@openworkplus/ui` already exports both React and Solid components. `SessionViewProps` is a clean data-only interface.
 - **Build**: Vite + `vite-plugin-solid`. No React plugin configured.
 - **Platform**: Tauri 2.x for desktop/mobile. Web mode uses standard browser APIs. Platform abstraction lives in `context/platform.tsx`.
 

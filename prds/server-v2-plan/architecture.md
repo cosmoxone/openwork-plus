@@ -130,7 +130,7 @@ The new server should not just proxy product logic. It should also supervise the
 That includes:
 
 - OpenCode
-- `openwork-plus-opencode-router`
+- `openworkplus-opencode-router`
 - any other local child runtime needed for the product surface
 
 ### Router supervision model
@@ -150,7 +150,7 @@ Target model:
 
 Recommended shape:
 
-- one `openwork-plus-opencode-router` child per local OpenWork server
+- one `openworkplus-opencode-router` child per local OpenWork server
 - server-owned router config materialization from sqlite or server-managed config state
 - server-owned health checks, restart behavior, and status reporting
 
@@ -209,8 +209,8 @@ Proposed structure:
 
 ```text
 apps/server-v2/openapi/openapi.json
-packages/openwork-plus-server-sdk/generated/**
-packages/openwork-plus-server-sdk/src/index.ts
+packages/openworkplus-server-sdk/generated/**
+packages/openworkplus-server-sdk/src/index.ts
 apps/app/.../createSdk({ serverId }) adapter
 ```
 
@@ -287,9 +287,9 @@ edit new-server route or schema
 Recommended watch pipeline:
 
 - `apps/server-v2`: watch `src/**`, regenerate `openapi/openapi.json` through `hono-openapi`
-- `packages/openwork-plus-server-sdk`: watch `openapi/openapi.json`, regenerate the reusable generated client package
+- `packages/openworkplus-server-sdk`: watch `openapi/openapi.json`, regenerate the reusable generated client package
 - `apps/app`: watch the app-side `createSdk({ serverId })` adapter alongside normal app code
-- `packages/openwork-plus-server-sdk`: optional watch build if the package publishes built output
+- `packages/openworkplus-server-sdk`: optional watch build if the package publishes built output
 - `apps/app`: consumes the workspace package directly
 
 This should keep endpoint changes and client types effectively live in monorepo development.
@@ -449,7 +449,7 @@ Recommended shape:
 
 - document the SSE routes in the new server contract
 - keep event payloads typed from generated or shared contract types
-- expose small handwritten streaming helpers from `packages/openwork-plus-server-sdk`
+- expose small handwritten streaming helpers from `packages/openworkplus-server-sdk`
 - keep those helpers under the same `createSdk({ serverId })` entrypoint
 
 Illustrative usage:
@@ -590,4 +590,4 @@ The same spirit also applies to the orchestrator boundary:
 
 - whether capability detection is static, dynamic, or both
 - which endpoint group becomes the first proof-of-path migration
-- whether the working name `openwork-plus-server-v2` survives to ship time or is renamed before release
+- whether the working name `openworkplus-server-v2` survives to ship time or is renamed before release

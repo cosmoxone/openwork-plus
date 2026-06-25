@@ -21,7 +21,7 @@ Upstream OpenWork is the best thin UI layer over OpenCode. Plus extends it for t
 - **GUI / RPA** — `gui-operate-mcp` and native desktop automation providers
 - **Test automation** — failure analysis skills, test-db MCP, dashboard UI, CI triggers
 - **Knowledge wiki** — LLM-assisted wiki under `.openwork/knowledge/`
-- **Task scheduler** — local cron-style triggers via `@openwork-plus/task-scheduler`
+- **Task scheduler** — local cron-style triggers via `@openworkplus/task-scheduler`
 - **Sandbox bootstrap** — WSL/Lima-style isolated execution paths (platform-dependent)
 
 Plus keeps upstream principles: OpenCode primitives first, ejectable CLI paths, no lock-in.
@@ -72,7 +72,7 @@ pnpm dev
 
 ```bash
 bun --version
-pnpm --filter @openwork-plus/desktop exec tauri --version
+pnpm --filter @openworkplus/desktop exec tauri --version
 pnpm run test:convergence
 ```
 
@@ -81,7 +81,7 @@ pnpm run test:convergence
 Same as upstream — orchestrator ships in-tree:
 
 ```bash
-pnpm --filter openwork-plus-orchestrator exec openwork start --workspace /path/to/workspace --approval auto
+pnpm --filter openworkplus-orchestrator exec openwork start --workspace /path/to/workspace --approval auto
 ```
 
 See [apps/orchestrator/README.md](./apps/orchestrator/README.md).
@@ -96,7 +96,7 @@ See [apps/orchestrator/README.md](./apps/orchestrator/README.md).
 │  Industry Bundles · PluginRegistry · Settings › Bundles │
 │  bundles/ · packages/gui-operate-mcp · rpa-host · …     │
 ├─────────────────────────────────────────────────────────┤
-│  openwork-plus-orchestrator · openwork-plus-server · opencode     │
+│  openworkplus-orchestrator · openworkplus-server · opencode     │
 │  apps/orchestrator · apps/server                      │
 └─────────────────────────────────────────────────────────┘
                           │

@@ -14,7 +14,7 @@ export default function RpaPage() {
       <div>
         <h1 class="text-xl font-semibold text-dls-text">RPA / UI 自动化</h1>
         <p class="mt-2 text-sm text-dls-secondary">
-          <code class="font-mono text-xs">@openwork-plus/gui-operate-mcp</code> +{" "}
+          <code class="font-mono text-xs">@openworkplus/gui-operate-mcp</code> +{" "}
           <code class="font-mono text-xs">computer-use</code> bundle。会话内可用 MCP{" "}
           <code class="font-mono text-xs">screenshot</code>、<code class="font-mono text-xs">click</code>、
           <code class="font-mono text-xs">type</code> 或斜杠命令{" "}

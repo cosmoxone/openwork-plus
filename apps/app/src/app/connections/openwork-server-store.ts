@@ -24,7 +24,7 @@ import {
   type OpenworkServerError,
   type OpenworkServerSettings,
   type OpenworkServerStatus,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 
 export type OpenworkServerStore = ReturnType<typeof createOpenworkServerStore>;
 

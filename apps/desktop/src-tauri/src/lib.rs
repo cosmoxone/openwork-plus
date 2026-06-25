@@ -269,7 +269,7 @@ pub fn run() {
 
     // Best-effort cleanup on app exit. Without this, background sidecars can keep
     // running after the UI quits (especially during dev), leading to multiple
-    // orchestrator/opencode/openwork-plus-server processes and stale ports.
+    // orchestrator/opencode/openworkplus-server processes and stale ports.
     app.run(|app_handle, event| match event {
         RunEvent::ExitRequested { .. } | RunEvent::Exit => stop_managed_services(&app_handle),
         // On macOS the default behavior is to keep the process alive after the

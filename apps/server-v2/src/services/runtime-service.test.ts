@@ -32,8 +32,8 @@ async function sha256(filePath: string) {
 }
 
 async function createFakeBinary(kind: "opencode" | "router", mode: string, exitAfterMs?: number) {
-  const wrapperDir = makeTempDir(`openwork-plus-server-v2-${kind}`);
-  const binaryPath = path.join(wrapperDir, kind === "opencode" ? "opencode" : "opencode-router");
+  const wrapperDir = makeTempDir(`openworkplus-server-v2-${kind}`);
+  const binaryPath = path.join(wrapperDir, kind === "opencode" ? "opencode" : "openworkplus-opencode-router");
   const fixturePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "test-fixtures", "fake-runtime.ts");
   const script = [
     "#!/bin/sh",
@@ -63,7 +63,7 @@ async function createFakeAssetService(opencodePath: string, routerPath: string) 
         sha256: opencodeExists ? await sha256(opencodePath) : "missing",
         size: opencodeStats.size,
       },
-      "opencode-router": {
+      "openworkplus-opencode-router": {
         path: path.basename(routerPath),
         sha256: await sha256(routerPath),
         size: routerStats.size,
@@ -91,9 +91,9 @@ async function createFakeAssetService(opencodePath: string, routerPath: string) 
   };
   const routerBinary = {
     absolutePath: routerPath,
-    name: "opencode-router" as const,
-    sha256: manifest.files["opencode-router"].sha256,
-    size: manifest.files["opencode-router"].size,
+    name: "openworkplus-opencode-router" as const,
+    sha256: manifest.files["openworkplus-opencode-router"].sha256,
+    size: manifest.files["openworkplus-opencode-router"].size,
     source: "development" as const,
     stagedRoot: path.dirname(routerPath),
     target,
@@ -118,7 +118,7 @@ async function createFakeAssetService(opencodePath: string, routerPath: string) 
 }
 
 function createPersistence() {
-  const workingDirectory = makeTempDir("openwork-plus-server-v2-runtime-service");
+  const workingDirectory = makeTempDir("openworkplus-server-v2-runtime-service");
   return createServerPersistence({
     environment: "test",
     localServer: {

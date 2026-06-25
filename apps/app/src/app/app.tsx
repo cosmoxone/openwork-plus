@@ -30,8 +30,8 @@ import RestrictionNoticeModal from "./components/restriction-notice-modal";
 import ForcedSigninPage from "./cloud/forced-signin-page";
 import RenameWorkspaceModal from "./components/rename-workspace-modal";
 import ConnectionsModals from "./connections/modals";
-import { OpenworkServerProvider } from "./connections/openwork-server-provider";
-import { createOpenworkServerStore } from "./connections/openwork-server-store";
+import { OpenworkServerProvider } from "./connections/openworkplus-server-provider";
+import { createOpenworkServerStore } from "./connections/openworkplus-server-store";
 import { ConnectionsProvider } from "./connections/provider";
 import { ExtensionsProvider } from "./extensions/provider";
 import { AutomationsProvider } from "./automations/provider";
@@ -135,7 +135,7 @@ import {
   readOpenworkServerSettings,
   writeOpenworkServerSettings,
   type OpenworkServerSettings,
-} from "./lib/openwork-server";
+} from "./lib/openworkplus-server";
 import { ReactIsland } from "../react/island";
 import { reactSessionEnabled } from "../react/feature-flag";
 import { ReactSessionRuntime } from "../react/session/runtime-sync.react";
@@ -297,7 +297,7 @@ export default function App() {
 
   const [engineCustomBinPath, setEngineCustomBinPath] = createSignal("");
 
-  const [engineRuntime, setEngineRuntime] = createSignal<EngineRuntime>("openwork-orchestrator");
+  const [engineRuntime, setEngineRuntime] = createSignal<EngineRuntime>("openworkplus-orchestrator");
   const [opencodeEnableExa, setOpencodeEnableExa] = createSignal(false);
 
   const [baseUrl, setBaseUrl] = createSignal("http://127.0.0.1:4096");
@@ -1576,7 +1576,7 @@ export default function App() {
       setThemeMode("system");
       setEngineSource(isTauriRuntime() ? "sidecar" : "path");
       setEngineCustomBinPath("");
-      setEngineRuntime("openwork-orchestrator");
+      setEngineRuntime("openworkplus-orchestrator");
       modelConfig.resetAppDefaults();
       resetSessionDisplayPreferences();
       setHideTitlebar(false);
@@ -1868,7 +1868,7 @@ export default function App() {
         const storedEngineRuntime = window.localStorage.getItem(
           "openwork.engineRuntime"
         );
-        if (storedEngineRuntime === "direct" || storedEngineRuntime === "openwork-orchestrator") {
+        if (storedEngineRuntime === "direct" || storedEngineRuntime === "openworkplus-orchestrator") {
           setEngineRuntime(storedEngineRuntime);
         }
 

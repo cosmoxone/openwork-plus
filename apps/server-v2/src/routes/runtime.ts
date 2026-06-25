@@ -35,7 +35,7 @@ export function registerRuntimeRoutes(app: Hono<AppBindings>) {
     describeRoute({
       tags: ["Runtime"],
       summary: "Get router health",
-      description: "Returns the server-owned openwork-plus-opencode-router health, enablement decision, and recent diagnostics.",
+      description: "Returns the server-owned openworkplus-opencode-router health, enablement decision, and recent diagnostics.",
       responses: withCommonErrorResponses({
         200: jsonResponse("Router runtime health returned successfully.", routerHealthResponseSchema),
       }, { includeUnauthorized: true }),
@@ -69,7 +69,7 @@ export function registerRuntimeRoutes(app: Hono<AppBindings>) {
     describeRoute({
       tags: ["Runtime"],
       summary: "Get runtime versions",
-      description: "Returns the active and pinned runtime versions that Server V2 resolved for OpenCode and openwork-plus-opencode-router.",
+      description: "Returns the active and pinned runtime versions that Server V2 resolved for OpenCode and openworkplus-opencode-router.",
       responses: withCommonErrorResponses({
         200: jsonResponse("Runtime versions returned successfully.", runtimeVersionsResponseSchema),
       }, { includeUnauthorized: true }),

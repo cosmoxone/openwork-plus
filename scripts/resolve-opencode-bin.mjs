@@ -82,8 +82,8 @@ export function opencodeCandidatePaths(root) {
   const dataDir =
     process.env.OPENWORK_DATA_DIR?.trim() ||
     (process.platform === "win32"
-      ? path.join(process.env.APPDATA ?? path.join(homedir(), "AppData", "Roaming"), "openwork", "openwork-orchestrator")
-      : path.join(homedir(), ".openwork", "openwork-orchestrator"));
+      ? path.join(process.env.APPDATA ?? path.join(homedir(), "AppData", "Roaming"), "openwork", "openworkplus-orchestrator")
+      : path.join(homedir(), ".openwork", "openworkplus-orchestrator"));
   const sidecarRoots = [
     process.env.OPENWORK_SIDECAR_DIR?.trim(),
     path.join(dataDir, "sidecars"),
@@ -161,7 +161,7 @@ function findOpencodeBinaryInTree(dir) {
 }
 
 /**
- * 仅下载 OpenCode sidecar 到 desktop sidecars（不构建 openwork-plus-server / bun）。
+ * 仅下载 OpenCode sidecar 到 desktop sidecars（不构建 openworkplus-server / bun）。
  * @param {string} root
  */
 export function downloadOpencodeSidecar(root) {

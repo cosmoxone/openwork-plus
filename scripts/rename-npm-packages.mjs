@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Rename npm workspace packages for openwork-plus.
- * Sidecar/runtime binary names (openwork-plus-server, openwork-plus-orchestrator files) stay unchanged.
+ * Sidecar/runtime binary names (openworkplus-server, openworkplus-orchestrator files) stay unchanged.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -22,41 +22,41 @@ const SKIP_DIRS = new Set([
 ]);
 
 const NPM_NAME_MAP = {
-  "@openwork-plus/app": "@openwork-plus/app",
-  "@openwork-plus/desktop": "@openwork-plus/desktop",
-  "@openwork-plus/types": "@openwork-plus/types",
-  "@openwork-plus/ui": "@openwork-plus/ui",
-  "@openwork-plus/ui-demo": "@openwork-plus/ui-demo",
-  "@openwork-plus/story-book": "@openwork-plus/story-book",
-  "@openwork-plus/share": "@openwork-plus/share",
-  "@openwork-plus/server-sdk": "@openwork-plus/server-sdk",
-  "@openwork-plus/task-scheduler": "@openwork-plus/task-scheduler",
-  "@openwork-plus/knowledge-wiki": "@openwork-plus/knowledge-wiki",
-  "@openwork-plus/sqlite-vec-mcp": "@openwork-plus/sqlite-vec-mcp",
-  "@openwork-plus/rpa-host": "@openwork-plus/rpa-host",
-  "@openwork-plus/sandbox-bootstrap": "@openwork-plus/sandbox-bootstrap",
-  "@openwork-plus/host-api-adapter": "@openwork-plus/host-api-adapter",
-  "@openwork-plus/appserver-stub": "@openwork-plus/appserver-stub",
-  "@openwork-plus/appserver-contract": "@openwork-plus/appserver-contract",
-  "@openwork-plus/test-db-mcp": "@openwork-plus/test-db-mcp",
-  "@openwork-plus/gui-operate-mcp": "@openwork-plus/gui-operate-mcp",
-  "@openwork-plus/metering-store": "@openwork-plus/metering-store",
-  "openwork-orchestrator": "openwork-plus-orchestrator",
-  "openwork-server": "openwork-plus-server",
-  "openwork-plus-server-v2": "openwork-plus-server-v2",
-  "opencode-router": "openwork-plus-openwork-plus-opencode-router",
+  "@openworkplus/app": "@openworkplus/app",
+  "@openworkplus/desktop": "@openworkplus/desktop",
+  "@openworkplus/types": "@openworkplus/types",
+  "@openworkplus/ui": "@openworkplus/ui",
+  "@openworkplus/ui-demo": "@openworkplus/ui-demo",
+  "@openworkplus/story-book": "@openworkplus/story-book",
+  "@openworkplus/share": "@openworkplus/share",
+  "@openworkplus/server-sdk": "@openworkplus/server-sdk",
+  "@openworkplus/task-scheduler": "@openworkplus/task-scheduler",
+  "@openworkplus/knowledge-wiki": "@openworkplus/knowledge-wiki",
+  "@openworkplus/sqlite-vec-mcp": "@openworkplus/sqlite-vec-mcp",
+  "@openworkplus/rpa-host": "@openworkplus/rpa-host",
+  "@openworkplus/sandbox-bootstrap": "@openworkplus/sandbox-bootstrap",
+  "@openworkplus/host-api-adapter": "@openworkplus/host-api-adapter",
+  "@openworkplus/appserver-stub": "@openworkplus/appserver-stub",
+  "@openworkplus/appserver-contract": "@openworkplus/appserver-contract",
+  "@openworkplus/test-db-mcp": "@openworkplus/test-db-mcp",
+  "@openworkplus/gui-operate-mcp": "@openworkplus/gui-operate-mcp",
+  "@openworkplus/metering-store": "@openworkplus/metering-store",
+  "openworkplus-orchestrator": "openworkplus-orchestrator",
+  "openworkplus-server": "openworkplus-server",
+  "openworkplus-server-v2": "openworkplus-server-v2",
+  "openworkplus-opencode-router": "openwork-plus-openworkplus-opencode-router",
 };
 
 const PLATFORM_ORCH = [
-  "openwork-plus-orchestrator-darwin-arm64",
-  "openwork-plus-orchestrator-darwin-x64",
-  "openwork-plus-orchestrator-linux-arm64",
-  "openwork-plus-orchestrator-linux-x64",
-  "openwork-plus-orchestrator-windows-x64",
+  "openworkplus-orchestrator-darwin-arm64",
+  "openworkplus-orchestrator-darwin-x64",
+  "openworkplus-orchestrator-linux-arm64",
+  "openworkplus-orchestrator-linux-x64",
+  "openworkplus-orchestrator-windows-x64",
 ];
 
 for (const id of PLATFORM_ORCH) {
-  NPM_NAME_MAP[id] = id.replace("openwork-orchestrator", "openwork-plus-orchestrator");
+  NPM_NAME_MAP[id] = id.replace("openworkplus-orchestrator", "openworkplus-orchestrator");
 }
 
 function remapPackageName(name) {
@@ -111,22 +111,22 @@ async function findPackageJsonFiles(dir, files = []) {
 async function patchTextFiles() {
   const TEXT_EXT = new Set([".json", ".ts", ".tsx", ".mjs", ".js", ".yml", ".yaml", ".md", ".sh", ".rs", ".toml"]);
   const PROTECTED = [
-    "sidecars/openwork-server",
-    "sidecars/openwork-orchestrator",
-    "sidecars/opencode-router",
-    "dist/bin/openwork-server",
-    "bin/openwork-server.mjs",
-    "openwork-server.mjs",
-    "openwork-server-bin",
-    "'openwork-server'",
-    '"openwork-server"',
-    "'openwork-orchestrator'",
-    '"openwork-orchestrator"',
+    "sidecars/openworkplus-server",
+    "sidecars/openworkplus-orchestrator",
+    "sidecars/openworkplus-opencode-router",
+    "dist/bin/openworkplus-server",
+    "bin/openworkplus-server.mjs",
+    "openworkplus-server.mjs",
+    "openworkplus-server-bin",
+    "'openworkplus-server'",
+    '"openworkplus-server"',
+    "'openworkplus-orchestrator'",
+    '"openworkplus-orchestrator"',
     "'opencode-router'",
-    '"opencode-router"',
-    "openwork-orchestrator-sidecars.json",
-    "openwork-orchestrator-dev",
-    "openwork-orchestrator-opencode-",
+    '"openworkplus-opencode-router"',
+    "openworkplus-orchestrator-sidecars.json",
+    "openworkplus-orchestrator-dev",
+    "openworkplus-orchestrator-opencode-",
     "openwork-desktop-",
     "openwork://",
     "openwork-dev://",
@@ -136,8 +136,8 @@ async function patchTextFiles() {
 
   const replacements = [
     ...Object.entries(NPM_NAME_MAP).sort((a, b) => b[0].length - a[0].length),
-    ["@openwork-plus/", "@openwork-plus/"],
-    ["openwork-plus-orchestrator-v", "openwork-plus-orchestrator-v"],
+    ["@openworkplus/", "@openworkplus/"],
+    ["openworkplus-orchestrator-v", "openworkplus-orchestrator-v"],
   ];
 
   async function walk(dir) {

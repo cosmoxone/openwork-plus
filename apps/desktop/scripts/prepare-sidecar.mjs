@@ -131,8 +131,8 @@ const opencodeTargetPath = opencodeTargetName ? join(sidecarDir, opencodeTargetN
 const opencodeCandidatePath = opencodeTargetPath ?? opencodePath;
 let existingOpencodeVersion = null;
 
-// openwork-plus-server paths
-const openworkServerBaseName = "openwork-server";
+// openworkplus-server paths
+const openworkServerBaseName = "openworkplus-server";
 const openworkServerName = process.platform === "win32" ? `${openworkServerBaseName}.exe` : openworkServerBaseName;
 const openworkServerPath = join(sidecarDir, openworkServerName);
 const openworkServerBuildName = bunTarget
@@ -155,8 +155,8 @@ const resolveBuildScript = (dir) => {
   return scriptPath;
 };
 
-// openwork-plus-opencode-router paths
-const opencodeRouterBaseName = "opencode-router";
+// openworkplus-opencode-router paths
+const opencodeRouterBaseName = "openworkplus-opencode-router";
 const opencodeRouterName = process.platform === "win32" ? `${opencodeRouterBaseName}.exe` : opencodeRouterBaseName;
 const opencodeRouterPath = join(sidecarDir, opencodeRouterName);
 const opencodeRouterBuildName = bunTarget
@@ -171,7 +171,7 @@ const opencodeRouterTargetPath = opencodeRouterTargetName ? join(sidecarDir, ope
 const opencodeRouterDir = resolve(__dirname, "..", "..", "opencode-router");
 
 // orchestrator paths
-const orchestratorBaseName = "openwork-orchestrator";
+const orchestratorBaseName = "openworkplus-orchestrator";
 const orchestratorName =
   process.platform === "win32" ? `${orchestratorBaseName}.exe` : orchestratorBaseName;
 const orchestratorPath = join(sidecarDir, orchestratorName);
@@ -259,7 +259,7 @@ const findOpenCodeRouterBinary = (dir) => {
   const candidates = readDirectory(dir);
   return (
     candidates.find((file) => file.endsWith(`/${opencodeRouterName}`) || file.endsWith(`\\${opencodeRouterName}`)) ??
-    candidates.find((file) => file.endsWith("/openwork-plus-opencode-router") || file.endsWith("\\opencodeRouter")) ??
+    candidates.find((file) => file.endsWith("/openworkplus-opencode-router") || file.endsWith("\\opencodeRouter")) ??
     null
   );
 };
@@ -312,7 +312,7 @@ if (shouldBuildOpenworkServer) {
     console.error(`OpenWork server build script not found at ${openworkServerScript}`);
     process.exit(1);
   }
-  const openworkServerArgs = [openworkServerScript, "--outdir", sidecarDir, "--filename", "openwork-server"];
+  const openworkServerArgs = [openworkServerScript, "--outdir", sidecarDir, "--filename", "openworkplus-server"];
   if (bunTarget) {
     openworkServerArgs.push("--target", bunTarget);
   }
@@ -522,7 +522,7 @@ if (shouldBuildOpenCodeRouter) {
     console.error(`OpenCodeRouter build script not found at ${opencodeRouterScript}`);
     process.exit(1);
   }
-  const opencodeRouterArgs = [opencodeRouterScript, "--outdir", sidecarDir, "--filename", "opencode-router"];
+  const opencodeRouterArgs = [opencodeRouterScript, "--outdir", sidecarDir, "--filename", "openworkplus-opencode-router"];
   if (bunTarget) {
     opencodeRouterArgs.push("--target", bunTarget);
   }
@@ -729,7 +729,7 @@ const versions = {
     version: normalizedOpencodeVersion,
     sha256: opencodeCandidatePath && existsSync(opencodeCandidatePath) ? sha256File(opencodeCandidatePath) : null,
   },
-  "openwork-server": {
+  "openworkplus-server": {
     version: openworkServerVersion,
     sha256: existsSync(openworkServerPath) ? sha256File(openworkServerPath) : null,
   },
@@ -737,7 +737,7 @@ const versions = {
     version: expectedOpenCodeRouterVersion,
     sha256: existsSync(opencodeRouterPath) ? sha256File(opencodeRouterPath) : null,
   },
-  "openwork-orchestrator": {
+  "openworkplus-orchestrator": {
     version: orchestratorVersion,
     sha256: existsSync(orchestratorPath) ? sha256File(orchestratorPath) : null,
   },

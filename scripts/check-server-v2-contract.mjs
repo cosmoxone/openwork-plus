@@ -33,7 +33,7 @@ async function main() {
     "--exit-code",
     "--",
     "apps/server-v2/openapi/openapi.json",
-    "packages/openwork-plus-server-sdk/generated",
+    "packages/openworkplus-server-sdk/generated",
   ]);
 }
 

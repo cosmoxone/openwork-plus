@@ -31,6 +31,6 @@ const runNode = (scriptRel) => {
   }
 };
 
-runPnpm(["--filter", "@openwork-plus/desktop", "run", "prepare:sidecar"]);
+runPnpm(["--filter", "@openworkplus/desktop", "run", "prepare:sidecar"]);
 runNode("scripts/build-builtin-bundles.mjs");
-runPnpm(["--filter", "@openwork-plus/app", "build"]);
+runPnpm(["--filter", "@openworkplus/app", "build"]);

@@ -14,7 +14,7 @@ services:
       # OPENWORK_HOST_TOKEN: "..."
       # Optional: OPENWORK_APPROVAL_MODE: "auto"
       # Optional: OPENWORK_APPROVAL_TIMEOUT_MS: "30000"
-      OPENWORK_DATA_DIR: /data/openwork-plus-orchestrator
+      OPENWORK_DATA_DIR: /data/openworkplus-orchestrator
       OPENWORK_SIDECAR_DIR: /data/sidecars
     volumes:
       # Mount an existing project/workspace here.

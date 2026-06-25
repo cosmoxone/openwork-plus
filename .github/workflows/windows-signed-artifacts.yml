@@ -73,8 +73,8 @@ jobs:
         run: |
           $targets = @(
             "apps/desktop/src-tauri/sidecars/opencode-$env:TAURI_TARGET.exe",
-            "apps/desktop/src-tauri/sidecars/opencode-router-$env:TAURI_TARGET.exe",
-            "apps/desktop/src-tauri/sidecars/openwork-server-v2-$env:TAURI_TARGET.exe"
+            "apps/desktop/src-tauri/sidecars/openworkplus-opencode-router-$env:TAURI_TARGET.exe",
+            "apps/desktop/src-tauri/sidecars/openworkplus-server-v2-$env:TAURI_TARGET.exe"
           )
           foreach ($target in $targets) {
             if (!(Test-Path $target)) {
@@ -84,13 +84,13 @@ jobs:
           }
 
       - name: Build embedded Server V2 runtime
-        run: pnpm --filter openwork-plus-server-v2 build:bin:embedded:windows --bundle-dir ../desktop/src-tauri/sidecars
+        run: pnpm --filter openworkplus-server-v2 build:bin:embedded:windows --bundle-dir ../desktop/src-tauri/sidecars
         working-directory: apps/server-v2
 
       - name: Sign Server V2 executable
         shell: pwsh
         run: |
-          $serverPath = "apps/server-v2/dist/bin/openwork-server-v2-$env:BUN_TARGET.exe"
+          $serverPath = "apps/server-v2/dist/bin/openworkplus-server-v2-$env:BUN_TARGET.exe"
           if (!(Test-Path $serverPath)) {
             throw "Expected Server V2 executable missing: $serverPath"
           }
@@ -98,7 +98,7 @@ jobs:
           signtool verify /pa /v $serverPath
 
       - name: Build desktop Windows bundle
-        run: pnpm --filter @openwork-plus/desktop exec tauri build --target x86_64-pc-windows-msvc
+        run: pnpm --filter @openworkplus/desktop exec tauri build --target x86_64-pc-windows-msvc
 
       - name: Sign desktop Windows artifacts
         shell: pwsh
@@ -117,6 +117,6 @@ jobs:
         with:
           name: windows-signed-artifacts
           path: |
-            apps/server-v2/dist/bin/openwork-server-v2-*.exe
+            apps/server-v2/dist/bin/openworkplus-server-v2-*.exe
             apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.exe
             apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.msi

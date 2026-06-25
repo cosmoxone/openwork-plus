@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/gui-operate-mcp",
+  "name": "@openworkplus/gui-operate-mcp",
   "version": "0.1.0",
   "description": "GUI 自动化 MCP server（点击/输入/滚动/截图/多显示器），从 Open Cowork 提取，零 Electron 依赖。",
   "type": "module",

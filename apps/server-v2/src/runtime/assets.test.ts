@@ -64,9 +64,9 @@ test("release runtime assets use manifest versions without reading repo metadata
     throw new Error("Unsupported test target.");
   }
 
-  const releaseRoot = makeTempDir("openwork-plus-server-v2-release-assets");
+  const releaseRoot = makeTempDir("openworkplus-server-v2-release-assets");
   const opencodePath = path.join(releaseRoot, process.platform === "win32" ? "opencode.exe" : "opencode");
-  const routerPath = path.join(releaseRoot, process.platform === "win32" ? "openwork-plus-opencode-router.exe" : "opencode-router");
+  const routerPath = path.join(releaseRoot, process.platform === "win32" ? "openworkplus-opencode-router.exe" : "openworkplus-opencode-router");
   writeVersionedBinary(opencodePath, "1.4.9");
   writeVersionedBinary(routerPath, "0.11.206");
 
@@ -77,7 +77,7 @@ test("release runtime assets use manifest versions without reading repo metadata
         sha256: await sha256(opencodePath),
         size: fs.statSync(opencodePath).size,
       },
-      "opencode-router": {
+      "openworkplus-opencode-router": {
         path: path.basename(routerPath),
         sha256: await sha256(routerPath),
         size: fs.statSync(routerPath).size,
@@ -129,13 +129,13 @@ test("release runtime assets extract into the managed runtime directory and surv
     throw new Error("Unsupported test target.");
   }
 
-  const bundleRoot = makeTempDir("openwork-plus-server-v2-release-bundle");
-  const runtimeRoot = makeTempDir("openwork-plus-server-v2-runtime-root");
+  const bundleRoot = makeTempDir("openworkplus-server-v2-release-bundle");
+  const runtimeRoot = makeTempDir("openworkplus-server-v2-runtime-root");
   const runtimeDir = path.join(runtimeRoot, "runtime");
   fs.mkdirSync(runtimeDir, { recursive: true });
 
   const opencodePath = path.join(bundleRoot, process.platform === "win32" ? "opencode.exe" : "opencode");
-  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "openwork-plus-opencode-router.exe" : "opencode-router");
+  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "openworkplus-opencode-router.exe" : "openworkplus-opencode-router");
   writeVersionedBinary(opencodePath, "1.4.9");
   writeVersionedBinary(routerPath, "0.11.206");
 
@@ -146,7 +146,7 @@ test("release runtime assets extract into the managed runtime directory and surv
         sha256: await sha256(opencodePath),
         size: fs.statSync(opencodePath).size,
       },
-      "opencode-router": {
+      "openworkplus-opencode-router": {
         path: path.basename(routerPath),
         sha256: await sha256(routerPath),
         size: fs.statSync(routerPath).size,
@@ -205,13 +205,13 @@ test("release runtime assets can extract from an embedded runtime bundle", async
     throw new Error("Unsupported test target.");
   }
 
-  const bundleRoot = makeTempDir("openwork-plus-server-v2-embedded-bundle");
-  const runtimeRoot = makeTempDir("openwork-plus-server-v2-embedded-runtime-root");
+  const bundleRoot = makeTempDir("openworkplus-server-v2-embedded-bundle");
+  const runtimeRoot = makeTempDir("openworkplus-server-v2-embedded-runtime-root");
   const runtimeDir = path.join(runtimeRoot, "runtime");
   fs.mkdirSync(runtimeDir, { recursive: true });
 
   const opencodePath = path.join(bundleRoot, process.platform === "win32" ? "opencode.exe" : "opencode");
-  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "openwork-plus-opencode-router.exe" : "opencode-router");
+  const routerPath = path.join(bundleRoot, process.platform === "win32" ? "openworkplus-opencode-router.exe" : "openworkplus-opencode-router");
   const manifestPath = path.join(bundleRoot, "manifest.json");
   writeVersionedBinary(opencodePath, "1.4.9");
   writeVersionedBinary(routerPath, "0.11.206");
@@ -223,7 +223,7 @@ test("release runtime assets can extract from an embedded runtime bundle", async
         sha256: await sha256(opencodePath),
         size: fs.statSync(opencodePath).size,
       },
-      "opencode-router": {
+      "openworkplus-opencode-router": {
         path: path.basename(routerPath),
         sha256: await sha256(routerPath),
         size: fs.statSync(routerPath).size,

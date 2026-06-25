@@ -84,7 +84,7 @@ jobs:
           $version = $conf.version
           $shortSha = "${{ github.sha }}".Substring(0, 7)
           $tag = "windows-v${version}-build.${{ github.run_number }}"
-          $name = "OpenWork Plus Windows ${version} (zh-CN, build ${{ github.run_number }})"
+          $name = "OpenWorkPlus Windows ${version} (zh-CN, build ${{ github.run_number }})"
           $body = @"
           Automated Windows pre-release from ``main``.
 
@@ -114,7 +114,7 @@ jobs:
         shell: pwsh
         run: |
           $bundles = "${{ github.event.inputs.bundles || 'msi' }}"
-          pnpm --filter @openwork-plus/desktop exec tauri build --target $env:TAURI_TARGET --bundles $bundles --config src-tauri/tauri.ci.generated.json
+          pnpm --filter @openworkplus/desktop exec tauri build --target $env:TAURI_TARGET --bundles $bundles --config src-tauri/tauri.ci.generated.json
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4

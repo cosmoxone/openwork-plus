@@ -375,8 +375,8 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
 
   const readRouterVersion = async () => {
     const candidates = [
-      repoRoot ? path.join(repoRoot, "apps", "opencode-router", "package.json") : null,
-      path.resolve(dirnameFromMetaUrl(import.meta.url), "..", "..", "..", "opencode-router", "package.json"),
+      repoRoot ? path.join(repoRoot, "apps", "openworkplus-opencode-router", "package.json") : null,
+      path.resolve(dirnameFromMetaUrl(import.meta.url), "..", "..", "..", "openworkplus-opencode-router", "package.json"),
     ].filter(Boolean) as string[];
 
     for (const candidate of candidates) {
@@ -391,7 +391,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
       }
     }
 
-    throw new Error("Unable to resolve the local openwork-plus-opencode-router version.");
+    throw new Error("Unable to resolve the local openworkplus-opencode-router version.");
   };
 
   const materializeManifest = async (source: RuntimeAssetSource, opencode: ResolvedRuntimeBinary, router: ResolvedRuntimeBinary) => {
@@ -403,7 +403,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
           sha256: opencode.sha256,
           size: opencode.size,
         },
-        "opencode-router": {
+        "openworkplus-opencode-router": {
           path: path.relative(rootDir, router.absolutePath),
           sha256: router.sha256,
           size: router.size,
@@ -422,7 +422,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
     const manifestPath =
       source === "release"
         ? path.join(rootDir, "manifest.json")
-        : path.join(rootDir, "manifests", runtimeTarget, `openwork-plus-server-v2-${serverVersion}.json`);
+        : path.join(rootDir, "manifests", runtimeTarget, `openworkplus-server-v2-${serverVersion}.json`);
     await writeIfChanged(`${manifestPath}`, `${JSON.stringify(manifest, null, 2)}\n`);
     return manifest;
   };
@@ -432,7 +432,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
     manifestPathOverride?.trim() ? path.resolve(manifestPathOverride) : releaseManifestPath(rootDir);
 
   const validateManifestRoot = async (rootDir: string, manifest: RuntimeManifest) => {
-    for (const name of ["opencode", "opencode-router"] as const) {
+    for (const name of ["opencode", "openworkplus-opencode-router"] as const) {
       const entry = manifest.files[name];
       if (!entry) {
         return false;
@@ -625,7 +625,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
         await rm(tempRoot, { force: true, recursive: true });
         await mkdir(tempRoot, { recursive: true });
 
-        for (const name of ["opencode", "opencode-router"] as const) {
+        for (const name of ["opencode", "openworkplus-opencode-router"] as const) {
           const entry = sourceManifest.files[name];
           if (!entry) {
             throw new Error(`Release runtime manifest in ${bundleLabel} is missing the ${name} entry.`);
@@ -703,8 +703,8 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
     }
 
     const asset = resolveOpencodeAsset(runtimeTarget);
-    const archivePath = path.join(os.tmpdir(), `openwork-plus-server-v2-opencode-${Date.now()}-${asset}`);
-    const extractDir = await mkdtemp(path.join(os.tmpdir(), "openwork-plus-server-v2-opencode-"));
+    const archivePath = path.join(os.tmpdir(), `openworkplus-server-v2-opencode-${Date.now()}-${asset}`);
+    const extractDir = await mkdtemp(path.join(os.tmpdir(), "openworkplus-server-v2-opencode-"));
     const downloadUrl = `https://github.com/anomalyco/opencode/releases/download/v${version}/${asset}`;
 
     try {
@@ -731,12 +731,12 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
 
   const ensureDevelopmentRouterBinary = async (version: string) => {
     if (!repoRoot) {
-      throw new Error("Cannot build openwork-plus-opencode-router in development mode because the repo root could not be resolved.");
+      throw new Error("Cannot build openworkplus-opencode-router in development mode because the repo root could not be resolved.");
     }
 
     const rootDir = resolveRootDir("development");
-    const targetDir = path.join(rootDir, "opencode-router", runtimeTarget, `v${version}`);
-    const targetPath = path.join(targetDir, runtimeBinaryFilename("opencode-router", runtimeTarget));
+    const targetDir = path.join(rootDir, "openworkplus-opencode-router", runtimeTarget, `v${version}`);
+    const targetPath = path.join(targetDir, runtimeBinaryFilename("openworkplus-opencode-router", runtimeTarget));
     if (await fileExists(targetPath)) {
       const actualVersion = await readBinaryVersion(targetPath);
       if (!actualVersion || actualVersion === version) {
@@ -747,7 +747,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
     }
 
     await mkdir(targetDir, { recursive: true });
-    const packageDir = path.join(repoRoot, "apps", "opencode-router");
+    const packageDir = path.join(repoRoot, "apps", "openworkplus-opencode-router");
     const entrypoint = path.join(packageDir, "src", "cli.ts");
     const outfile = targetPath;
     const bunCommand = [
@@ -769,7 +769,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
       return outfile;
     } catch (error) {
       throw new Error(
-        `Failed to build the local openwork-plus-opencode-router ${version} binary for ${runtimeTarget}: ${error instanceof Error ? error.message : String(error)}`,
+        `Failed to build the local openworkplus-opencode-router ${version} binary for ${runtimeTarget}: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   };
@@ -827,7 +827,7 @@ export function createRuntimeAssetService(options: RuntimeAssetServiceOptions) {
     },
 
     async ensureRouterBinary() {
-      return ensureBinary("opencode-router");
+      return ensureBinary("openworkplus-opencode-router");
     },
 
     async getPinnedOpencodeVersion() {

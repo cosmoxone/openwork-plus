@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/app",
+  "name": "@openworkplus/app",
   "private": true,
   "version": "0.11.213",
   "type": "module",
@@ -73,8 +73,8 @@
     "remark-gfm": "^4.0.1",
     "solid-js": "^1.9.0",
     "streamdown": "^2.5.0",
-    "@openwork-plus/types": "workspace:*",
-    "@openwork-plus/ui": "workspace:*"
+    "@openworkplus/types": "workspace:*",
+    "@openworkplus/ui": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

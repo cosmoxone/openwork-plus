@@ -137,14 +137,14 @@ function buildSteps() {
     {
       phase: "P2",
       name: "analyze-failure-session",
-      pnpmArgs: ["--filter", "@openwork-plus/app", "test:analyze-failure-session"],
+      pnpmArgs: ["--filter", "@openworkplus/app", "test:analyze-failure-session"],
       optional: true,
       requiresOpencode: true,
     },
     {
       phase: "P2",
       name: "scenario-a-session-loop",
-      pnpmArgs: ["--filter", "@openwork-plus/app", "test:scenario-a-session-loop"],
+      pnpmArgs: ["--filter", "@openworkplus/app", "test:scenario-a-session-loop"],
       optional: true,
       requiresOpencode: true,
     },

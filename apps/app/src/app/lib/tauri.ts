@@ -5,7 +5,7 @@ import { validateMcpServerName } from "../mcp";
 
 export type EngineInfo = {
   running: boolean;
-  runtime: "direct" | "openwork-orchestrator";
+  runtime: "direct" | "openworkplus-orchestrator";
   baseUrl: string | null;
   projectDir: string | null;
   hostname: string | null;
@@ -155,7 +155,7 @@ export async function engineStart(
   projectDir: string,
   options?: {
     preferSidecar?: boolean;
-    runtime?: "direct" | "openwork-orchestrator";
+    runtime?: "direct" | "openworkplus-orchestrator";
     workspacePaths?: string[];
     opencodeBinPath?: string | null;
     opencodeEnableExa?: boolean;

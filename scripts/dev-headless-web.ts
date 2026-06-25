@@ -128,11 +128,11 @@ const openworkToken = process.env.OPENWORK_TOKEN ?? randomUUID();
 const openworkHostToken = process.env.OPENWORK_HOST_TOKEN ?? randomUUID();
 const openworkServerBin = path.join(
   cwd,
-  "apps/server/dist/bin/openwork-server",
+  "apps/server/dist/bin/openworkplus-server",
 );
 const opencodeRouterBin = path.join(
   cwd,
-  "apps/openwork-plus-opencode-router/dist/bin/openwork-plus-opencode-router",
+  "apps/openworkplus-opencode-router/dist/bin/openworkplus-opencode-router",
 );
 
 const ensureOpenworkServer = async () => {
@@ -147,7 +147,7 @@ const ensureOpenworkServer = async () => {
         "[dev:headless-web] Auto-build disabled (OPENWORK_DEV_HEADLESS_WEB_AUTOBUILD=0)",
       );
       logLine(
-        "[dev:headless-web] Run: pnpm --filter openwork-plus-server build:bin",
+        "[dev:headless-web] Run: pnpm --filter openworkplus-server build:bin",
       );
       logLine(
         "[dev:headless-web] Or unset/enable OPENWORK_DEV_HEADLESS_WEB_AUTOBUILD to auto-build.",
@@ -159,10 +159,10 @@ const ensureOpenworkServer = async () => {
       `[dev:headless-web] Missing OpenWork server binary at ${openworkServerBin}`,
     );
     logLine(
-      "[dev:headless-web] Auto-building: pnpm --filter openwork-plus-server build:bin",
+      "[dev:headless-web] Auto-building: pnpm --filter openworkplus-server build:bin",
     );
     try {
-      await runCommand("pnpm", ["--filter", "openwork-server", "build:bin"]);
+      await runCommand("pnpm", ["--filter", "openworkplus-server", "build:bin"]);
       await access(openworkServerBin);
     } catch (error) {
       logLine(
@@ -179,13 +179,13 @@ const ensureOpencodeRouter = async () => {
   } catch {
     if (!autoBuildEnabled) {
       logLine(
-        `[dev:headless-web] Missing openwork-plus-opencode-router binary at ${opencodeRouterBin}`,
+        `[dev:headless-web] Missing openworkplus-opencode-router binary at ${opencodeRouterBin}`,
       );
       logLine(
         "[dev:headless-web] Auto-build disabled (OPENWORK_DEV_HEADLESS_WEB_AUTOBUILD=0)",
       );
       logLine(
-        "[dev:headless-web] Run: pnpm --filter openwork-plus-opencode-router build:bin",
+        "[dev:headless-web] Run: pnpm --filter openworkplus-opencode-router build:bin",
       );
       logLine(
         "[dev:headless-web] Or unset/enable OPENWORK_DEV_HEADLESS_WEB_AUTOBUILD to auto-build.",
@@ -194,13 +194,13 @@ const ensureOpencodeRouter = async () => {
     }
 
     logLine(
-      `[dev:headless-web] Missing openwork-plus-opencode-router binary at ${opencodeRouterBin}`,
+      `[dev:headless-web] Missing openworkplus-opencode-router binary at ${opencodeRouterBin}`,
     );
     logLine(
-      "[dev:headless-web] Auto-building: pnpm --filter openwork-plus-opencode-router build:bin",
+      "[dev:headless-web] Auto-building: pnpm --filter openworkplus-opencode-router build:bin",
     );
     try {
-      await runCommand("pnpm", ["--filter", "opencode-router", "build:bin"]);
+      await runCommand("pnpm", ["--filter", "openworkplus-opencode-router", "build:bin"]);
       await access(opencodeRouterBin);
     } catch (error) {
       logLine(
@@ -213,7 +213,7 @@ const ensureOpencodeRouter = async () => {
 
 const openworkUrl = `http://${clientHost}:${openworkPort}`;
 const webUrl = `http://${clientHost}:${webPort}`;
-// In practice we want openwork-plus-opencode-router on for end-to-end messaging tests.
+// In practice we want openworkplus-opencode-router on for end-to-end messaging tests.
 // Allow opt-out via OPENWORK_DEV_OPENCODE_ROUTER=0.
 const opencodeRouterEnabled =
   process.env.OPENWORK_DEV_OPENCODE_ROUTER == null
@@ -270,7 +270,7 @@ const webProcess = spawnLogged(
   "pnpm",
   [
     "--filter",
-    "@openwork-plus/app",
+    "@openworkplus/app",
     "exec",
     "vite",
     "--host",
@@ -287,7 +287,7 @@ const headlessProcess = spawnLogged(
   "pnpm",
   [
     "--filter",
-    "openwork-orchestrator",
+    "openworkplus-orchestrator",
     "dev",
     "--",
     "start",
@@ -296,9 +296,9 @@ const headlessProcess = spawnLogged(
     "--approval",
     "auto",
     "--allow-external",
-    "--openwork-plus-opencode-router",
+    "--openworkplus-opencode-router",
     opencodeRouterEnabled ? "true" : "false",
-    ...(opencodeRouterRequired ? ["--openwork-plus-opencode-router-required"] : []),
+    ...(opencodeRouterRequired ? ["--openworkplus-opencode-router-required"] : []),
     ...(remoteAccessEnabled ? ["--remote-access"] : []),
     "--openwork-port",
     String(openworkPort),

@@ -1,5 +1,5 @@
 {
-  "name": "@openwork-plus/host-api-adapter",
+  "name": "@openworkplus/host-api-adapter",
   "version": "0.1.0",
   "description": "Host API ↔ JSON-RPC 共享核心与双协议适配（P0-ARC-2）",
   "type": "module",
@@ -18,8 +18,8 @@
     "test": "node test/contract-equiv-smoke.mjs && node test/execpolicy-smoke.mjs && node test/arc345-smoke.mjs"
   },
   "dependencies": {
-    "@openwork-plus/appserver-contract": "workspace:*",
-    "@openwork-plus/metering-store": "workspace:*"
+    "@openworkplus/appserver-contract": "workspace:*",
+    "@openworkplus/metering-store": "workspace:*"
   },
   "license": "MIT"
 }

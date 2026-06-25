@@ -1,5 +1,5 @@
 {
-  "name": "openwork-plus-orchestrator",
+  "name": "openworkplus-orchestrator",
   "version": "0.11.213",
   "description": "OpenWork host orchestrator for opencode + OpenWork server + opencode-router",
   "private": true,
@@ -48,8 +48,8 @@
     "@opentui/core": "0.1.77",
     "@opentui/solid": "0.1.77",
     "solid-js": "1.9.9",
-    "openwork-plus-opencode-router": "0.11.213",
-    "openwork-plus-server": "0.11.213"
+    "openworkplus-opencode-router": "0.11.213",
+    "openworkplus-server": "0.11.213"
   },
   "devDependencies": {
     "@opentui/core-darwin-arm64": "0.1.77",

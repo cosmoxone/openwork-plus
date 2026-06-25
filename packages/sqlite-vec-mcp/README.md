@@ -1,4 +1,4 @@
-# @openwork-plus/sqlite-vec-mcp
+# @openworkplus/sqlite-vec-mcp
 
 知识库 RAG MCP server（stdio）。Sprint 2 MVP 使用 **JSON 文件 + 余弦相似度** 实现语义检索，避免 Windows 上原生 `sqlite-vec` 编译问题；接口与融合计划一致。
 

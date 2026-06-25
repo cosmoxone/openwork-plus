@@ -78,7 +78,7 @@ export const errorHandlingMiddleware: MiddlewareHandler<AppBindings> = async (c,
       JSON.stringify({
         message,
         requestId,
-        scope: "openwork-plus-server-v2.error",
+        scope: "openworkplus-server-v2.error",
       }),
     );
 

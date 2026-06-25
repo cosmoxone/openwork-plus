@@ -21,7 +21,7 @@ function createLoggerStub() {
 
 test("bridge end-to-end: inbound -> prompt -> outbound", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "opencodeRouter-e2e-"));
-  const dbPath = path.join(dir, "openwork-plus-opencode-router.db");
+  const dbPath = path.join(dir, "openworkplus-opencode-router.db");
 
   const sent = [];
   const slackAdapter = {
@@ -48,7 +48,7 @@ test("bridge end-to-end: inbound -> prompt -> outbound", async () => {
 
   const bridge = await startBridge(
     {
-      configPath: path.join(dir, "openwork-plus-opencode-router.json"),
+      configPath: path.join(dir, "openworkplus-opencode-router.json"),
       configFile: { version: 1 },
       opencodeUrl: "http://127.0.0.1:4096",
       opencodeDirectory: dir,
@@ -56,7 +56,7 @@ test("bridge end-to-end: inbound -> prompt -> outbound", async () => {
       slackApps: [],
       dataDir: dir,
       dbPath,
-      logFile: path.join(dir, "openwork-plus-opencode-router.log"),
+      logFile: path.join(dir, "openworkplus-opencode-router.log"),
       toolUpdatesEnabled: false,
       groupsEnabled: false,
       permissionMode: "allow",
@@ -87,7 +87,7 @@ test("bridge end-to-end: inbound -> prompt -> outbound", async () => {
 
 test("bridge recovers from empty prompt replies by clearing stale session", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "opencodeRouter-e2e-empty-"));
-  const dbPath = path.join(dir, "openwork-plus-opencode-router.db");
+  const dbPath = path.join(dir, "openworkplus-opencode-router.db");
 
   const sent = [];
   let sessionCounter = 0;
@@ -123,7 +123,7 @@ test("bridge recovers from empty prompt replies by clearing stale session", asyn
 
   const bridge = await startBridge(
     {
-      configPath: path.join(dir, "openwork-plus-opencode-router.json"),
+      configPath: path.join(dir, "openworkplus-opencode-router.json"),
       configFile: { version: 1 },
       opencodeUrl: "http://127.0.0.1:4096",
       opencodeDirectory: dir,
@@ -131,7 +131,7 @@ test("bridge recovers from empty prompt replies by clearing stale session", asyn
       slackApps: [],
       dataDir: dir,
       dbPath,
-      logFile: path.join(dir, "openwork-plus-opencode-router.log"),
+      logFile: path.join(dir, "openworkplus-opencode-router.log"),
       toolUpdatesEnabled: false,
       groupsEnabled: false,
       permissionMode: "allow",

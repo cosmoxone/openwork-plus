@@ -65,7 +65,7 @@ import type {
   OpenworkServerDiagnostics,
   OpenworkServerSettings,
   OpenworkServerStatus,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 import type { DenOrgLlmProvider } from "../lib/den";
 import type {
   EngineInfo,
@@ -141,8 +141,8 @@ export type SettingsViewProps = {
   setEngineSource: (value: "path" | "sidecar" | "custom") => void;
   engineCustomBinPath: string;
   setEngineCustomBinPath: (value: string) => void;
-  engineRuntime: "direct" | "openwork-orchestrator";
-  setEngineRuntime: (value: "direct" | "openwork-orchestrator") => void;
+  engineRuntime: "direct" | "openworkplus-orchestrator";
+  setEngineRuntime: (value: "direct" | "openworkplus-orchestrator") => void;
   opencodeEnableExa: boolean;
   toggleOpencodeEnableExa: () => void;
   isWindows: boolean;
@@ -2914,12 +2914,12 @@ export default function SettingsView(props: SettingsViewProps) {
                           </Button>
                           <Button
                             variant={
-                              props.engineRuntime === "openwork-orchestrator"
+                              props.engineRuntime === "openworkplus-orchestrator"
                                 ? "secondary"
                                 : "outline"
                             }
                             onClick={() =>
-                              props.setEngineRuntime("openwork-orchestrator")
+                              props.setEngineRuntime("openworkplus-orchestrator")
                             }
                             disabled={props.busy}
                           >

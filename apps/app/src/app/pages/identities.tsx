@@ -17,7 +17,7 @@ import {
   buildOpenworkWorkspaceBaseUrl,
   OpenworkServerError,
   parseOpenworkWorkspaceIdFromUrl,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 import type {
   OpenworkServerClient,
   OpenworkOpenCodeRouterHealthSnapshot,
@@ -25,7 +25,7 @@ import type {
   OpenworkOpenCodeRouterSendResult,
   OpenworkServerStatus,
   OpenworkWorkspaceFileContent,
-} from "../lib/openwork-server";
+} from "../lib/openworkplus-server";
 
 export type IdentitiesViewProps = {
   busy: boolean;
@@ -41,7 +41,7 @@ export type IdentitiesViewProps = {
   showHeader?: boolean;
 };
 
-const OPENCODE_ROUTER_AGENT_FILE_PATH = ".opencode/agents/openwork-plus-opencode-router.md";
+const OPENCODE_ROUTER_AGENT_FILE_PATH = ".opencode/agents/openworkplus-opencode-router.md";
 const OPENCODE_ROUTER_AGENT_FILE_TEMPLATE = `# OpenCodeRouter Messaging Agent
 
 Use this file to define how the assistant responds in Slack/Telegram for this workspace.

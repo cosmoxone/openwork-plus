@@ -30,7 +30,7 @@ node apps/orchestrator/test/bundle-smoke.mjs
 # Sprint 1 全流程 + analyze-failure 链路预检 + 会话 E2E（OpenCode + mock LLM）
 node apps/orchestrator/test/sprint1-smoke.mjs
 node apps/orchestrator/test/sprint1-analyze-failure-chain.mjs
-pnpm --filter @openwork-plus/app test:analyze-failure-session
+pnpm --filter @openworkplus/app test:analyze-failure-session
 
 # test-db 存储层
 cd packages/test-db-mcp
@@ -173,7 +173,7 @@ $lines | node E:\proj\openwork-platform\packages\test-db-mcp\bin\test-db-mcp.mjs
 
 ## 5. 手工验证 OpenWork 会话（斜杠命令）
 
-> 自动化等价：`pnpm --filter @openwork-plus/app test:analyze-failure-session`（无需桌面 UI，需 PATH 中有 `opencode`）。  
+> 自动化等价：`pnpm --filter @openworkplus/app test:analyze-failure-session`（无需桌面 UI，需 PATH 中有 `opencode`）。  
 > 以下步骤用于验证 **OpenWork 桌面端** 与工作区加载。
 
 1. 在 OpenWork 中打开工作区 `E:\proj\openwork-tmp\manual-ws`

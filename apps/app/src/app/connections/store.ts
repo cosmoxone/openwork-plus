@@ -18,7 +18,7 @@ import type { Client, McpServerEntry, McpStatusMap, ReloadReason, ReloadTrigger 
 import { toSessionTransportDirectory } from "../lib/session-scope";
 import { isTauriRuntime, safeStringify } from "../utils";
 import { createWorkspaceContextKey } from "../context/workspace-context";
-import type { OpenworkServerStore } from "./openwork-server-store";
+import type { OpenworkServerStore } from "./openworkplus-server-store";
 
 export type ConnectionsStore = ReturnType<typeof createConnectionsStore>;
 
@@ -297,7 +297,7 @@ export function createConnectionsStore(options: {
     if (isRemoteWorkspace && !canUseOpenworkServer) {
       setMcpStatus("OpenWork server unavailable. MCP config is read-only.");
       finishPerf(options.developerMode(), "mcp.connect", "blocked", startedAt, {
-        reason: "openwork-server-unavailable",
+        reason: "openworkplus-server-unavailable",
       });
       return;
     }

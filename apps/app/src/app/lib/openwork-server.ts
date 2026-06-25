@@ -52,7 +52,7 @@ export type OpenworkServerDiagnostics = {
   tokenSource: { client: string; host: string };
 };
 
-export type OpenworkRuntimeServiceName = "openwork-server" | "opencode" | "opencode-router";
+export type OpenworkRuntimeServiceName = "openworkplus-server" | "opencode" | "openworkplus-opencode-router";
 
 export type OpenworkRuntimeServiceSnapshot = {
   name: OpenworkRuntimeServiceName;
@@ -948,11 +948,11 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     status: () => requestJson<OpenworkServerDiagnostics>(baseUrl, "/status", { token, hostToken, timeoutMs: timeouts.status }),
     capabilities: () => requestJson<OpenworkServerCapabilities>(baseUrl, "/capabilities", { token, hostToken, timeoutMs: timeouts.capabilities }),
     opencodeRouterHealth: () =>
-      requestJsonRaw<OpenworkOpenCodeRouterHealthSnapshot>(baseUrl, "/openwork-plus-opencode-router/health", { token, hostToken, timeoutMs: timeouts.opencodeRouter }),
+      requestJsonRaw<OpenworkOpenCodeRouterHealthSnapshot>(baseUrl, "/openworkplus-opencode-router/health", { token, hostToken, timeoutMs: timeouts.opencodeRouter }),
     getOpenCodeRouterHealth: (workspaceId: string) =>
       requestJsonRaw<OpenworkOpenCodeRouterHealthSnapshot>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/health`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/health`,
         { token, hostToken, timeoutMs: timeouts.opencodeRouter },
       ),
     opencodeRouterBindings: (filters?: { channel?: string; identityId?: string }) => {
@@ -960,13 +960,13 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
       if (filters?.channel?.trim()) search.set("channel", filters.channel.trim());
       if (filters?.identityId?.trim()) search.set("identityId", filters.identityId.trim());
       const suffix = search.toString();
-      const path = suffix ? `/openwork-plus-opencode-router/bindings?${suffix}` : "/openwork-plus-opencode-router/bindings";
+      const path = suffix ? `/openworkplus-opencode-router/bindings?${suffix}` : "/openworkplus-opencode-router/bindings";
       return requestJsonRaw<OpenworkOpenCodeRouterBindingsResult>(baseUrl, path, { token, hostToken, timeoutMs: timeouts.opencodeRouter });
     },
     opencodeRouterTelegramIdentities: () =>
-      requestJsonRaw<OpenworkOpenCodeRouterTelegramIdentitiesResult>(baseUrl, "/openwork-plus-opencode-router/identities/telegram", { token, hostToken, timeoutMs: timeouts.opencodeRouter }),
+      requestJsonRaw<OpenworkOpenCodeRouterTelegramIdentitiesResult>(baseUrl, "/openworkplus-opencode-router/identities/telegram", { token, hostToken, timeoutMs: timeouts.opencodeRouter }),
     opencodeRouterSlackIdentities: () =>
-      requestJsonRaw<OpenworkOpenCodeRouterSlackIdentitiesResult>(baseUrl, "/openwork-plus-opencode-router/identities/slack", { token, hostToken, timeoutMs: timeouts.opencodeRouter }),
+      requestJsonRaw<OpenworkOpenCodeRouterSlackIdentitiesResult>(baseUrl, "/openworkplus-opencode-router/identities/slack", { token, hostToken, timeoutMs: timeouts.opencodeRouter }),
     listWorkspaces: () => requestJson<OpenworkWorkspaceList>(baseUrl, "/workspaces", { token, hostToken, timeoutMs: timeouts.listWorkspaces }),
     createLocalWorkspace: (payload: { folderPath: string; name: string; preset: string }) =>
       requestJson<WorkspaceList>(baseUrl, "/workspaces/local", {
@@ -1114,7 +1114,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     ) =>
       requestJson<OpenworkOpenCodeRouterTelegramResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/telegram-token`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/telegram-token`,
         {
           token,
           hostToken,
@@ -1130,7 +1130,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     ) =>
       requestJson<OpenworkOpenCodeRouterSlackResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/slack-tokens`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/slack-tokens`,
         {
           token,
           hostToken,
@@ -1142,13 +1142,13 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     getOpenCodeRouterTelegram: (workspaceId: string) =>
       requestJson<OpenworkOpenCodeRouterTelegramInfo>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/telegram`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/telegram`,
         { token, hostToken, timeoutMs: timeouts.opencodeRouter },
       ),
     getOpenCodeRouterTelegramIdentities: (workspaceId: string) =>
       requestJson<OpenworkOpenCodeRouterTelegramIdentitiesResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/identities/telegram`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/identities/telegram`,
         { token, hostToken, timeoutMs: timeouts.opencodeRouter },
       ),
     upsertOpenCodeRouterTelegramIdentity: (
@@ -1157,7 +1157,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     ) =>
       requestJson<OpenworkOpenCodeRouterTelegramIdentityUpsertResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/identities/telegram`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/identities/telegram`,
         {
           token,
           hostToken,
@@ -1174,13 +1174,13 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     deleteOpenCodeRouterTelegramIdentity: (workspaceId: string, identityId: string) =>
       requestJson<OpenworkOpenCodeRouterTelegramIdentityDeleteResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/identities/telegram/${encodeURIComponent(identityId)}`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/identities/telegram/${encodeURIComponent(identityId)}`,
         { token, hostToken, method: "DELETE" },
       ),
     getOpenCodeRouterSlackIdentities: (workspaceId: string) =>
       requestJson<OpenworkOpenCodeRouterSlackIdentitiesResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/identities/slack`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/identities/slack`,
         { token, hostToken },
       ),
     upsertOpenCodeRouterSlackIdentity: (
@@ -1189,7 +1189,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     ) =>
       requestJson<OpenworkOpenCodeRouterSlackIdentityUpsertResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/identities/slack`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/identities/slack`,
         {
           token,
           hostToken,
@@ -1205,7 +1205,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     deleteOpenCodeRouterSlackIdentity: (workspaceId: string, identityId: string) =>
       requestJson<OpenworkOpenCodeRouterSlackIdentityDeleteResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/identities/slack/${encodeURIComponent(identityId)}`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/identities/slack/${encodeURIComponent(identityId)}`,
         { token, hostToken, method: "DELETE" },
       ),
     getOpenCodeRouterBindings: (
@@ -1218,7 +1218,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
       const suffix = search.toString();
       return requestJson<OpenworkOpenCodeRouterBindingsResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/bindings${suffix ? `?${suffix}` : ""}`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/bindings${suffix ? `?${suffix}` : ""}`,
         { token, hostToken },
       );
     },
@@ -1228,7 +1228,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     ) =>
       requestJson<OpenworkOpenCodeRouterBindingUpdateResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/bindings`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/bindings`,
         {
           token,
           hostToken,
@@ -1261,12 +1261,12 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
         ...(input.autoBind === true ? { autoBind: true } : {}),
       };
 
-      const primaryPath = `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/send`;
+      const primaryPath = `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/send`;
       const mountedWorkspaceId = parseOpenworkWorkspaceIdFromUrl(baseUrl);
       const fallbackPath =
         mountedWorkspaceId && mountedWorkspaceId === workspaceId
-          ? `/openwork-plus-opencode-router/send`
-          : `/w/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/send`;
+          ? `/openworkplus-opencode-router/send`
+          : `/w/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/send`;
 
       return requestJson<OpenworkOpenCodeRouterSendResult>(baseUrl, primaryPath, {
         token,
@@ -1294,7 +1294,7 @@ export function createOpenworkServerClient(options: { baseUrl: string; token?: s
     ) =>
       requestJson<OpenworkOpenCodeRouterTelegramEnabledResult>(
         baseUrl,
-        `/workspace/${encodeURIComponent(workspaceId)}/openwork-plus-opencode-router/telegram-enabled`,
+        `/workspace/${encodeURIComponent(workspaceId)}/openworkplus-opencode-router/telegram-enabled`,
         {
           token,
           hostToken,

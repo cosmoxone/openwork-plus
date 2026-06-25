@@ -29,7 +29,7 @@ function runGenerate() {
   activeChild.once("exit", (code) => {
     activeChild = null;
     if (code && code !== 0) {
-      process.stderr.write(`[openwork-plus-server-sdk] generation failed with exit code ${code}.\n`);
+      process.stderr.write(`[openworkplus-server-sdk] generation failed with exit code ${code}.\n`);
     }
     if (queued) {
       queued = false;
