@@ -64,6 +64,7 @@
     "package:local-test": "node scripts/package-local-test-release.mjs",
     "verify:windows-build": "node scripts/verify-windows-desktop-build.mjs",
     "verify:windows-build:full": "node scripts/verify-windows-desktop-build.mjs --full",
+    "setup:tauri-signing": "node scripts/setup-tauri-updater-signing.mjs",
     "tauri": "pnpm --filter @openwork/desktop exec tauri"
   },
   "devDependencies": {

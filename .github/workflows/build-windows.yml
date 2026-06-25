@@ -1,7 +1,8 @@
 name: Build Windows Desktop
 
-# Windows-only desktop build (MSI). No Release, no code signing, no macOS/Linux jobs.
-# For signed production builds see windows-signed-artifacts.yml (requires cert secrets).
+# Windows-only zh-CN MSI on main. Publishes a GitHub Pre-release with public download links.
+# Tauri updater signing is enabled automatically when TAURI_SIGNING_PRIVATE_KEY is configured.
+# en-US MSI is built by Release App (tag v*) via tauri.release.windows-en.json.
 
 on:
   push:
@@ -18,9 +19,14 @@ on:
         required: false
         default: msi
         type: string
+      publish_prerelease:
+        description: "Upload MSI (+ updater files if signed) to GitHub Pre-releases"
+        required: false
+        default: true
+        type: boolean
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: build-windows-${{ github.ref }}
@@ -28,12 +34,14 @@ concurrency:
 
 jobs:
   build-windows:
-    name: Build Windows MSI
+    name: Build Windows MSI (zh-CN)
     runs-on: windows-latest
     timeout-minutes: 180
     env:
       TAURI_TARGET: x86_64-pc-windows-msvc
       OPENCODE_GITHUB_REPO: ${{ vars.OPENCODE_GITHUB_REPO || 'anomalyco/opencode' }}
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -68,11 +76,45 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Resolve build metadata
+        id: meta
+        shell: pwsh
+        run: |
+          $conf = Get-Content apps/desktop/src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
+          $version = $conf.version
+          $shortSha = "${{ github.sha }}".Substring(0, 7)
+          $tag = "windows-v${version}-build.${{ github.run_number }}"
+          $name = "OpenWork Plus Windows ${version} (zh-CN, build ${{ github.run_number }})"
+          $body = @"
+          Automated Windows pre-release from ``main``.
+
+          - Version: ``${version}``
+          - Commit: ``${{ github.sha }}``
+          - Locale: ``zh-CN`` (WiX)
+          - Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Updater artifacts are included when ``TAURI_SIGNING_PRIVATE_KEY`` is configured.
+          "@
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "name=$name" >> $env:GITHUB_OUTPUT
+          "body<<EOF" >> $env:GITHUB_OUTPUT
+          $body >> $env:GITHUB_OUTPUT
+          "EOF" >> $env:GITHUB_OUTPUT
+
+      - name: Write Tauri CI config (zh-CN)
+        shell: pwsh
+        run: |
+          $signed = -not [string]::IsNullOrWhiteSpace($env:TAURI_SIGNING_PRIVATE_KEY)
+          $args = @("scripts/write-tauri-ci-config.mjs", "--locale", "zh-CN")
+          if ($signed) { $args += "--signed" }
+          node @args
+
       - name: Build desktop (Tauri MSI)
         shell: pwsh
         run: |
           $bundles = "${{ github.event.inputs.bundles || 'msi' }}"
-          pnpm --filter @openwork-plus/desktop exec tauri build --target $env:TAURI_TARGET --bundles $bundles --config src-tauri/tauri.ci.json
+          pnpm --filter @openwork-plus/desktop exec tauri build --target $env:TAURI_TARGET --bundles $bundles --config src-tauri/tauri.ci.generated.json
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
@@ -81,4 +123,21 @@ jobs:
           path: |
             apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.msi
             apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.exe
+            apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.sig
+            apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/latest.json
           if-no-files-found: error
+
+      - name: Publish GitHub Pre-release
+        if: github.event_name == 'push' || github.event.inputs.publish_prerelease != 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.name }}
+          body: ${{ steps.meta.outputs.body }}
+          prerelease: true
+          draft: false
+          make_latest: false
+          files: |
+            apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.msi
+            apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/*.sig
+            apps/desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/**/latest.json

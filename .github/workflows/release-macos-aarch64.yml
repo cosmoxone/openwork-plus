@@ -278,7 +278,7 @@ jobs:
           - platform: windows-2022
             os_type: windows
             target: x86_64-pc-windows-msvc
-            args: "--target x86_64-pc-windows-msvc --bundles msi"
+            args: "--target x86_64-pc-windows-msvc --bundles msi --config src-tauri/tauri.release.windows-en.json"
 
     steps:
       - name: Log runner selection

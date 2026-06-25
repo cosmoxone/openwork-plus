@@ -28,6 +28,8 @@ packages/desktop/src-tauri/target/
 packages/desktop/src-tauri/sidecars/
 apps/desktop/src-tauri/target/
 apps/desktop/src-tauri/sidecars/
+.secrets/
+apps/desktop/src-tauri/tauri.ci.generated.json
 
 # Env
 .env

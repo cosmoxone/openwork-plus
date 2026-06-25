@@ -1,9 +1,8 @@
 {
   "bundle": {
-    "createUpdaterArtifacts": false,
     "windows": {
       "wix": {
-        "language": "zh-CN"
+        "language": "en-US"
       }
     }
   }

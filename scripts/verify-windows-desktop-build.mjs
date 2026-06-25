@@ -43,6 +43,11 @@ try {
   });
 
   if (full) {
+    run("write tauri CI config (zh-CN)", "node", [
+      path.join(root, "scripts", "write-tauri-ci-config.mjs"),
+      "--locale",
+      "zh-CN",
+    ]);
     run("tauri build (MSI, no updater signing)", "pnpm", [
       "--filter",
       "@openwork-plus/desktop",
@@ -54,7 +59,7 @@ try {
       "--bundles",
       "msi",
       "--config",
-      "src-tauri/tauri.ci.json",
+      "src-tauri/tauri.ci.generated.json",
     ]);
   }
 
