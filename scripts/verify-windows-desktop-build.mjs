@@ -8,7 +8,6 @@
  *   node scripts/verify-windows-desktop-build.mjs --full
  */
 import { spawnSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -44,8 +43,6 @@ try {
   });
 
   if (full) {
-    const ciConfig = path.join(root, "apps/desktop/src-tauri/tauri.ci.json");
-    writeFileSync(ciConfig, JSON.stringify({ bundle: { createUpdaterArtifacts: false } }));
     run("tauri build (MSI, no updater signing)", "pnpm", [
       "--filter",
       "@openwork-plus/desktop",

@@ -27,7 +27,6 @@ _worktrees/
 packages/desktop/src-tauri/target/
 packages/desktop/src-tauri/sidecars/
 apps/desktop/src-tauri/target/
-apps/desktop/src-tauri/tauri.ci.json
 apps/desktop/src-tauri/sidecars/
 
 # Env
