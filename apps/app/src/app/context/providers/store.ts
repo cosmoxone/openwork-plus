@@ -25,7 +25,7 @@ import {
 import type { Client, ProviderListItem, WorkspaceDisplay } from "../../types";
 import { isTauriRuntime, safeStringify } from "../../utils";
 import { compareProviders, filterProviderList, mapConfigProvidersToList } from "../../utils/providers";
-import type { OpenworkServerStore } from "../../connections/openworkplus-server-store";
+import type { OpenworkServerStore } from "../../connections/openwork-server-store";
 import {
   readWorkspaceCloudImports,
   withWorkspaceCloudImports,

@@ -27,7 +27,7 @@ import {
   workspaceOpenworkWrite,
   type OpencodeConfigFile,
 } from "../lib/tauri";
-import type { OpenworkHubRepo, OpenworkServerClient } from "../lib/openworkplus-server";
+import type { OpenworkHubRepo, OpenworkServerClient } from "../lib/openwork-server";
 import {
   createDenClient,
   fetchDenOrgSkillsCatalog,
@@ -42,7 +42,7 @@ import {
 } from "../cloud/import-state";
 import { createWorkspaceContextKey } from "./workspace-context";
 import { OPENWORK_PLUS_SKILL_HUB_REPO } from "../lib/plus-hub";
-import type { OpenworkServerStore } from "../connections/openworkplus-server-store";
+import type { OpenworkServerStore } from "../connections/openwork-server-store";
 
 
 const OPENCODE_SKILL_NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;

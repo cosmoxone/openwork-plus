@@ -1,5 +1,5 @@
 import { DEFAULT_DEN_BASE_URL, normalizeDenBaseUrl } from "./den";
-import { normalizeOpenworkServerUrl } from "./openworkplus-server";
+import { normalizeOpenworkServerUrl } from "./openwork-server";
 import { normalizeBundleImportIntent, parseBundleDeepLink } from "../bundles/sources";
 import type { BundleRequest } from "../bundles/types";
 

@@ -51,7 +51,7 @@ const routerPkg = JSON.parse(
 const routerVersion = String(routerPkg.version ?? "").trim();
 if (!routerVersion) {
   throw new Error(
-    "openworkplus-opencode-router version missing in apps/openworkplus-opencode-router/package.json",
+    "openworkplus-opencode-router version missing in apps/opencode-router/package.json",
   );
 }
 

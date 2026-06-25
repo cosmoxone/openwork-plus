@@ -1,7 +1,7 @@
 import { createOpencodeClient, type Message, type Part, type Session, type Todo } from "@opencode-ai/sdk/v2/client";
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
-import { createOpenworkServerClient, OpenworkServerError } from "./openworkplus-server";
+import { createOpenworkServerClient, OpenworkServerError } from "./openwork-server";
 import { isTauriRuntime } from "../utils";
 
 type FieldsResult<T> =

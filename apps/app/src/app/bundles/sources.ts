@@ -1,6 +1,6 @@
 import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 
-import type { OpenworkServerClient } from "../lib/openworkplus-server";
+import type { OpenworkServerClient } from "../lib/openwork-server";
 import { isTauriRuntime, safeStringify } from "../utils";
 import { parseBundlePayload } from "./schema";
 import type { BundleImportIntent, BundleRequest, BundleV1 } from "./types";

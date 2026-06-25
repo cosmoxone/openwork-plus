@@ -1,5 +1,5 @@
 import type { DenTemplate } from "../lib/den";
-import type { OpenworkWorkspaceExportWarning } from "../lib/openworkplus-server";
+import type { OpenworkWorkspaceExportWarning } from "../lib/openwork-server";
 import type { WorkspacePreset } from "../types";
 
 export type CreateWorkspaceScreen = "chooser" | "local" | "remote" | "shared";

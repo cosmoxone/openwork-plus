@@ -5,7 +5,7 @@ import type {
   SkillBundleItem,
   WorkspaceProfileBundleV1,
 } from "./types";
-import type { OpenworkWorkspaceExport } from "../lib/openworkplus-server";
+import type { OpenworkWorkspaceExport } from "../lib/openwork-server";
 
 type PortableFileItem = {
   path: string;

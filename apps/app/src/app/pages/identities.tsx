@@ -17,7 +17,7 @@ import {
   buildOpenworkWorkspaceBaseUrl,
   OpenworkServerError,
   parseOpenworkWorkspaceIdFromUrl,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 import type {
   OpenworkServerClient,
   OpenworkOpenCodeRouterHealthSnapshot,
@@ -25,7 +25,7 @@ import type {
   OpenworkOpenCodeRouterSendResult,
   OpenworkServerStatus,
   OpenworkWorkspaceFileContent,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 
 export type IdentitiesViewProps = {
   busy: boolean;

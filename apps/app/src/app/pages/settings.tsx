@@ -65,7 +65,7 @@ import type {
   OpenworkServerDiagnostics,
   OpenworkServerSettings,
   OpenworkServerStatus,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 import type { DenOrgLlmProvider } from "../lib/den";
 import type {
   EngineInfo,

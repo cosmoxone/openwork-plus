@@ -34,7 +34,7 @@ import {
   createOpenworkServerClient,
   OpenworkServerError,
   parseOpenworkWorkspaceIdFromUrl,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 import type {
   OpenworkAuditEntry,
   OpenworkServerClient,
@@ -44,7 +44,7 @@ import type {
   OpenworkServerStatus,
   OpenworkWorkspaceExportSensitiveMode,
   OpenworkWorkspaceExportWarning,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 import type { EngineInfo, OrchestratorStatus, OpenworkServerInfo, OpenCodeRouterInfo, WorkspaceInfo } from "../lib/tauri";
 
 import Button from "../components/button";

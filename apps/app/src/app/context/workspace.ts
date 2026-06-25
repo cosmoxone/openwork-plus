@@ -33,7 +33,7 @@ import {
   OpenworkServerError,
   type OpenworkServerClient,
   type OpenworkWorkspaceInfo,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 import { downloadDir, homeDir } from "@tauri-apps/api/path";
 import {
   engineDoctor,
@@ -72,7 +72,7 @@ import type { OpencodeConnectStatus, ProviderListItem } from "../types";
 import { t, currentLocale } from "../../i18n";
 import { filterProviderList, mapConfigProvidersToList } from "../utils/providers";
 import { buildDefaultWorkspaceBlueprint, normalizeWorkspaceOpenworkConfig } from "../lib/workspace-blueprints";
-import type { OpenworkServerStore } from "../connections/openworkplus-server-store";
+import type { OpenworkServerStore } from "../connections/openwork-server-store";
 import { resolveSandboxCreateMode, type SandboxBackendType } from "./sandbox-create-mode";
 
 export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>;

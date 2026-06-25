@@ -78,8 +78,8 @@ import type {
   OpenworkServerDiagnostics,
   OpenworkServerSettings,
   OpenworkServerStatus,
-} from "../lib/openworkplus-server";
-import { buildOpenworkWorkspaceBaseUrl } from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
+import { buildOpenworkWorkspaceBaseUrl } from "../lib/openwork-server";
 import { join } from "@tauri-apps/api/path";
 import {
   isUserVisiblePart,

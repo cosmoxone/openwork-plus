@@ -3,7 +3,7 @@ import type { UIMessage, UIMessageChunk, ChatTransport, DynamicToolUIPart } from
 import type { Part } from "@opencode-ai/sdk/v2/client";
 
 import { abortSessionSafe } from "../../app/lib/opencode-session";
-import type { OpenworkSessionMessage, OpenworkSessionSnapshot } from "../../app/lib/openworkplus-server";
+import type { OpenworkSessionMessage, OpenworkSessionSnapshot } from "../../app/lib/openwork-server";
 import { normalizeEvent, safeStringify } from "../../app/utils";
 import type { OpencodeEvent } from "../../app/types";
 import { createClient } from "../../app/lib/opencode";

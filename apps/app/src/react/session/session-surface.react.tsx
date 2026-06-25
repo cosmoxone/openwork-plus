@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { createClient } from "../../app/lib/opencode";
 import { abortSessionSafe } from "../../app/lib/opencode-session";
-import type { OpenworkServerClient, OpenworkSessionSnapshot } from "../../app/lib/openworkplus-server";
+import type { OpenworkServerClient, OpenworkSessionSnapshot } from "../../app/lib/openwork-server";
 import type { ComposerAttachment, ComposerDraft, ComposerPart } from "../../app/types";
 import { SessionDebugPanel } from "./debug-panel.react";
 import { SessionTranscript } from "./message-list.react";

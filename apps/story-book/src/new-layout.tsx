@@ -15,7 +15,7 @@ import {
 import { MCP_QUICK_CONNECT, SUGGESTED_PLUGINS } from "../../app/src/app/constants";
 import { createWorkspaceShellLayout } from "../../app/src/app/lib/workspace-shell-layout";
 import { getModelBehaviorSummary, sanitizeModelBehaviorValue } from "../../app/src/app/lib/model-behavior";
-import type { OpenworkServerClient } from "../../app/src/app/lib/openworkplus-server";
+import type { OpenworkServerClient } from "../../app/src/app/lib/openwork-server";
 import ExtensionsView from "../../app/src/app/pages/extensions";
 import IdentitiesView from "../../app/src/app/pages/identities";
 import AutomationsView from "../../app/src/app/pages/automations";

@@ -38,7 +38,7 @@ jobs:
         working-directory: packages/sqlite-vec-mcp
 
       - name: Build gui-operate-mcp
-        run: npm ci && npm run build
+        run: npm install && npm run build
         working-directory: packages/gui-operate-mcp
 
       - name: Install OpenCode CLI

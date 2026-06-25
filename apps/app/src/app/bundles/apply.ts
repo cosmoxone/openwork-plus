@@ -1,5 +1,5 @@
 import type { WorkspaceDisplay } from "../types";
-import { parseOpenworkWorkspaceIdFromUrl } from "../lib/openworkplus-server";
+import { parseOpenworkWorkspaceIdFromUrl } from "../lib/openwork-server";
 import type { WorkspaceInfo } from "../lib/tauri";
 import type { BundleImportTarget, BundleV1 } from "./types";
 

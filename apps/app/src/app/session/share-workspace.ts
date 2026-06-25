@@ -21,13 +21,13 @@ import {
   parseOpenworkWorkspaceIdFromUrl,
   type OpenworkWorkspaceExportSensitiveMode,
   type OpenworkWorkspaceExportWarning,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 import type {
   EngineInfo,
   OpenworkServerInfo,
   WorkspaceInfo,
 } from "../lib/tauri";
-import type { OpenworkServerSettings } from "../lib/openworkplus-server";
+import type { OpenworkServerSettings } from "../lib/openwork-server";
 import { t } from "../../i18n";
 import { isTauriRuntime, normalizeDirectoryPath } from "../utils";
 

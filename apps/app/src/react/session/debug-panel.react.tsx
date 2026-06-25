@@ -1,5 +1,5 @@
 /** @jsxImportSource react */
-import type { OpenworkSessionSnapshot } from "../../app/lib/openworkplus-server";
+import type { OpenworkSessionSnapshot } from "../../app/lib/openwork-server";
 import type { SessionRenderModel } from "./transition-controller";
 
 export function SessionDebugPanel(props: {

@@ -47,6 +47,10 @@ const PROTECTED = [
   ".openwork/",
   "anomalyco/opencode",
   "different-ai/openwork",
+  "lib/openwork-server",
+  "openwork-server-provider",
+  "openwork-server-store",
+  "connections/openwork-server",
 ].sort((a, b) => b.length - a.length);
 
 const REPLACEMENTS = [
@@ -65,7 +69,6 @@ const REPLACEMENTS = [
   ['sidecar("openwork-orchestrator")', 'sidecar("openworkplus-orchestrator")'],
   ['command("openwork-orchestrator")', 'command("openworkplus-orchestrator")'],
   ['"opencode-router"', '"openworkplus-opencode-router"'],
-  ['"openwork-server"', '"openworkplus-server"'],
   ['"openwork-orchestrator"', '"openworkplus-orchestrator"'],
   ["sidecars/opencode-router", "sidecars/openworkplus-opencode-router"],
   ["sidecars/openwork-server", "sidecars/openworkplus-server"],

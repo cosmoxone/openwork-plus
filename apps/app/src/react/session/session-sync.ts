@@ -6,7 +6,7 @@ import { createClient } from "../../app/lib/opencode";
 import { normalizeEvent } from "../../app/utils";
 import type { OpencodeEvent } from "../../app/types";
 import { snapshotToUIMessages } from "./usechat-adapter";
-import type { OpenworkSessionSnapshot } from "../../app/lib/openworkplus-server";
+import type { OpenworkSessionSnapshot } from "../../app/lib/openwork-server";
 
 type SyncOptions = {
   workspaceId: string;

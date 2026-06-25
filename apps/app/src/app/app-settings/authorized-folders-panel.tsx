@@ -15,7 +15,7 @@ import type {
   OpenworkServerCapabilities,
   OpenworkServerClient,
   OpenworkServerStatus,
-} from "../lib/openworkplus-server";
+} from "../lib/openwork-server";
 import { pickDirectory } from "../lib/tauri";
 import {
   isTauriRuntime,

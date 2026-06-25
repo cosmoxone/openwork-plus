@@ -18,7 +18,7 @@ import type { Client, McpServerEntry, McpStatusMap, ReloadReason, ReloadTrigger 
 import { toSessionTransportDirectory } from "../lib/session-scope";
 import { isTauriRuntime, safeStringify } from "../utils";
 import { createWorkspaceContextKey } from "../context/workspace-context";
-import type { OpenworkServerStore } from "./openworkplus-server-store";
+import type { OpenworkServerStore } from "./openwork-server-store";
 
 export type ConnectionsStore = ReturnType<typeof createConnectionsStore>;
 
