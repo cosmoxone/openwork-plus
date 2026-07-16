@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractId": "com.openwork.convergence.bundle",
+  "id": "knowledge-mgmt",
+  "name": "个人知识库（LLM Wiki）",
+  "version": "0.5.0",
+  "description": "LLM Wiki：扫描/ingest/lint/混合检索 + watch + 快照备份（Hub 离线 vendor）",
+  "requires": { "runtime": ["opencode"] },
+  "preinstall": "node ./scripts/init-knowledge-dirs.mjs",
+  "postuninstall": "node ./scripts/clear-knowledge-index.mjs",
+  "skills": [
+    { "path": "skills/wiki-curator" },
+    { "path": "skills/corpus-scan" },
+    { "path": "skills/summarize-docs" },
+    { "path": "skills/find-connections" },
+    { "path": "skills/semantic-search" }
+  ],
+  "commands": [
+    { "path": "commands/corpus-scan.md" },
+    { "path": "commands/ingest-sources.md" },
+    { "path": "commands/knowledge-lint.md" },
+    { "path": "commands/summarize-docs.md" },
+    { "path": "commands/find-connections.md" },
+    { "path": "commands/semantic-search.md" }
+  ],
+  "mcp": {
+    "servers": {
+      "sqlite-vec-rag": {
+        "command": "node",
+        "args": ["${BUNDLE_ROOT}/vendor/sqlite-vec-mcp/bin/sqlite-vec-mcp.mjs", "--db", "${WORKSPACE}/knowledge.db"],
+        "env": {}
+      },
+      "filesystem": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "${WORKSPACE}"]
+      }
+    }
+  },
+  "ui": {
+    "routes": ["/docs"]
+  }
+}

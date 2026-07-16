@@ -75,3 +75,8 @@ cosmoxwork-docs/
 .dev*.log.txt
 .bun-*.log.txt
 docs_restore_report.txt
+
+# Orchestrator runtime artifacts (generated when running `ow` locally)
+apps/orchestrator/opencode.json
+apps/orchestrator/.opencode/
+apps/orchestrator/.openwork/
