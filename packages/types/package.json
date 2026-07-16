@@ -1,0 +1,72 @@
+{
+  "name": "@openwork/types",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./agent-context-diagnostics": {
+      "types": "./src/agent-context-diagnostics.ts",
+      "development": "./src/agent-context-diagnostics.ts",
+      "default": "./src/agent-context-diagnostics.ts"
+    },
+    "./den/desktop-app-restrictions": {
+      "types": "./src/den/desktop-app-restrictions.ts",
+      "development": "./src/den/desktop-app-restrictions.ts",
+      "default": "./src/den/desktop-app-restrictions.ts"
+    },
+    "./den/desktop-policies": {
+      "types": "./src/den/desktop-policies.ts",
+      "development": "./src/den/desktop-policies.ts",
+      "default": "./src/den/desktop-policies.ts"
+    },
+    "./den/egress-diagnostics": {
+      "types": "./src/den/egress-diagnostics.ts",
+      "development": "./src/den/egress-diagnostics.ts",
+      "default": "./src/den/egress-diagnostics.ts"
+    },
+    "./den/inference": {
+      "types": "./src/den/inference.ts",
+      "development": "./src/den/inference.ts",
+      "default": "./src/den/inference.ts"
+    },
+    "./den/microsoft-365": {
+      "types": "./src/den/microsoft-365.ts",
+      "development": "./src/den/microsoft-365.ts",
+      "default": "./src/den/microsoft-365.ts"
+    },
+    "./workspace": {
+      "types": "./src/workspace.ts",
+      "development": "./src/workspace.ts",
+      "default": "./src/workspace.ts"
+    },
+    "./desktop-ipc": {
+      "types": "./src/desktop-ipc.ts",
+      "development": "./src/desktop-ipc.ts",
+      "default": "./src/desktop-ipc.ts"
+    },
+    "./connect-link": {
+      "types": "./src/connect-link.ts",
+      "development": "./src/connect-link.ts",
+      "default": "./src/connect-link.ts"
+    }
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.6.3"
+  }
+}
