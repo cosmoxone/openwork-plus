@@ -65,3 +65,13 @@ opencode.jsonc
 transcript-analysis
 # Eval runner output
 evals/results/
+
+# OpenWorkPlus local planning docs (not part of open-source release)
+docs/
+cosmoxwork-docs/
+
+# Plus base-jump dev session logs (throwaway)
+.install*.log.txt
+.dev*.log.txt
+.bun-*.log.txt
+docs_restore_report.txt
