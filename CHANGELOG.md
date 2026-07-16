@@ -3,14 +3,17 @@
 All notable changes to OpenWork Plus are documented here.
 This project follows [Keep a Changelog](https://keepachangelog.com/) and uses [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] — v0.17.2-plus.0 (base jump)
+## [Unreleased] — v0.17.30-plus.0 (base jump, re-based)
 
-The `v0.17.2-plus.0` release is a **base jump**: Plus moves from the legacy v0.11.213 base (Tauri + SolidJS, on `feat/unified-platform`) to upstream v0.17.2 (Electron 35 + React 19) as a new foundation. Plus-only capabilities are re-injected as independent packages on top of the new base.
+The `v0.17.30-plus.0` release is a **base jump**: Plus moves from the legacy v0.11.213 base (Tauri + SolidJS, on `feat/unified-platform`) to upstream v0.17.30 (Electron 35 + React 19) as a new foundation. Plus-only capabilities are re-injected as independent packages on top of the new base.
+
+**2026-07-16 re-base:** Originally jumped to `v0.17.2` (commit `30f0fe1`, 2026-06-23). Re-based to `v0.17.30` (commit `a179554`, 2026-07-15) because v0.17.2 was the 2nd patch of the series and already 294 commits / 17 days behind v0.17.20. The re-base brings 432 upstream commits (MCP OAuth hardening, Telegram/MS365/Codex/ChatGPT connect, enterprise branding, native notifications, email sign-in, XLSX attachments, OpenCode SDK in dev mode) at near-zero Plus-side cost because Plus injection points (cli.ts, desktop-cloud-sync.ts) froze after v0.17.20.
 
 ### Base jump
 
-- **New base:** upstream OpenWork `v0.17.2` (commit `30f0fe1`), imported as an orphan branch `feat/v017-base-jump` (no upstream git history, snapshot only).
-- **Desktop shell:** Electron 35 + React 19 (follows upstream v0.17.2). The legacy Tauri + SolidJS shell is preserved on `feat/unified-platform` only.
+- **New base:** upstream OpenWork `v0.17.30` (commit `a179554`, 2026-07-15), imported as an orphan branch `feat/v01730-base-jump` (no upstream git history, snapshot only).
+- **Previous base:** `v0.17.2` (commit `30f0fe1`, 2026-06-23) — superseded.
+- **Desktop shell:** Electron 35 + React 19 (follows upstream v0.17.30). The legacy Tauri + SolidJS shell is preserved on `feat/unified-platform` only.
 - **Engine:** OpenCode v1.17.3.
 - **Branding:** application identity changed to `com.openwork.plus` (side-by-side install with upstream OpenWork), deep link `openwork-plus://`, releases at `cosmoxone/openwork-plus`.
 
@@ -19,11 +22,11 @@ The `v0.17.2-plus.0` release is a **base jump**: Plus moves from the legacy v0.1
 - Ported the Plus Bundle engine (11 self-contained `.mjs` modules, zero npm deps) into `apps/orchestrator/src/bundle/`.
 - Ported example bundles: `computer-use`, `knowledge-mgmt`, `test-automation`.
 - Integrated `ow bundle` subcommand into orchestrator CLI (`apps/orchestrator/src/cli.ts`).
-- Bundle config storage kept as JSON (compatible with v0.17.2's SQLite TEXT column — no migration needed).
+- Bundle config storage kept as JSON (compatible with v0.17.30's SQLite TEXT column — no migration needed).
 
 ### Wave 3 — Plus-only packages port
 
-All 10 packages ported with smoke tests passing (10/10):
+All 11 packages ported with smoke tests passing (11/11):
 
 | Package | Purpose | Smoke |
 |---|---|---|
@@ -36,8 +39,9 @@ All 10 packages ported with smoke tests passing (10/10):
 | `sandbox-bootstrap` | WSL2/Lima sandbox init | PASS (WSL mode) |
 | `appserver-contract` | JSON-RPC 2.0 contract | PASS |
 | `appserver-stub` | Contract test stub | PASS (P0-ARC-1) |
-| `host-api-adapter` | Exec policy hub | PASS (3 smoke suites) |
+| `host-api-adapter` | Exec policy hub | PASS (4 smoke suites) |
 | `metering-store` | Metering persistence | PASS |
+| `gui-operate-mcp` | OS-level RPA (17 tools) | PASS (tools/list 17 tools) |
 
 ### Wave 4 — Upstream features activated
 
@@ -56,8 +60,8 @@ All 10 packages ported with smoke tests passing (10/10):
 
 ### Wave 6 — Tests / docs / release
 
-- Plus package smoke tests: 10/10 PASS.
-- UPSTREAM.md, doc 33 updated with Wave 4/5/6 status.
+- Plus package smoke tests: 11/11 PASS (re-verified on v0.17.30 base, 2026-07-16).
+- UPSTREAM.md, CHANGELOG.md, doc 33 updated for v0.17.30 re-base.
 - Bundle e2e + installer production pending full desktop/CI environment.
 
 ---
