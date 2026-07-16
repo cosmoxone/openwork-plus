@@ -79,6 +79,13 @@ jobs:
         run: npm ci
         working-directory: packages/sqlite-vec-mcp
 
+      - name: Build gui-operate-mcp
+        run: npm install && npm run build
+        working-directory: packages/gui-operate-mcp
+
+      - name: Build builtin bundles
+        run: node scripts/build-builtin-bundles.mjs
+
       - name: Convergence smoke (gate)
         run: pnpm test:convergence
 

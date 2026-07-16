@@ -74,5 +74,8 @@ jobs:
           chmod 755 "$install_dir/opencode"
           echo "$install_dir" >> "$GITHUB_PATH"
 
+      - name: Build builtin bundles
+        run: node scripts/build-builtin-bundles.mjs
+
       - name: Run convergence smoke suite
         run: pnpm test:convergence

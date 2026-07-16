@@ -63,16 +63,19 @@ function startServer() {
   });
 }
 
-async function main() {
-  if (!existsSync(path.join(root, "apps", "desktop", "src-tauri", "resources", "bundles", "computer-use-0.1.0.zip"))) {
-    await new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, [path.join(root, "scripts", "build-builtin-bundles.mjs")], {
-        stdio: "inherit",
-        cwd: root,
-      });
-      child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`build exit ${code}`))));
+function buildBuiltinBundles() {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [path.join(root, "scripts", "build-builtin-bundles.mjs")], {
+      stdio: "inherit",
+      cwd: root,
     });
-  }
+    child.on("exit", (code) => (code === 0 ? resolve() : reject(new Error(`build exit ${code}`))));
+  });
+}
+
+async function main() {
+  // 始终重建内置 zip，避免使用 Windows PowerShell 打包、在 Linux unzip 失败的已提交产物。
+  await buildBuiltinBundles();
 
   await runPrepare();
   /** @type {import("node:http").Server | null} */

@@ -1,4 +1,4 @@
-// Industry Bundle zip 打包/解压（无第三方依赖，调用系统 zip / PowerShell）。
+// Industry Bundle zip 打包/解压（无第三方依赖；优先 tar -a 保证跨平台正斜杠路径）。
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { mkdir, rm } from "node:fs/promises";
@@ -17,18 +17,23 @@ export async function packZip(sourceDir, outputZip) {
   const out = path.resolve(outputZip);
   if (existsSync(out)) await rm(out, { force: true });
 
-  if (process.platform === "win32") {
-    const ps = [
-      "-NoProfile",
-      "-Command",
-      `Compress-Archive -Path '${root.replace(/'/g, "''")}\\*' -DestinationPath '${out.replace(/'/g, "''")}' -Force`,
-    ];
-    await execFileAsync("powershell", ps, { timeout: 120_000 });
+  // tar -a 在 Linux/macOS/Windows 10+ 上生成 zip，路径分隔符为 `/`（Linux unzip 兼容）。
+  try {
+    await execFileAsync("tar", ["-a", "-cf", out, "-C", root, "."], { timeout: 120_000 });
+    return out;
+  } catch {
+    if (process.platform === "win32") {
+      const ps = [
+        "-NoProfile",
+        "-Command",
+        `Compress-Archive -Path '${root.replace(/'/g, "''")}\\*' -DestinationPath '${out.replace(/'/g, "''")}' -Force`,
+      ];
+      await execFileAsync("powershell", ps, { timeout: 120_000 });
+      return out;
+    }
+    await execFileAsync("zip", ["-r", out, "."], { cwd: root, timeout: 120_000 });
     return out;
   }
-
-  await execFileAsync("zip", ["-r", out, "."], { cwd: root, timeout: 120_000 });
-  return out;
 }
 
 /** @param {string} zipPath @param {string} destDir */
