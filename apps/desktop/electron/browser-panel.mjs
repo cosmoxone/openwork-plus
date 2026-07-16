@@ -496,9 +496,9 @@ export function createBrowserPanel({ getWindow, remoteDebugPort, onDeepLink }) {
       // data: loads are internal plumbing (CDP target-marker pages), not
       // user-visible navigations — don't surface the panel for them.
       if (target === "about:blank" || target.startsWith("data:")) return;
-      // Intercept openwork:// deep links (e.g. den-auth handoff grants) so
+      // Intercept openwork-plus:// deep links (e.g. den-auth handoff grants) so
       // in-app browser auth works without the system protocol handler.
-      if (target.startsWith("openwork://") || target.startsWith("openwork-dev://")) {
+      if (target.startsWith("openwork-plus://") || target.startsWith("openwork-plus-dev://")) {
         if (typeof onDeepLink === "function") {
           onDeepLink([target]);
         }

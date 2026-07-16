@@ -71,3 +71,19 @@ transcript-analysis
 evals/results/
 .playwright-mcp/
 .vscode/
+
+# OpenWorkPlus local planning docs (not part of open-source release)
+docs/
+cosmoxwork-docs/
+backup/
+
+# Plus base-jump dev session logs (throwaway)
+.install*.log.txt
+.dev*.log.txt
+.bun-*.log.txt
+docs_restore_report.txt
+
+# Orchestrator runtime artifacts (generated when running `ow` locally)
+apps/orchestrator/opencode.json
+apps/orchestrator/.opencode/
+apps/orchestrator/.openwork/

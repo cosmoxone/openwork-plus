@@ -11,7 +11,7 @@ const iconPath = resolve(desktopRoot, "resources", "icons", "icon.icns");
 const productName = "HandsFreeComputerUse";
 const helperExecutableName = "ComputerUse";
 const helperAppName = "OpenWork Computer Use.app";
-const bundleIdentifier = "com.differentai.openwork.computer-use";
+const bundleIdentifier = "com.openwork.plus.computer-use";
 
 const readArg = (name) => {
   const raw = process.argv.slice(2);
