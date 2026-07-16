@@ -799,6 +799,8 @@ importers:
 
   packages/knowledge-wiki: {}
 
+  packages/metering-store: {}
+
   packages/openwork-ui-mcp:
     dependencies:
       '@modelcontextprotocol/sdk':
