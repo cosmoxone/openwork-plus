@@ -808,6 +808,10 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
 
+  packages/rpa-host: {}
+
+  packages/sandbox-bootstrap: {}
+
   packages/sqlite-vec-mcp:
     dependencies:
       '@modelcontextprotocol/sdk':

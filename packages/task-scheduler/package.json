@@ -14,8 +14,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node test/smoke.mjs",
-    "test:integration": "node test/p3-3-smoke.mjs"
+    "test": "node test/smoke.mjs && node test/p3-3-smoke.mjs"
   },
   "dependencies": {
     "cron-parser": "^5.0.0",
