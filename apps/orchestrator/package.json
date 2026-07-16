@@ -1,5 +1,5 @@
 {
-  "name": "openwork-orchestrator",
+  "name": "openworkplus-orchestrator",
   "version": "0.17.2",
   "description": "OpenWork host orchestrator for opencode + OpenWork server + opencode-router",
   "private": true,

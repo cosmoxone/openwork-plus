@@ -635,8 +635,8 @@ jobs:
         env:
           SOURCE_DATE_EPOCH: ${{ steps.source-date.outputs.epoch }}
         run: |
-          pnpm --filter openwork-orchestrator build:bin:all
-          pnpm --filter openwork-orchestrator build:sidecars
+          pnpm --filter openworkplus-orchestrator build:bin:all
+          pnpm --filter openworkplus-orchestrator build:sidecars
 
       - name: Release review (strict)
         env:
@@ -805,7 +805,7 @@ jobs:
             echo "openwork-orchestrator sidecar release $tag not found. Publish sidecars before openwork-orchestrator." >&2
             exit 1
           fi
-          pnpm --filter openwork-orchestrator build:bin:all
+          pnpm --filter openworkplus-orchestrator build:bin:all
           node apps/orchestrator/scripts/publish-npm.mjs
 
   publish-daytona-snapshot:

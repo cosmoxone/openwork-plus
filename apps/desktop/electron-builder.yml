@@ -1,12 +1,14 @@
-# IMPORTANT: appId intentionally matches the Tauri shell so both builds share
-# the same macOS bundle identifier, keychain entries, Launchpad slot, and TCC
-# permissions. In-place migration from Tauri to Electron depends on this.
-appId: com.differentai.openwork
-productName: OpenWork
+# OpenWorkPlus application identity. Differs from upstream on purpose so the
+# Plus build can be installed side-by-side with upstream OpenWork (different
+# macOS bundle id, keychain namespace, Launchpad slot, deep-link scheme).
+# Trade-off: Plus forfeits upstream's Tauri->Electron in-place migration path
+# (which depends on a shared appId); Plus maintains its own dual-shell story.
+appId: com.openwork.plus
+productName: OpenWork Plus
 protocols:
-  - name: OpenWork
+  - name: OpenWork Plus
     schemes:
-      - openwork
+      - openwork-plus
 directories:
   output: dist-electron
 files:
@@ -39,8 +41,8 @@ afterSign: scripts/electron-after-sign.cjs
 # release assets during the migration window.
 publish:
   - provider: github
-    owner: different-ai
-    repo: openwork
+    owner: cosmoxone
+    repo: openwork-plus
     releaseType: release
 mac:
   icon: resources/icons/icon.icns
@@ -51,7 +53,7 @@ mac:
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    NSMicrophoneUsageDescription: OpenWork uses the microphone when you start Voice Mode so you can speak commands to your agent.
+    NSMicrophoneUsageDescription: OpenWork Plus uses the microphone when you start Voice Mode so you can speak commands to your agent.
   extraResources:
     - from: resources/sidecars
       to: sidecars
@@ -107,4 +109,4 @@ win:
         - versions.json-x86_64-pc-windows-msvc.exe
   target:
     - nsis
-artifactName: openwork-${os}-${arch}-${version}.${ext}
+artifactName: openwork-plus-${os}-${arch}-${version}.${ext}
