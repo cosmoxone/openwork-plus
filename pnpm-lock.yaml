@@ -755,6 +755,14 @@ importers:
         specifier: ^5.5.4
         version: 5.9.3
 
+  packages/appserver-contract: {}
+
+  packages/appserver-stub:
+    dependencies:
+      '@openworkplus/appserver-contract':
+        specifier: workspace:*
+        version: link:../appserver-contract
+
   packages/email:
     dependencies:
       '@react-email/components':
@@ -796,6 +804,15 @@ importers:
         version: 5.9.3
 
   packages/handsfree: {}
+
+  packages/host-api-adapter:
+    dependencies:
+      '@openworkplus/appserver-contract':
+        specifier: workspace:*
+        version: link:../appserver-contract
+      '@openworkplus/metering-store':
+        specifier: workspace:*
+        version: link:../metering-store
 
   packages/knowledge-wiki: {}
 
