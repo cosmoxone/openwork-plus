@@ -291,6 +291,87 @@ export type CacheResetResult = {
   errors: string[];
 };
 
+// ---------------------------------------------------------------------------
+// Bundle management (OpenWork Plus)
+// ---------------------------------------------------------------------------
+// Backed by `ow bundle list|install|uninstall` orchestrator CLI via the
+// Electron main-process `bundle-bridge.mjs`. Renderer must handle both the
+// `ok: true` and `ok: false` branches of the discriminated-union results —
+// business errors (missing dependencies, file conflicts) are reported inline
+// rather than thrown, so they surface as actionable UI instead of generic
+// IPC rejections.
+
+export type BundleListOptions = {
+  workspaceRoot?: string | null;
+};
+
+export type BundleInstalledEntry = {
+  id: string;
+  version: string;
+  name?: string;
+  description?: string;
+  installedAt?: string;
+  scope?: "workspace" | "user";
+  targetRoot?: string;
+};
+
+export type BundleListResult = {
+  installed: BundleInstalledEntry[];
+};
+
+export type BundleInstallArgs = {
+  /** Local path to a bundle directory or a .zip archive. */
+  source: string;
+  /** null/undefined → user scope; otherwise install into this workspace. */
+  workspaceRoot?: string | null;
+  /** Overwrite existing files (used by future Update flow). */
+  replace?: boolean;
+};
+
+export type BundleInstallSuccess = {
+  ok: true;
+  id: string;
+  version: string;
+  createdPaths: string[];
+  addedMcp: string[];
+};
+
+export type BundleInstallFailure = {
+  ok: false;
+  error: string;
+};
+
+export type BundleInstallResult = BundleInstallSuccess | BundleInstallFailure;
+
+export type BundleUninstallArgs = {
+  id: string;
+  /** Optional scope filter; orchestrator also looks it up by id. */
+  workspaceRoot?: string | null;
+};
+
+export type BundleUninstallSuccess = {
+  ok: true;
+  id: string;
+  removedPaths: string[];
+};
+
+export type BundleUninstallFailure = {
+  ok: false;
+  error: string;
+};
+
+export type BundleUninstallResult =
+  | BundleUninstallSuccess
+  | BundleUninstallFailure;
+
+export type BundlePickFileOptions = {
+  extensions?: string[];
+};
+
+export type BundlePickFileResult =
+  | { canceled: true }
+  | { canceled: false; filePath: string };
+
 export type DesktopFetchInit = {
   method?: string;
   headers?: Record<string, string>;
@@ -526,6 +607,24 @@ export type DesktopCommandMap = {
   resetOpencodeCache: { args: []; result: CacheResetResult };
   opencodeMcpAuth: { args: [action: string, name: string]; result: ExecResult };
   setWindowDecorations: { args: [decorated: boolean]; result: unknown };
+
+  // Bundle management (OpenWork Plus)
+  bundleList: {
+    args: [options?: BundleListOptions];
+    result: BundleListResult;
+  };
+  bundleInstall: {
+    args: [args: BundleInstallArgs];
+    result: BundleInstallResult;
+  };
+  bundleUninstall: {
+    args: [args: BundleUninstallArgs];
+    result: BundleUninstallResult;
+  };
+  bundlePickFile: {
+    args: [options?: BundlePickFileOptions];
+    result: BundlePickFileResult;
+  };
 
   // Window / OS utilities (dunder commands)
   __openPath: { args: [target: string]; result: unknown };

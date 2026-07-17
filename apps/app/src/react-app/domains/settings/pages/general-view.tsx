@@ -8,6 +8,7 @@ import {
   FolderLock,
   LifeBuoy,
   MessageCircle,
+  Package,
   Paintbrush,
   Puzzle,
   RefreshCcw,
@@ -38,6 +39,7 @@ const workspaceCards: SettingsCardDefinition[] = [
   { tab: "preferences", icon: Cog, title: "Preferences", desc: "Default model, reasoning, and compaction." },
   { tab: "permissions", icon: FolderLock, title: "Permissions", desc: "Authorized folders and file access." },
   { tab: "extensions", icon: Puzzle, title: "Extensions", desc: "MCPs, skills, plugins, and integrations." },
+  { tab: "bundles", icon: Package, titleKey: "settings.bundles.card_title", descKey: "settings.bundles.card_desc" },
   { tab: "advanced", icon: Wrench, title: "Advanced", desc: "Runtime, engine, and developer options." },
 ];
 

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "bun test --isolate tests/",
     "dev": "OPENWORK_DEV_MODE=1 vite",
+    "dev:smoke": "node scripts/dev-smoke.mjs",
     "build": "vite build",
     "dev:web": "OPENWORK_DEV_MODE=1 vite",
     "build:web": "vite build",

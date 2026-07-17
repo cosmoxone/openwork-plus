@@ -44,6 +44,7 @@ import {
 import { resolveConnectLinkPublicKeys } from "./connect-link-keys.mjs";
 import { openExternalUrl } from "./open-external.mjs";
 import { fetchAgentContextDiagnosticsResponse } from "./agent-context-diagnostics-fetch.mjs";
+import { runBundleCli } from "./bundle-bridge.mjs";
 import {
   applyWindowsTaskbarIcon,
   windowsBrandAppUserModelId,
@@ -2057,6 +2058,93 @@ const desktopCommandHandlers = {
   },
   "__setApplicationMenuVisible": async (event, ...args) => {
       return applicationMenu.setVisible(args[0]);
+  },
+
+  // ───────────────────────────────────────────────────────────────────────
+  // Bundle management (Plus-only; orchestrator CLI subprocess)
+  // Shape contract: packages/types/src/desktop-ipc.ts → BundleListResult etc.
+  // The CLI returns plain arrays/objects; we wrap into the discriminated unions
+  // the renderer expects (e.g. { ok: true, ...} | { ok: false, error }).
+  // ───────────────────────────────────────────────────────────────────────
+  "bundleList": async (_event, ...args) => {
+      const opts = args[0] ?? {};
+      const cliArgs = ["list"];
+      // orchestrator's `list` does not yet filter by workspace; we pass it for
+      // forward-compat. Renderer treats empty/undefined as user scope.
+      if (typeof opts.workspaceRoot === "string" && opts.workspaceRoot.trim()) {
+        cliArgs.push("--workspace", opts.workspaceRoot);
+      }
+      const installed = await runBundleCli(cliArgs);
+      return { installed: Array.isArray(installed) ? installed : [] };
+  },
+  "bundleInstall": async (_event, ...args) => {
+      const params = args[0] ?? {};
+      const source = typeof params.source === "string" ? params.source.trim() : "";
+      if (!source) {
+        return { ok: false, error: "Missing bundle source path." };
+      }
+      const cliArgs = ["install", source];
+      if (typeof params.workspaceRoot === "string" && params.workspaceRoot.trim()) {
+        cliArgs.push("--workspace", params.workspaceRoot);
+      }
+      if (params.replace) {
+        cliArgs.push("--replace");
+      }
+      try {
+        const result = await runBundleCli(cliArgs, { timeoutMs: 60_000 });
+        return {
+          ok: true,
+          id: String(result?.id ?? ""),
+          version: String(result?.version ?? ""),
+          createdPaths: Array.isArray(result?.createdPaths) ? result.createdPaths : [],
+          addedMcp: Array.isArray(result?.addedMcp) ? result.addedMcp : [],
+        };
+      } catch (err) {
+        return { ok: false, error: err?.message ?? String(err) };
+      }
+  },
+  "bundleUninstall": async (_event, ...args) => {
+      const params = args[0] ?? {};
+      const id = typeof params.id === "string" ? params.id.trim() : "";
+      if (!id) {
+        return { ok: false, error: "Missing bundle id." };
+      }
+      const cliArgs = ["uninstall", id];
+      if (typeof params.workspaceRoot === "string" && params.workspaceRoot.trim()) {
+        cliArgs.push("--workspace", params.workspaceRoot);
+      }
+      try {
+        const result = await runBundleCli(cliArgs);
+        return {
+          ok: true,
+          id: String(result?.id ?? id),
+          removedPaths: Array.isArray(result?.removedPaths) ? result.removedPaths : [],
+        };
+      } catch (err) {
+        return { ok: false, error: err?.message ?? String(err) };
+      }
+  },
+  "bundlePickFile": async (_event, ...args) => {
+      const opts = args[0] ?? {};
+      const extensions = Array.isArray(opts.extensions) && opts.extensions.length
+        ? opts.extensions.map((e) => String(e).replace(/^\./, ""))
+        : ["zip"];
+      const win = mainWindow;
+      const result = win
+        ? await dialog.showOpenDialog(win, {
+            title: "Select bundle archive",
+            properties: ["openFile"],
+            filters: [{ name: "Bundle", extensions }],
+          })
+        : await dialog.showOpenDialog({
+            title: "Select bundle archive",
+            properties: ["openFile"],
+            filters: [{ name: "Bundle", extensions }],
+          });
+      if (result.canceled || !result.filePaths.length) {
+        return { canceled: true };
+      }
+      return { canceled: false, filePath: result.filePaths[0] };
   },
 };
 

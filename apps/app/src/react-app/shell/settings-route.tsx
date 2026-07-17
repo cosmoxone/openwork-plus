@@ -65,6 +65,7 @@ import { createProviderAuthStore, useProviderAuthStoreSnapshot } from "@/react-a
 import ProviderAuthModal from "@/react-app/domains/connections/provider-auth/provider-auth-modal";
 import ConnectionsModals from "@/react-app/domains/connections/modals";
 import { AiSettingsView } from "@/react-app/domains/settings/pages/ai-view";
+import { BundlesView } from "@/react-app/domains/settings/pages/bundles-view";
 // Side-effect imports: register extension config components into the registry.
 import "@/react-app/domains/settings/openai-image-gen-config";
 import "@/react-app/domains/settings/ollama-config";
@@ -279,6 +280,7 @@ export function parseSettingsPath(pathname: string): {
     case "shell":
     case "advanced":
     case "appearance":
+    case "bundles":
     case "environment":
     case "updates":
     case "recovery":
@@ -2453,6 +2455,8 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
             onCleanupOpenworkDockerContainers={() => {}}
           />
         );
+      case "bundles":
+        return <BundlesView selectedWorkspaceRoot={selectedWorkspaceRoot} />;
       case "environment":
         return (
           <EnvironmentView
