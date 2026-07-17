@@ -1208,7 +1208,9 @@ export function createRuntimeManager({ app, desktopRoot, listLocalWorkspacePaths
       host,
       port: portSelection.port,
       corsOrigins: ["*"],
-      approvalMode: "auto",
+      // C2' 降级：approvalMode 可配置，默认 auto（向后兼容）。
+      // 设 OPENWORK_APPROVAL_MODE=manual 启用人工审批（前端需轮询 GET /approvals 并 POST 响应）。
+      approvalMode: process.env.OPENWORK_APPROVAL_MODE === "manual" ? "manual" : "auto",
       configPath: serverConfigPath,
       workspaces: workspacePaths,
       token: tokens.clientToken,
@@ -1847,7 +1849,7 @@ export function createRuntimeManager({ app, desktopRoot, listLocalWorkspacePaths
       "--workspace",
       workspacePath,
       "--approval",
-      "auto",
+      process.env.OPENWORK_APPROVAL_MODE === "manual" ? "manual" : "auto",
       "--detach",
       "--openwork-port",
       String(port),
