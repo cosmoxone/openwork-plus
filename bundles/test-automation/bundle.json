@@ -1,11 +1,24 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "contractId": "com.openwork.convergence.bundle",
   "id": "test-automation",
   "name": "测试自动化控制台",
   "version": "0.1.0",
   "description": "AI 辅助测试工作流：生成用例、分析失败、跟踪趋势",
+  "scope": "workspace",
+  "dependencies": [],
   "requires": { "runtime": ["opencode"] },
+  "opencode": {
+    "tools": {
+      "webfetch": false
+    },
+    "agent": {
+      "test-runner": {
+        "temperature": 0.3,
+        "description": "Low-temperature agent for deterministic test generation"
+      }
+    }
+  },
   "skills": [
     { "path": "skills/generate-test-cases" },
     { "path": "skills/analyze-failure" },

@@ -12,6 +12,12 @@ import { promisify } from "node:util";
 import { loadBundle } from "./schema.mjs";
 import { extractBundleZip } from "./zip.mjs";
 import { stageBundleRuntime } from "./vendor-stage.mjs";
+import { deepMerge, isPlainObject } from "./merge.mjs";
+
+/** @param {any} v */
+function clone(v) {
+  return v === undefined ? undefined : JSON.parse(JSON.stringify(v));
+}
 
 const execFileAsync = promisify(execFile);
 
@@ -38,6 +44,18 @@ export function resolveWorkspaceRoot(override) {
   if (override) return path.resolve(override);
   if (process.env.OW_WORKSPACE_ROOT) return path.resolve(process.env.OW_WORKSPACE_ROOT);
   return process.cwd();
+}
+
+/**
+ * 解析 user scope 的 opencode 配置根（C1.4）。
+ * *nix: ~/.config/opencode；Windows: %APPDATA%/opencode。
+ * @returns {string}
+ */
+export function resolveUserConfigRoot() {
+  const home = os.homedir();
+  return process.platform === "win32"
+    ? path.join(process.env.APPDATA ?? path.join(home, "AppData", "Roaming"), "opencode")
+    : path.join(home, ".config", "opencode");
 }
 
 /** 从 bundle 目录向上查找 monorepo 根（含 pnpm-workspace.yaml）。 */
@@ -239,6 +257,158 @@ async function unmergeMcp(workspaceRoot, ids) {
 }
 
 /**
+ * 把 bundle 的 opencode.* 合并块深度合并进 opencode.json（C1.2）。
+ * 合并前备份 opencode.json 到 .opencode-backup-<timestamp>.json。
+ *
+ * 合并规则（字段特性化，可预测）：
+ *  - 数组字段（plugin/instructions）：去重合并，按值
+ *  - 对象字段（permission/tools/agent）：深度合并，按 key
+ *  - mcp：按 server id 合并，已存在跳过（对齐 mergeMcp）
+ *  - 其余字段：通用对象深度合并兜底
+ *
+ * @param {string} workspaceRoot
+ * @param {Record<string, unknown>} opencodeBlock bundle.opencode 字段
+ * @returns {Promise<Record<string, unknown>>} 本 bundle 的 opencode 声明快照（供 receipt 记录，卸载时逆向使用）
+ */
+async function mergeOpencodeBlock(workspaceRoot, opencodeBlock) {
+  if (!opencodeBlock || typeof opencodeBlock !== "object") return {};
+  const file = path.join(workspaceRoot, "opencode.json");
+  /** @type {any} */
+  let config = {};
+  if (existsSync(file)) {
+    try {
+      config = JSON.parse(await readFile(file, "utf8"));
+    } catch (error) {
+      throw new Error(`opencode.json 不是合法 JSON，拒绝合并: ${error.message}`);
+    }
+    // 备份（风险缓解：合并逻辑复杂，可能破坏现有 config）
+    const backup = path.join(workspaceRoot, `.opencode-backup-${Date.now()}.json`);
+    await atomicWrite(backup, JSON.stringify(config, null, 2));
+  }
+
+  const ARRAY_FIELDS = new Set(["plugin", "instructions"]);
+  /** @type {Record<string, unknown>} */
+  const declared = {};
+
+  for (const [field, incoming] of Object.entries(opencodeBlock)) {
+    if (incoming === undefined) continue;
+    declared[field] = clone(incoming);
+
+    // mcp 字段：对齐 mergeMcp 的"已存在 id 跳过"语义
+    if (field === "mcp" && isPlainObject(incoming)) {
+      if (!isPlainObject(config.mcp)) config.mcp = {};
+      for (const [id, serverCfg] of Object.entries(incoming)) {
+        if (config.mcp[id] === undefined) {
+          config.mcp[id] = clone(serverCfg);
+        }
+      }
+      continue;
+    }
+
+    // 数组字段：去重合并
+    if (ARRAY_FIELDS.has(field) && Array.isArray(incoming)) {
+      if (!Array.isArray(config[field])) config[field] = [];
+      for (const item of incoming) {
+        if (!config[field].some((m) => JSON.stringify(m) === JSON.stringify(item))) {
+          config[field].push(clone(item));
+        }
+      }
+      continue;
+    }
+
+    // 其余字段（对象为主）：通用深度合并
+    const { merged } = deepMerge(config[field], incoming, field);
+    config[field] = merged;
+  }
+
+  await atomicWrite(file, JSON.stringify(config, null, 2));
+  return declared;
+}
+
+/**
+ * 从 opencode.json 逆向移除本 bundle 的 opencode 声明（C1.2 卸载侧）。
+ * 与 mergeOpencodeBlock 对称：按本 bundle 的声明快照逐字段逆向。
+ *
+ * @param {string} workspaceRoot
+ * @param {Record<string, unknown>} declared 本 bundle 的 opencode 声明快照（receipt.opencodeMerges）
+ * @param {Record<string, unknown>[]} otherDeclareds 其他剩余 bundle 的声明快照（用于判断 key 是否保留）
+ */
+async function unmergeOpencodeBlock(workspaceRoot, declared, otherDeclareds = []) {
+  if (!declared || Object.keys(declared).length === 0) return;
+  const file = path.join(workspaceRoot, "opencode.json");
+  if (!existsSync(file)) return;
+  let config;
+  try {
+    config = JSON.parse(await readFile(file, "utf8"));
+  } catch {
+    return;
+  }
+
+  const ARRAY_FIELDS = new Set(["plugin", "instructions"]);
+
+  for (const [field, declaredValue] of Object.entries(declared)) {
+    // mcp：按 id 移除，被其他 bundle 声明的 id 保留
+    if (field === "mcp" && isPlainObject(declaredValue)) {
+      if (!isPlainObject(config.mcp)) continue;
+      const otherIds = new Set(otherDeclareds.flatMap((d) => Object.keys(d.mcp ?? {})));
+      for (const id of Object.keys(declaredValue)) {
+        if (!otherIds.has(id)) delete config.mcp[id];
+      }
+      if (Object.keys(config.mcp).length === 0) delete config.mcp;
+      continue;
+    }
+
+    // 数组字段：按值移除（仅当值不被其他 bundle 声明时）
+    if (ARRAY_FIELDS.has(field) && Array.isArray(declaredValue)) {
+      if (!Array.isArray(config[field])) continue;
+      const otherValues = new Set(
+        otherDeclareds
+          .filter((d) => Array.isArray(d[field]))
+          .flatMap((d) => d[field].map((v) => JSON.stringify(v))),
+      );
+      config[field] = config[field].filter(
+        (v) => otherValues.has(JSON.stringify(v)) || !declaredValue.some((dv) => JSON.stringify(dv) === JSON.stringify(v)),
+      );
+      if (config[field].length === 0) delete config[field];
+      continue;
+    }
+
+    // 对象字段：按 key 移除，被其他 bundle 声明的 key 保留
+    if (isPlainObject(declaredValue)) {
+      const otherKeys = new Set(otherDeclareds.flatMap((d) => Object.keys(d[field] ?? {})));
+      removeKeys(config[field], declaredValue, field, otherKeys);
+      if (isPlainObject(config[field]) && Object.keys(config[field]).length === 0) delete config[field];
+      continue;
+    }
+  }
+
+  await atomicWrite(file, JSON.stringify(config, null, 2));
+}
+
+/**
+ * 递归移除对象字段中本 bundle 声明的 key（被其他 bundle 声明的 key 保留）。
+ * @param {any} configNode opencode.json 对应字段的当前节点
+ * @param {any} declaredNode 本 bundle 在该字段声明的对象
+ * @param {string} fieldPath 当前字段路径（用于日志，暂未使用）
+ * @param {Set<string>} otherSiblingKeys 同级被其他 bundle 声明的 key（仅顶层判断）
+ */
+function removeKeys(configNode, declaredNode, fieldPath, otherSiblingKeys) {
+  if (!isPlainObject(configNode) || !isPlainObject(declaredNode)) return;
+  for (const [k, v] of Object.entries(declaredNode)) {
+    // 该 key 被其他 bundle 也声明 → 保留（不删），但可继续向下清理？不，保留整个子树
+    if (otherSiblingKeys.has(k)) continue;
+    if (configNode[k] === undefined) continue;
+    if (isPlainObject(v) && isPlainObject(configNode[k])) {
+      // 嵌套对象：递归移除本 bundle 声明的子 key
+      removeKeys(configNode[k], v, `${fieldPath}.${k}`, new Set());
+      if (Object.keys(configNode[k]).length === 0) delete configNode[k];
+    } else {
+      delete configNode[k];
+    }
+  }
+}
+
+/**
  * 安装 bundle。
  * @param {{bundleDir:string, workspaceRoot?:string, dataDir?:string, fromCodex?:boolean, replace?:boolean}} opts
  */
@@ -258,6 +428,10 @@ export async function installBundle(opts) {
   try {
   const { manifest, root } = await loadBundle(bundleDir);
 
+  // C1.4: 根据 scope 决定文件/opencode.json 写入根
+  const scope = manifest.scope === "user" ? "user" : "workspace";
+  const targetRoot = scope === "user" ? resolveUserConfigRoot() : workspaceRoot;
+
   const installed = await readInstalled(dataDir);
   if (installed.bundles.some((b) => b.id === manifest.id)) {
     if (opts.replace) {
@@ -269,9 +443,13 @@ export async function installBundle(opts) {
     }
   }
 
-  // 依赖检查
-  const requiredBundles = manifest.requires?.bundles ?? [];
-  const missing = requiredBundles.filter(
+  // C1.3: 依赖检查（requires.bundles 作为 dependencies 的别名，取并集）
+  const deps = [
+    ...(manifest.requires?.bundles ?? []),
+    ...(manifest.dependencies ?? []),
+  ];
+  const uniqueDeps = [...new Set(deps)];
+  const missing = uniqueDeps.filter(
     (dep) => !installed.bundles.some((b) => b.id === dep),
   );
   if (missing.length > 0) {
@@ -297,6 +475,34 @@ export async function installBundle(opts) {
 
   /** @type {string[]} */
   const createdPaths = [];
+
+  // C1.5: 文件路径冲突检测（仅文件类资源，opencode.json 合并字段不检测）
+  /** @param {{path:string}[]} entries @param {string} destBase @returns {string[]} */
+  const computeDestPaths = (entries, destBase) =>
+    (entries ?? [])
+      .map((entry) => path.join(destBase, path.basename(entry.path)))
+      .map((p) => path.resolve(p));
+
+  const opencodeDir = path.join(targetRoot, ".opencode");
+  const plannedDest = [
+    ...computeDestPaths(manifest.skills, path.join(opencodeDir, "skills")),
+    ...computeDestPaths(manifest.agents, path.join(opencodeDir, "agent")),
+    ...computeDestPaths(manifest.commands, path.join(opencodeDir, "commands")),
+  ];
+  if (plannedDest.length > 0) {
+    const conflictMap = new Map(); // path -> bundle id
+    for (const other of installed.bundles) {
+      for (const p of other.createdPaths ?? []) {
+        conflictMap.set(path.resolve(p), other.id);
+      }
+    }
+    const conflicts = plannedDest.filter((p) => conflictMap.has(p));
+    if (conflicts.length > 0) {
+      const detail = conflicts.map((p) => `${p}（已被 ${conflictMap.get(p)} 占用）`).join("; ");
+      throw new Error(`文件路径冲突，请先卸载占用 bundle: ${detail}`);
+    }
+  }
+
   const copyEntries = async (entries, destBase) => {
     for (const entry of entries ?? []) {
       const src = path.join(root, entry.path);
@@ -308,7 +514,6 @@ export async function installBundle(opts) {
     }
   };
 
-  const opencodeDir = path.join(workspaceRoot, ".opencode");
   await copyEntries(manifest.skills, path.join(opencodeDir, "skills"));
   await copyEntries(manifest.agents, path.join(opencodeDir, "agent"));
   await copyEntries(manifest.commands, path.join(opencodeDir, "commands"));
@@ -322,7 +527,10 @@ export async function installBundle(opts) {
     monorepoRoot,
     bundleRoot,
   };
-  const addedMcp = await mergeMcp(workspaceRoot, manifest.mcp?.servers, mcpCtx);
+  const addedMcp = await mergeMcp(targetRoot, manifest.mcp?.servers, mcpCtx);
+
+  // C1.2: 合并 opencode.* 块（plugin/permission/instructions/tools/agent/mcp），返回声明快照供 receipt
+  const opencodeDeclared = await mergeOpencodeBlock(targetRoot, manifest.opencode);
 
   /** @type {string[]} */
   const installedBins = [];
@@ -356,10 +564,13 @@ export async function installBundle(opts) {
     version: manifest.version,
     name: manifest.name,
     installedAt: new Date().toISOString(),
+    scope,
+    targetRoot,
     workspaceRoot,
     bundleRoot,
     createdPaths,
     addedMcp,
+    opencodeMerges: opencodeDeclared,
     installedBins,
     uiRoutes: manifest.ui?.routes ?? [],
     postuninstall: manifest.postuninstall ?? null,
@@ -378,6 +589,7 @@ export async function installBundle(opts) {
     version: manifest.version,
     createdPaths,
     addedMcp,
+    opencodeMerges: opencodeDeclared,
     installedBins,
     preinstall: manifest.preinstall ?? null,
   };
@@ -394,11 +606,12 @@ export async function listBundles(opts) {
 }
 
 /**
- * 卸载 bundle：移除注入文件 + 移除 opencode.json 中新增的 mcp 键。
- * @param {{id:string, dataDir?:string}} opts
+ * 卸载 bundle：移除注入文件 + 移除 opencode.json 中新增的 mcp/opencode 合并键。
+ * @param {{id:string, dataDir?:string, workspaceRoot?:string}} opts
  */
 export async function uninstallBundle(opts) {
   const dataDir = resolveDataDir(opts.dataDir);
+  const workspaceRoot = resolveWorkspaceRoot(opts.workspaceRoot);
   const installed = await readInstalled(dataDir);
   const record = installed.bundles.find((b) => b.id === opts.id);
   if (!record) throw new Error(`未找到已安装 bundle: ${opts.id}`);
@@ -430,11 +643,28 @@ export async function uninstallBundle(opts) {
   if (record.bundleRoot && existsSync(record.bundleRoot)) {
     await rm(record.bundleRoot, { recursive: true, force: true });
   }
-  await unmergeMcp(record.workspaceRoot, record.addedMcp ?? []);
+  // C1.4: 优先用 targetRoot（scope=user 时指向用户配置目录），旧记录回退 workspaceRoot
+  const removalRoot = record.targetRoot ?? record.workspaceRoot ?? workspaceRoot;
+  await unmergeMcp(removalRoot, record.addedMcp ?? []);
 
-  await syncWorkspaceUiManifest(record.workspaceRoot, { id: record.id }, "remove");
+  // C1.5: 回滚 opencode 合并字段。按本 bundle 的声明快照逆向，被其他 bundle 声明的 key 保留。
+  const opencodeDeclared = record.opencodeMerges;
+  if (opencodeDeclared && typeof opencodeDeclared === "object" && !Array.isArray(opencodeDeclared)) {
+    const otherDeclareds = installed.bundles
+      .filter((b) => b.id !== opts.id)
+      .map((b) => b.opencodeMerges)
+      .filter((d) => d && typeof d === "object" && !Array.isArray(d));
+    await unmergeOpencodeBlock(removalRoot, opencodeDeclared, otherDeclareds);
+  }
+
+  await syncWorkspaceUiManifest(record.workspaceRoot ?? workspaceRoot, { id: record.id }, "remove");
 
   installed.bundles = installed.bundles.filter((b) => b.id !== opts.id);
   await writeInstalled(dataDir, installed);
-  return { id: opts.id, removedPaths: record.createdPaths ?? [], removedMcp: record.addedMcp ?? [] };
+  return {
+    id: opts.id,
+    removedPaths: record.createdPaths ?? [],
+    removedMcp: record.addedMcp ?? [],
+    removedOpencodeMerges: record.opencodeMerges ?? [],
+  };
 }

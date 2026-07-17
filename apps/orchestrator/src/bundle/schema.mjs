@@ -7,7 +7,19 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 
 export const BUNDLE_CONTRACT_ID = "com.openwork.convergence.bundle";
-export const BUNDLE_SCHEMA_VERSION = "1.0.0";
+export const BUNDLE_SCHEMA_VERSION = "1.1.0";
+
+/**
+ * 显式支持的 opencode.* 合并子字段（与 v0.17.30 opencode.json 一字不差对齐）。
+ * 其余 opencode.json 可移植顶层字段走通用对象深度合并兜底。
+ * 依据：apps/server/src/portable-opencode.ts:1-11
+ */
+export const OPENCODE_MERGE_FIELDS = ["plugin", "permission", "instructions", "tools", "agent", "mcp"];
+
+/** opencode.* 中按"数组去重"合并的字段 */
+export const OPENCODE_ARRAY_FIELDS = new Set(["plugin", "instructions"]);
+
+/** @typedef {"workspace" | "user"} BundleScope */
 
 /**
  * @typedef {Object} McpServerEntry
@@ -27,11 +39,14 @@ export const BUNDLE_SCHEMA_VERSION = "1.0.0";
  * @property {string} [description]
  * @property {string} [homepage]
  * @property {string} [author]
+ * @property {BundleScope} [scope] C1 新增：作用域，默认 "workspace"
+ * @property {string[]} [dependencies] C1 新增：安装时依赖 bundle id 列表
  * @property {{platform?:string[],runtime?:string[],bundles?:string[]}} [requires]
  * @property {{path:string}[]} [skills]
  * @property {{path:string}[]} [agents]
  * @property {{path:string}[]} [commands]
- * @property {{servers?:Record<string,McpServerEntry>}} [mcp]
+ * @property {{servers?:Record<string,McpServerEntry>}} [mcp] 顶层 mcp.servers（历史格式，installer 平铺写入 opencode.json 的 mcp.<id>）
+ * @property {Record<string, unknown>} [opencode] C1 新增：深度合并到 opencode.json 的配置块（plugin/permission/instructions/tools/agent/mcp 平铺）
  * @property {{tools?:string[],bin?:Record<string,string>}} [cli]
  * @property {{routes?:string[]}} [ui]
  * @property {string} [preinstall]
@@ -89,10 +104,42 @@ export function validateManifest(raw) {
       issues.push("mcp.servers 必须是对象（id -> 配置）");
     }
   }
+  // C1 新增字段校验
+  if (raw.scope !== undefined) {
+    if (raw.scope !== "workspace" && raw.scope !== "user") {
+      issues.push(`scope 必须是 "workspace" 或 "user"，收到: ${JSON.stringify(raw.scope)}`);
+    }
+  }
+  if (raw.dependencies !== undefined) {
+    if (!Array.isArray(raw.dependencies) || raw.dependencies.some((d) => typeof d !== "string")) {
+      issues.push("dependencies 必须是字符串数组");
+    }
+  }
+  if (raw.opencode !== undefined) {
+    if (typeof raw.opencode !== "object" || Array.isArray(raw.opencode)) {
+      issues.push("opencode 必须是对象");
+    } else {
+      // 数组类字段（plugin / instructions）必须是字符串数组
+      for (const f of OPENCODE_ARRAY_FIELDS) {
+        const v = raw.opencode[f];
+        if (v !== undefined && (!Array.isArray(v) || v.some((x) => typeof x !== "string"))) {
+          issues.push(`opencode.${f} 必须是字符串数组`);
+        }
+      }
+      // 对象类字段必须是对象
+      for (const f of ["permission", "tools", "agent", "mcp"]) {
+        const v = raw.opencode[f];
+        if (v !== undefined && (typeof v !== "object" || Array.isArray(v))) {
+          issues.push(`opencode.${f} 必须是对象`);
+        }
+      }
+    }
+  }
   if (issues.length > 0) throw new BundleValidationError(issues);
   return /** @type {BundleManifest} */ ({
     schemaVersion: raw.schemaVersion ?? BUNDLE_SCHEMA_VERSION,
     contractId: raw.contractId ?? BUNDLE_CONTRACT_ID,
+    scope: raw.scope ?? "workspace",
     ...raw,
   });
 }

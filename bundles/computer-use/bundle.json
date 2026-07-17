@@ -1,13 +1,20 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "contractId": "com.openwork.convergence.bundle",
   "id": "computer-use",
   "name": "RPA / UI 自动化",
   "version": "0.1.0",
   "description": "GUI 自动化 MCP（从 Open Cowork 提取的 gui-operate-mcp）",
+  "scope": "workspace",
+  "dependencies": [],
   "requires": {
     "runtime": ["opencode"],
     "platform": ["desktop"]
+  },
+  "opencode": {
+    "permission": {
+      "webfetch": "ask"
+    }
   },
   "preinstall": "node ./scripts/init-sandbox.mjs",
   "skills": [
