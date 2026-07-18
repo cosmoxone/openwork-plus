@@ -44,7 +44,7 @@ import {
 import { resolveConnectLinkPublicKeys } from "./connect-link-keys.mjs";
 import { openExternalUrl } from "./open-external.mjs";
 import { fetchAgentContextDiagnosticsResponse } from "./agent-context-diagnostics-fetch.mjs";
-import { runBundleCli } from "./bundle-bridge.mjs";
+import { runBundleCli, resolveInstallSource } from "./bundle-bridge.mjs";
 import {
   applyWindowsTaskbarIcon,
   windowsBrandAppUserModelId,
@@ -2189,6 +2189,54 @@ const desktopCommandHandlers = {
           stale: false,
           error: msg,
         };
+      }
+  },
+  "bundleInstallFromCatalog": async (_event, ...args) => {
+      // P2.3+: install/update from a catalog entry. Resolve the entry to a
+      // local source (builtin path or remote download), then delegate to the
+      // existing bundle install CLI path.
+      const opts = args[0] ?? {};
+      const entry = opts.entry;
+      if (!entry || typeof entry.id !== "string") {
+        return { ok: false, error: "bundleInstallFromCatalog requires args.entry.id" };
+      }
+      const workspaceRoot = typeof opts.workspaceRoot === "string" ? opts.workspaceRoot : null;
+      const replace = opts.replace === true;
+      let sourcePath;
+      try {
+        sourcePath = await resolveInstallSource(entry);
+      } catch (err) {
+        const msg = err?.message ?? String(err);
+        console.warn(`[bundleInstallFromCatalog] resolveInstallSource failed for ${entry.id}:`, msg);
+        return { ok: false, error: msg };
+      }
+      console.log(`[bundleInstallFromCatalog] entry=${entry.id} source=${sourcePath} replace=${replace}`);
+      const cliArgs = ["install", sourcePath];
+      if (workspaceRoot) {
+        cliArgs.push("--workspace", workspaceRoot);
+      }
+      if (replace) {
+        cliArgs.push("--replace");
+      }
+      try {
+        const result = await runBundleCli(cliArgs, { timeoutMs: 60_000 });
+        // Normalize: orchestrator returns the success payload directly on
+        // --json success. Wrap into the discriminated union shape the
+        // renderer expects.
+        if (result && result.id) {
+          return {
+            ok: true,
+            id: result.id,
+            version: result.version ?? "0.0.0",
+            createdPaths: Array.isArray(result.createdPaths) ? result.createdPaths : [],
+            addedMcp: Array.isArray(result.addedMcp) ? result.addedMcp : [],
+          };
+        }
+        return { ok: false, error: "orchestrator returned unexpected payload: " + JSON.stringify(result).slice(0, 200) };
+      } catch (err) {
+        const msg = err?.message ?? String(err);
+        console.warn(`[bundleInstallFromCatalog] install failed for ${entry.id}:`, msg);
+        return { ok: false, error: msg };
       }
   },
 };

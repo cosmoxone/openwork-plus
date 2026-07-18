@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "source": "builtin",
-  "generatedAt": "2026-07-18T05:29:45.806Z",
+  "generatedAt": "2026-07-18T08:01:58.550Z",
   "bundles": [
     {
       "id": "computer-use",
@@ -12,7 +12,8 @@
       "featured": false,
       "keywords": [],
       "author": "",
-      "homepage": ""
+      "homepage": "",
+      "sourcePath": "bundles/computer-use"
     },
     {
       "id": "knowledge-mgmt",
@@ -23,7 +24,8 @@
       "featured": false,
       "keywords": [],
       "author": "",
-      "homepage": ""
+      "homepage": "",
+      "sourcePath": "bundles/knowledge-mgmt"
     },
     {
       "id": "test-automation",
@@ -34,7 +36,8 @@
       "featured": false,
       "keywords": [],
       "author": "",
-      "homepage": ""
+      "homepage": "",
+      "sourcePath": "bundles/test-automation"
     }
   ]
 }

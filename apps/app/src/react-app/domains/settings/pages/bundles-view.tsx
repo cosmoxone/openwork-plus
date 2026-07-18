@@ -24,7 +24,7 @@ import {
 } from "../settings-layout";
 import { BundleCard } from "../bundles/components/bundle-card";
 import { BundleCatalogCard } from "../bundles/components/bundle-catalog-card";
-import { useBundleCatalog, useBundles, useInstallBundle, useUninstallBundle } from "../bundles/use-bundles";
+import { useBundleCatalog, useBundles, useInstallBundle, useInstallFromCatalog, useUninstallBundle } from "../bundles/use-bundles";
 
 export type BundlesViewProps = {
   /** Active workspace root; empty/null → user scope. */
@@ -48,6 +48,7 @@ export function BundlesView(props: BundlesViewProps) {
   const catalogQuery = useBundleCatalog({ workspaceRoot });
 
   const installMutation = useInstallBundle();
+  const installFromCatalogMutation = useInstallFromCatalog();
   const uninstallMutation = useUninstallBundle();
 
   const [filter, setFilter] = useState<CatalogFilter>("all");
@@ -97,13 +98,45 @@ export function BundlesView(props: BundlesViewProps) {
    * when source is "builtin" — but we don't yet have a stable mapping from
    * catalog id to on-disk path, so we surface a TODO toast and fall back to
    * the zip flow. P2.5 will add directory install. */
-  const handleInstallFromCatalog = async (entry: BundleCatalogEntry) => {
-    // Builtin bundles currently ship as sources under <repo>/bundles/<id>/.
-    // In dev that path exists; in packaged builds we'd need a separate
-    // mechanism. For now, surface the limitation honestly.
-    toast.error(t("settings.bundles.catalog_install_unavailable_title"), {
-      description: t("settings.bundles.catalog_install_unavailable_hint", { id: entry.id }),
+  const handleInstallFromCatalog = async (entry: BundleCatalogEntry, replace = false) => {
+    // Clear any previous error for this id.
+    setActionErrors((prev) => {
+      if (!prev[entry.id]) return prev;
+      const next = { ...prev };
+      delete next[entry.id];
+      return next;
     });
+    try {
+      const result = await installFromCatalogMutation.mutateAsync({
+        entry: {
+          id: entry.id,
+          sourcePath: entry.sourcePath ?? null,
+          downloadUrl: entry.downloadUrl ?? null,
+        },
+        workspaceRoot,
+        replace,
+      });
+      if (result.ok) {
+        toast.success(
+          replace
+            ? t("settings.bundles.update_succeeded", { id: result.id, version: result.version })
+            : t("settings.bundles.install_succeeded", { id: result.id, version: result.version }),
+        );
+      } else {
+        setActionErrors((prev) => ({ ...prev, [entry.id]: result.error }));
+        toast.error(
+          replace ? t("settings.bundles.update_failed") : t("settings.bundles.install_failed"),
+          { description: result.error },
+        );
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setActionErrors((prev) => ({ ...prev, [entry.id]: msg }));
+      toast.error(
+        replace ? t("settings.bundles.update_failed") : t("settings.bundles.install_failed"),
+        { description: msg },
+      );
+    }
   };
 
   const handleUninstall = async (bundle: { id: string }) => {
@@ -135,11 +168,21 @@ export function BundlesView(props: BundlesViewProps) {
     if (installMutation.isPending && installMutation.variables) {
       return (installMutation.variables as { source?: string }).source ?? null;
     }
+    if (installFromCatalogMutation.isPending && installFromCatalogMutation.variables) {
+      return installFromCatalogMutation.variables.entry?.id ?? null;
+    }
     if (uninstallMutation.isPending && uninstallMutation.variables) {
       return uninstallMutation.variables.id;
     }
     return null;
-  }, [installMutation.isPending, installMutation.variables, uninstallMutation.isPending, uninstallMutation.variables]);
+  }, [
+    installMutation.isPending,
+    installMutation.variables,
+    installFromCatalogMutation.isPending,
+    installFromCatalogMutation.variables,
+    uninstallMutation.isPending,
+    uninstallMutation.variables,
+  ]);
 
   const loading = bundlesQuery.isPending || catalogQuery.isPending;
 
@@ -258,6 +301,7 @@ export function BundlesView(props: BundlesViewProps) {
                 busy={busyId === entry.id}
                 error={actionErrors[entry.id] ?? null}
                 onInstall={(e) => void handleInstallFromCatalog(e)}
+                onUpdate={(e) => void handleInstallFromCatalog(e, true)}
                 onUninstall={(e) => void handleUninstall({ id: e.id })}
               />
             ))}

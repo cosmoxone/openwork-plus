@@ -328,6 +328,27 @@ export type BundleInstallArgs = {
   replace?: boolean;
 };
 
+/**
+ * P2.3+: Install or update from a catalog entry (builtin sourcePath or remote
+ * downloadUrl). The main-process handler resolves the entry to a local source
+ * path (resolving builtin paths via repoRoot/resourcesPath, or downloading
+ * remote zip to a temp file), then delegates to bundleInstall.
+ *
+ * Reuses BundleInstallResult so the renderer can share success/failure
+ * handling with the zip-install path.
+ */
+export type BundleInstallFromCatalogArgs = {
+  /** Catalog entry to install. Only id + sourcePath + downloadUrl are read. */
+  entry: {
+    id: string;
+    sourcePath?: string | null;
+    downloadUrl?: string | null;
+  };
+  workspaceRoot?: string | null;
+  /** Update flow: set true to overwrite existing files. */
+  replace?: boolean;
+};
+
 export type BundleInstallSuccess = {
   ok: true;
   id: string;
@@ -388,6 +409,19 @@ export type BundleCatalogEntry = {
   keywords?: string[];
   author?: string;
   homepage?: string;
+  /**
+   * P2.3+: Local bundle directory path (relative to repo root, or absolute in
+   * packaged builds). When present, the renderer can call
+   * `bundleInstall({ source: sourcePath, replace })` directly without
+   * prompting the user for a zip. Typically only set for builtin entries.
+   */
+  sourcePath?: string | null;
+  /**
+   * P2.3+: Remote zip download URL. When present, the renderer must download
+   * to a temp location before invoking bundleInstall. Typically only set for
+   * remote entries (sourced from a Hub catalog).
+   */
+  downloadUrl?: string | null;
   /** Populated by mergeCatalogView (orchestrator side). */
   installed: boolean;
   installedVersion?: string | null;
@@ -667,6 +701,10 @@ export type DesktopCommandMap = {
   bundleCatalog: {
     args: [args?: BundleCatalogArgs];
     result: BundleCatalogResult;
+  };
+  bundleInstallFromCatalog: {
+    args: [args: BundleInstallFromCatalogArgs];
+    result: BundleInstallResult;
   };
 
   // Window / OS utilities (dunder commands)

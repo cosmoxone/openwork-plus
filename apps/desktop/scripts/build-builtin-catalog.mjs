@@ -67,6 +67,12 @@ async function scanBundles(bundlesDir) {
           : [],
         author: typeof manifest.author === "string" ? manifest.author : "",
         homepage: typeof manifest.homepage === "string" ? manifest.homepage : "",
+        // P2.3+: sourcePath lets the renderer install/update this entry
+        // directly without prompting for a zip. Uses POSIX-style relative
+        // path from repo root (e.g. "bundles/knowledge-mgmt"). At runtime
+        // bundle-bridge.mjs resolves this against the actual repo root or
+        // process.resourcesPath in packaged builds.
+        sourcePath: `bundles/${entry.name}`,
       });
     } catch (err) {
       console.warn(

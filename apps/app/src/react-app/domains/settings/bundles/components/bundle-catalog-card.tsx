@@ -12,10 +12,11 @@ export type BundleCatalogCardProps = {
   busy: boolean;
   /** Per-id error message surfaced from a failed action. */
   error: string | null;
+  /** P2.3: real install handler (no longer a toast stub). */
   onInstall: (entry: BundleCatalogEntry) => void;
-  onUninstall: (entry: BundleCatalogEntry) => void;
-  /** Optional: invoked when status === "update_available". Defaults to install. */
+  /** P2.3: real update handler (replace: true install). Falls back to onInstall. */
   onUpdate?: (entry: BundleCatalogEntry) => void;
+  onUninstall: (entry: BundleCatalogEntry) => void;
 };
 
 /**
@@ -29,8 +30,12 @@ export type BundleCatalogCardProps = {
  * Layout mirrors BundleCard so the two can coexist visually.
  */
 export function BundleCatalogCard(props: BundleCatalogCardProps) {
-  const { entry, busy, error, onInstall, onUninstall, onUpdate } = props;
+  const { entry, busy, error, onInstall, onUpdate, onUninstall } = props;
   const featured = entry.featured === true;
+  // P2.3: when entry has no installable source, the action is disabled and
+  // the user must fall back to "Install from zip" with a manually-provided
+  // archive. This is now a UI signal rather than a hard error.
+  const canInstallDirectly = Boolean(entry.sourcePath || entry.downloadUrl);
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-dls-border bg-dls-surface p-4">
@@ -83,7 +88,7 @@ export function BundleCatalogCard(props: BundleCatalogCardProps) {
         <p className="text-[11px] text-destructive">{error}</p>
       )}
 
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-1">
         {entry.status === "installed" && (
           <Button
             variant="outline"
@@ -99,22 +104,24 @@ export function BundleCatalogCard(props: BundleCatalogCardProps) {
           <Button
             variant="default"
             size="sm"
-            disabled={busy}
+            disabled={busy || !canInstallDirectly}
+            title={!canInstallDirectly ? t("settings.bundles.no_direct_install_hint") : undefined}
             onClick={() => onInstall(entry)}
           >
             {busy ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-            {t("settings.bundles.install")}
+            {canInstallDirectly ? t("settings.bundles.install") : t("settings.bundles.zip_only")}
           </Button>
         )}
         {entry.status === "update_available" && (
           <Button
             variant="default"
             size="sm"
-            disabled={busy}
+            disabled={busy || !canInstallDirectly}
+            title={!canInstallDirectly ? t("settings.bundles.no_direct_install_hint") : undefined}
             onClick={() => (onUpdate ?? onInstall)(entry)}
           >
             {busy ? <Loader2 size={12} className="animate-spin" /> : <ArrowUpCircle size={12} />}
-            {t("settings.bundles.update")}
+            {canInstallDirectly ? t("settings.bundles.update") : t("settings.bundles.zip_only")}
           </Button>
         )}
       </div>

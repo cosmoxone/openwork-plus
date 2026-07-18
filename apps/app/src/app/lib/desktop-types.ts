@@ -10,6 +10,7 @@ export type {
   BrandIconApplyResult,
   BrandIconState,
   BundleInstallArgs,
+  BundleInstallFromCatalogArgs,
   BundleInstallResult,
   BundleInstalledEntry,
   BundleCatalogArgs,

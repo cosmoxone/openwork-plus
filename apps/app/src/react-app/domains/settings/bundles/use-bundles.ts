@@ -13,6 +13,7 @@ import type {
   BundleCatalogArgs,
   BundleCatalogResult,
   BundleInstallArgs,
+  BundleInstallFromCatalogArgs,
   BundleInstallResult,
   BundleListOptions,
   BundleListResult,
@@ -62,6 +63,27 @@ export function useInstallBundle() {
     onSuccess: (result) => {
       // Only invalidate on success; failure keeps the list stable so the
       // caller can show the error alongside current state.
+      if (result.ok) {
+        void qc.invalidateQueries({ queryKey: ["bundles"] });
+      }
+    },
+  });
+}
+
+/**
+ * P2.3+: Install or update a bundle directly from a catalog entry. Resolves
+ * the entry to a local source on the main-process side (builtin path or
+ * remote download), then runs install. Used by the catalog card's
+ * [Install] / [Update] buttons so users no longer need to manually pick a
+ * zip when the bundle is already in the catalog.
+ *
+ * Caller must pass `replace: true` for the update flow.
+ */
+export function useInstallFromCatalog() {
+  const qc = useQueryClient();
+  return useMutation<BundleInstallResult, Error, BundleInstallFromCatalogArgs>({
+    mutationFn: (args) => desktopBridge.bundleInstallFromCatalog(args),
+    onSuccess: (result) => {
       if (result.ok) {
         void qc.invalidateQueries({ queryKey: ["bundles"] });
       }

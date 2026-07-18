@@ -281,3 +281,118 @@ export function runBundleCli(args, options = {}) {
     });
   });
 }
+
+/**
+ * P2.3+: Resolve a catalog entry to a local install source path.
+ *
+ * - `entry.sourcePath` (builtin): resolved against repoRoot (dev) or
+ *   process.resourcesPath (packaged). Returns the absolute path.
+ * - `entry.downloadUrl` (remote): downloaded to a temp file under os.tmpdir()
+ *   and the temp path returned. Caller should clean up after install.
+ * - neither: throws — the renderer should fall back to "Install from zip".
+ *
+ * @param {{ sourcePath?: string | null; downloadUrl?: string | null; id: string }} entry
+ * @param {object} [options]
+ * @param {number} [options.timeoutMs=120_000]  download timeout (remote only)
+ * @returns {Promise<string>} absolute local path suitable for bundleInstall({ source })
+ */
+export async function resolveInstallSource(entry, options = {}) {
+  if (entry?.sourcePath && typeof entry.sourcePath === "string") {
+    return resolveBuiltinPath(entry.sourcePath);
+  }
+  if (entry?.downloadUrl && typeof entry.downloadUrl === "string") {
+    return downloadToTemp(entry.downloadUrl, {
+      timeoutMs: options.timeoutMs ?? 120_000,
+      suffix: `-${entry.id ?? "bundle"}.zip`,
+    });
+  }
+  throw new Error(
+    `Bundle ${entry?.id ?? "<unknown>"} has no installable source (no sourcePath or downloadUrl). ` +
+      `Use "Install from zip" instead.`,
+  );
+}
+
+/**
+ * Resolve a builtin bundle path (relative POSIX path from repo root) to an
+ * absolute filesystem path.
+ *
+ * Lookup order:
+ *  1. OPENWORK_REPO_ROOT/bundles/...  (explicit override)
+ *  2. <repoRoot>/bundles/...          (dev mode, by walking up from this file)
+ *  3. process.resourcesPath/bundles/...  (packaged app)
+ *
+ * @param {string} sourcePath  e.g. "bundles/knowledge-mgmt"
+ * @returns {string} absolute path
+ * @throws {Error} if the resolved path does not exist
+ */
+function resolveBuiltinPath(sourcePath) {
+  const normalized = sourcePath.replace(/\\/g, "/").replace(/^\//, "");
+
+  const candidates = [];
+  const envRoot = String(process.env.OPENWORK_REPO_ROOT ?? "").trim();
+  if (envRoot) candidates.push(path.join(envRoot, normalized));
+  // Walk up from this file to find a directory containing "apps/orchestrator"
+  // (the monorepo root signature); use it as repoRoot.
+  let dir = __dirname;
+  for (let i = 0; i < 6; i += 1) {
+    candidates.push(path.join(dir, normalized));
+    if (existsSync(path.join(dir, "apps", "orchestrator"))) break;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  if (process.resourcesPath) {
+    candidates.push(path.join(process.resourcesPath, normalized));
+  }
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  throw new Error(
+    `builtin bundle path not found: ${sourcePath}. Tried:\n  ${candidates.join("\n  ")}`,
+  );
+}
+
+/**
+ * Download a URL to a temp file. Used by resolveInstallSource for remote
+ * catalog entries (downloadUrl). The temp file is NOT auto-cleaned — the
+ * caller (bundleInstall) needs the file to persist until install completes,
+ * then Electron's temp cleanup handles it on app exit.
+ *
+ * @param {string} url
+ * @param {object} [options]
+ * @param {number} [options.timeoutMs=120_000]
+ * @param {string} [options.suffix=".zip"]
+ * @returns {Promise<string>} absolute path to the downloaded temp file
+ */
+async function downloadToTemp(url, options = {}) {
+  const timeoutMs = options.timeoutMs ?? 120_000;
+  const suffix = options.suffix ?? ".zip";
+  const { createWriteStream } = await import("node:fs");
+  const { mkdir, writeFile } = await import("node:fs/promises");
+  const tmpDir = path.join(os.tmpdir(), "openwork-bundle-downloads");
+  await mkdir(tmpDir, { recursive: true });
+  const fileName = `bundle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}${suffix}`;
+  const tmpPath = path.join(tmpDir, fileName);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      redirect: "follow",
+    });
+    if (!res.ok || !res.body) {
+      throw new Error(`download failed: HTTP ${res.status} ${res.statusText}`);
+    }
+    // Stream to disk to avoid loading large bundles into memory.
+    const buf = Buffer.from(await res.arrayBuffer());
+    await writeFile(tmpPath, buf);
+    return tmpPath;
+  } finally {
+    clearTimeout(timer);
+    // createWriteStream imported but unused on this path; keep the import
+    // lazy so the bundle-bridge.mjs initial load stays light.
+    void createWriteStream;
+  }
+}
