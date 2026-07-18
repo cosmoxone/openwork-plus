@@ -20,6 +20,7 @@
     "check:electron": "node ./scripts/check-electron-bridge.mjs",
     "typecheck:electron": "pnpm --dir ../server exec tsc -p ../desktop/tsconfig.electron.json --noEmit",
     "prepare:sidecar": "node ./scripts/prepare-sidecar.mjs",
+    "build:builtin-catalog": "node ./scripts/build-builtin-catalog.mjs --bundles ../../bundles --outdir ./resources/bundles",
     "test": "node --test electron/agent-context-diagnostics-fetch.test.mjs electron/brand-icon-windows.test.mjs electron/connect-link.test.mjs electron/open-external.test.mjs electron/runtime.test.mjs electron/runtime-ca.test.mjs electron/updater.test.mjs electron/remote-workspace.test.mjs electron/workspace-store.test.mjs"
   },
   "dependencies": {

@@ -2149,6 +2149,48 @@ const desktopCommandHandlers = {
       }
       return { canceled: false, filePath: result.filePaths[0] };
   },
+  "bundleCatalog": async (_event, ...args) => {
+      // P2.1: discoverability layer. Reads the builtin catalog shipped under
+      // apps/desktop/resources/bundles/catalog.builtin.json (built by
+      // `pnpm build:builtin-catalog`), then asks orchestrator to merge with
+      // installed state. remoteUrl is forwarded for P2.2 (no-op for now if
+      // absent — orchestrator just returns builtin+installed view).
+      const opts = args[0] ?? {};
+      // Resolve builtin catalog path. In dev: <desktop>/resources/bundles/;
+      // in packaged app: process.resourcesPath/bundles/.
+      const devBuiltinPath = path.resolve(__dirname, "..", "resources", "bundles", "catalog.builtin.json");
+      const packagedBuiltinPath = path.join(process.resourcesPath ?? "", "bundles", "catalog.builtin.json");
+      const builtinPath = existsSync(devBuiltinPath) ? devBuiltinPath : packagedBuiltinPath;
+
+      const cliArgs = ["catalog"];
+      if (builtinPath) {
+        cliArgs.push("--builtin", builtinPath);
+      }
+      const remoteUrl = typeof opts.remoteUrl === "string" ? opts.remoteUrl.trim() : "";
+      if (remoteUrl) {
+        cliArgs.push("--remote-url", remoteUrl);
+      }
+      if (typeof opts.workspaceRoot === "string" && opts.workspaceRoot.trim()) {
+        cliArgs.push("--workspace", opts.workspaceRoot);
+      }
+      console.log("[bundleCatalog] cliArgs=", JSON.stringify(cliArgs));
+      try {
+        const result = await runBundleCli(cliArgs, { timeoutMs: 30_000 });
+        const entries = Array.isArray(result) ? result : [];
+        return { entries, stale: false };
+      } catch (err) {
+        // Orchestrator missing or builtin path absent → degrade to empty
+        // catalog rather than blocking the UI. The user can still install
+        // via zip (P1 path).
+        const msg = err?.message ?? String(err);
+        console.warn("[bundleCatalog] failed, returning empty catalog:", msg);
+        return {
+          entries: [],
+          stale: false,
+          error: msg,
+        };
+      }
+  },
 };
 
 if (isDevMode) {

@@ -6,6 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { desktopBridge } from "@/app/lib/desktop";
 import type {
+  BundleCatalogEntry,
   BundleInstalledEntry,
   BundleInstallResult,
   BundleUninstallResult,
@@ -22,29 +23,51 @@ import {
   LayoutStack,
 } from "../settings-layout";
 import { BundleCard } from "../bundles/components/bundle-card";
-import { useBundles, useInstallBundle, useUninstallBundle } from "../bundles/use-bundles";
+import { BundleCatalogCard } from "../bundles/components/bundle-catalog-card";
+import { useBundleCatalog, useBundles, useInstallBundle, useUninstallBundle } from "../bundles/use-bundles";
 
 export type BundlesViewProps = {
   /** Active workspace root; empty/null → user scope. */
   selectedWorkspaceRoot: string;
 };
 
+type CatalogFilter = "all" | "installed" | "available";
+
 /**
- * Bundles settings page (MVP): list installed bundles, install from a local
- * .zip, and uninstall. Backed by `ow bundle` CLI through the desktop IPC
- * bridge. See docs/38-bundle-ui-port-design.md for the full design.
+ * Bundles settings page (P2.1): catalog browse + installed list + zip install.
+ * Filter tabs switch between catalog view (all/installed/available) and the
+ * action bar still offers the zip install escape hatch. Backed by `ow bundle`
+ * CLI through the desktop IPC bridge. See docs/38-bundle-ui-port-design.md.
  */
 export function BundlesView(props: BundlesViewProps) {
   const workspaceRoot = props.selectedWorkspaceRoot?.trim() || null;
-  const { data, isPending, isError, error, refetch } = useBundles({ workspaceRoot });
+
+  // Installed list (used by "Installed" tab and to refresh catalog status).
+  const bundlesQuery = useBundles({ workspaceRoot });
+  // Catalog (builtin + installed merge); refetches when bundles invalidate.
+  const catalogQuery = useBundleCatalog({ workspaceRoot });
+
   const installMutation = useInstallBundle();
   const uninstallMutation = useUninstallBundle();
 
-  // Per-id error messages surfaced from failed uninstall attempts. Cleared
-  // when the user retries or when the list refreshes.
-  const [uninstallErrors, setUninstallErrors] = useState<Record<string, string>>({});
+  const [filter, setFilter] = useState<CatalogFilter>("all");
+  const [actionErrors, setActionErrors] = useState<Record<string, string>>({});
 
-  const installed: BundleInstalledEntry[] = data?.installed ?? [];
+  const installed: BundleInstalledEntry[] = bundlesQuery.data?.installed ?? [];
+  const catalogEntries: BundleCatalogEntry[] = catalogQuery.data?.entries ?? [];
+  const catalogStale = catalogQuery.data?.stale === true;
+  const catalogError = catalogQuery.data?.error ?? null;
+
+  const visibleEntries = useMemo(() => {
+    if (filter === "installed") return catalogEntries.filter((e) => e.installed);
+    if (filter === "available") return catalogEntries.filter((e) => !e.installed);
+    return catalogEntries;
+  }, [catalogEntries, filter]);
+
+  const updateCount = useMemo(
+    () => catalogEntries.filter((e) => e.status === "update_available").length,
+    [catalogEntries],
+  );
 
   const handleInstallFromZip = async () => {
     try {
@@ -59,21 +82,32 @@ export function BundlesView(props: BundlesViewProps) {
           t("settings.bundles.install_succeeded", { id: result.id, version: result.version }),
         );
       } else {
-        // Failure is not a throw — the IPC layer reports business errors
-        // (missing deps, conflicts) via { ok: false, error } so they surface
-        // as actionable UI rather than a generic toast.
         toast.error(t("settings.bundles.install_failed"), { description: result.error });
       }
     } catch (err) {
-      // Network/IPC/parse failure (e.g. orchestrator binary missing).
       toast.error(t("settings.bundles.install_failed"), {
         description: err instanceof Error ? err.message : String(err),
       });
     }
   };
 
-  const handleUninstall = async (bundle: BundleInstalledEntry) => {
-    setUninstallErrors((prev) => {
+  /** Install a catalog entry by routing it through zip install if a builtin
+   * bundle zip is available, otherwise prompting the user. For MVP+catalog we
+   * rely on the orchestrator being able to install from the bundle directory
+   * when source is "builtin" — but we don't yet have a stable mapping from
+   * catalog id to on-disk path, so we surface a TODO toast and fall back to
+   * the zip flow. P2.5 will add directory install. */
+  const handleInstallFromCatalog = async (entry: BundleCatalogEntry) => {
+    // Builtin bundles currently ship as sources under <repo>/bundles/<id>/.
+    // In dev that path exists; in packaged builds we'd need a separate
+    // mechanism. For now, surface the limitation honestly.
+    toast.error(t("settings.bundles.catalog_install_unavailable_title"), {
+      description: t("settings.bundles.catalog_install_unavailable_hint", { id: entry.id }),
+    });
+  };
+
+  const handleUninstall = async (bundle: { id: string }) => {
+    setActionErrors((prev) => {
       if (!prev[bundle.id]) return prev;
       const next = { ...prev };
       delete next[bundle.id];
@@ -87,10 +121,10 @@ export function BundlesView(props: BundlesViewProps) {
       if (result.ok) {
         toast.success(t("settings.bundles.uninstall_succeeded", { id: result.id }));
       } else {
-        setUninstallErrors((prev) => ({ ...prev, [bundle.id]: result.error }));
+        setActionErrors((prev) => ({ ...prev, [bundle.id]: result.error }));
       }
     } catch (err) {
-      setUninstallErrors((prev) => ({
+      setActionErrors((prev) => ({
         ...prev,
         [bundle.id]: err instanceof Error ? err.message : String(err),
       }));
@@ -98,14 +132,16 @@ export function BundlesView(props: BundlesViewProps) {
   };
 
   const busyId = useMemo(() => {
-    // Only one mutation at a time per card; tracked by checking mutation
-    // variables. Both install and uninstall are sequential (one click = one
-    // mutation), so we don't need a more sophisticated busy map.
+    if (installMutation.isPending && installMutation.variables) {
+      return (installMutation.variables as { source?: string }).source ?? null;
+    }
     if (uninstallMutation.isPending && uninstallMutation.variables) {
       return uninstallMutation.variables.id;
     }
     return null;
-  }, [uninstallMutation.isPending, uninstallMutation.variables]);
+  }, [installMutation.isPending, installMutation.variables, uninstallMutation.isPending, uninstallMutation.variables]);
+
+  const loading = bundlesQuery.isPending || catalogQuery.isPending;
 
   return (
     <LayoutStack>
@@ -139,29 +175,90 @@ export function BundlesView(props: BundlesViewProps) {
           </LayoutSectionItemHeaderActions>
         </LayoutSectionItemHeader>
 
-        {isError && (
+        {/* Filter tabs (segmented control). Simple inline implementation to
+            avoid pulling in a shadcn Tabs dependency; same a11y semantics as
+            a button group with aria-pressed. */}
+        <div className="flex items-center gap-1 rounded-lg border border-dls-border bg-dls-surface p-1">
+          {(["all", "installed", "available"] as const).map((key) => {
+            const isOn = filter === key;
+            const label = t(`settings.bundles.filter_${key}`);
+            const badge =
+              key === "installed"
+                ? installed.length
+                : key === "available"
+                  ? catalogEntries.length - installed.length
+                  : catalogEntries.length;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={isOn}
+                onClick={() => setFilter(key)}
+                className={
+                  "flex items-center gap-1.5 rounded-md px-3 py-1 text-[12px] font-medium transition-colors " +
+                  (isOn
+                    ? "bg-dls-hover text-dls-text"
+                    : "text-dls-secondary hover:text-dls-text")
+                }
+              >
+                {label}
+                <span className="rounded bg-dls-hover px-1 text-[10px] text-dls-secondary">
+                  {badge}
+                </span>
+                {key === "all" && updateCount > 0 && (
+                  <span className="rounded-full bg-amber-500 px-1.5 text-[10px] font-semibold text-white">
+                    {updateCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {catalogStale && (
+          <Alert>
+            <AlertDescription>{t("settings.bundles.catalog_stale")}</AlertDescription>
+          </Alert>
+        )}
+        {catalogError && !catalogStale && (
           <Alert variant="destructive">
             <AlertDescription>
-              {error instanceof Error ? error.message : t("settings.bundles.load_failed")}
+              {t("settings.bundles.catalog_error")}: {catalogError}
             </AlertDescription>
           </Alert>
         )}
 
-        {isPending ? (
+        {loading ? (
           <div className="flex items-center justify-center py-8 text-dls-secondary">
             <Loader2 size={16} className="animate-spin" />
           </div>
-        ) : installed.length === 0 ? (
-          <EmptyState onRefresh={() => void refetch()} />
-        ) : (
+        ) : filter === "installed" && installed.length === 0 ? (
+          <EmptyState onRefresh={() => void bundlesQuery.refetch()} />
+        ) : visibleEntries.length === 0 ? (
+          <EmptyState onRefresh={() => void catalogQuery.refetch()} />
+        ) : filter === "installed" ? (
+          // Installed tab uses the legacy card (shows install date / target root).
           <div className="grid gap-3 md:grid-cols-2">
             {installed.map((bundle) => (
               <BundleCard
                 key={bundle.id}
                 bundle={bundle}
                 busy={busyId === bundle.id}
-                error={uninstallErrors[bundle.id] ?? null}
+                error={actionErrors[bundle.id] ?? null}
                 onUninstall={(b) => void handleUninstall(b)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {visibleEntries.map((entry) => (
+              <BundleCatalogCard
+                key={entry.id}
+                entry={entry}
+                busy={busyId === entry.id}
+                error={actionErrors[entry.id] ?? null}
+                onInstall={(e) => void handleInstallFromCatalog(e)}
+                onUninstall={(e) => void handleUninstall({ id: e.id })}
               />
             ))}
           </div>

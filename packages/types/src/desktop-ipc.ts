@@ -372,6 +372,45 @@ export type BundlePickFileResult =
   | { canceled: true }
   | { canceled: false; filePath: string };
 
+// ---------------------------------------------------------------------------
+// Bundle catalog (P2.1) — discoverability layer on top of install/uninstall.
+// ---------------------------------------------------------------------------
+
+export type BundleCatalogEntry = {
+  id: string;
+  name: string;
+  version: string;
+  description?: string;
+  /** Origin of the entry; "builtin" ships with the app, "remote" is fetched. */
+  source: "builtin" | "remote" | "local";
+  scope?: "workspace" | "user";
+  featured?: boolean;
+  keywords?: string[];
+  author?: string;
+  homepage?: string;
+  /** Populated by mergeCatalogView (orchestrator side). */
+  installed: boolean;
+  installedVersion?: string | null;
+  installedAt?: string | null;
+  updateAvailable: boolean;
+  status: "installed" | "available" | "update_available";
+};
+
+export type BundleCatalogArgs = {
+  /** Active workspace root; pass null/undefined for user scope. */
+  workspaceRoot?: string | null;
+  /** Remote catalog URL (P2.2); null/undefined = builtin only. */
+  remoteUrl?: string | null;
+};
+
+export type BundleCatalogResult = {
+  entries: BundleCatalogEntry[];
+  /** True when remote fetch failed and we fell back to cached data. */
+  stale: boolean;
+  /** Present when stale=true or partial failure. */
+  error?: string;
+};
+
 export type DesktopFetchInit = {
   method?: string;
   headers?: Record<string, string>;
@@ -624,6 +663,10 @@ export type DesktopCommandMap = {
   bundlePickFile: {
     args: [options?: BundlePickFileOptions];
     result: BundlePickFileResult;
+  };
+  bundleCatalog: {
+    args: [args?: BundleCatalogArgs];
+    result: BundleCatalogResult;
   };
 
   // Window / OS utilities (dunder commands)

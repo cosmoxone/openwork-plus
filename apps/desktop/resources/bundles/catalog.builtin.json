@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "builtin",
+  "generatedAt": "2026-07-18T05:29:45.806Z",
+  "bundles": [
+    {
+      "id": "computer-use",
+      "name": "RPA / UI 自动化",
+      "version": "0.1.0",
+      "description": "GUI 自动化 MCP（从 Open Cowork 提取的 gui-operate-mcp）",
+      "scope": "workspace",
+      "featured": false,
+      "keywords": [],
+      "author": "",
+      "homepage": ""
+    },
+    {
+      "id": "knowledge-mgmt",
+      "name": "个人知识库（LLM Wiki）",
+      "version": "0.5.0",
+      "description": "LLM Wiki：扫描/ingest/lint/混合检索 + watch + 快照备份（Hub 离线 vendor）",
+      "scope": "workspace",
+      "featured": false,
+      "keywords": [],
+      "author": "",
+      "homepage": ""
+    },
+    {
+      "id": "test-automation",
+      "name": "测试自动化控制台",
+      "version": "0.1.0",
+      "description": "AI 辅助测试工作流：生成用例、分析失败、跟踪趋势",
+      "scope": "workspace",
+      "featured": false,
+      "keywords": [],
+      "author": "",
+      "homepage": ""
+    }
+  ]
+}

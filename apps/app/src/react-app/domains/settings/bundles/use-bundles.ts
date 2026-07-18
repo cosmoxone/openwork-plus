@@ -1,5 +1,5 @@
 /**
- * React Query hooks wrapping the bundle IPC bridge (bundleList/Install/Uninstall).
+ * React Query hooks wrapping the bundle IPC bridge (bundleList/Install/Uninstall/Catalog).
  *
  * The IPC layer is a Proxy on `desktopBridge`, so per-command invokers are
  * typed via DesktopCommandMap (see packages/types/src/desktop-ipc.ts). All
@@ -10,6 +10,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { desktopBridge } from "@/app/lib/desktop";
 import type {
+  BundleCatalogArgs,
+  BundleCatalogResult,
   BundleInstallArgs,
   BundleInstallResult,
   BundleListOptions,
@@ -21,6 +23,9 @@ import { isDesktopRuntime } from "@/app/utils";
 
 export const bundlesQueryKey = (workspaceRoot: string | null) =>
   ["bundles", "list", workspaceRoot ?? "user"] as const;
+
+export const bundleCatalogQueryKey = (workspaceRoot: string | null, remoteUrl: string | null) =>
+  ["bundles", "catalog", workspaceRoot ?? "user", remoteUrl ?? "builtin"] as const;
 
 /**
  * Fetch installed bundles. When `workspaceRoot` is null/empty, the orchestrator
@@ -77,5 +82,30 @@ export function useUninstallBundle() {
         void qc.invalidateQueries({ queryKey: ["bundles"] });
       }
     },
+  });
+}
+
+/**
+ * Fetch the bundle catalog (builtin + installed merge). P2.1: builtin only
+ * unless `remoteUrl` is provided (P2.2 will wire the URL input).
+ *
+ * Stays in the same ["bundles", ...] query namespace so install/uninstall
+ * mutations invalidate it automatically alongside the installed list.
+ */
+export function useBundleCatalog(options: BundleCatalogArgs = {}) {
+  const workspaceRoot =
+    typeof options.workspaceRoot === "string" && options.workspaceRoot.trim()
+      ? options.workspaceRoot.trim()
+      : null;
+  const remoteUrl =
+    typeof options.remoteUrl === "string" && options.remoteUrl.trim()
+      ? options.remoteUrl.trim()
+      : null;
+  return useQuery<BundleCatalogResult>({
+    queryKey: bundleCatalogQueryKey(workspaceRoot, remoteUrl),
+    queryFn: () => desktopBridge.bundleCatalog({ workspaceRoot, remoteUrl }),
+    enabled: isDesktopRuntime(),
+    staleTime: Infinity,
+    retry: false,
   });
 }
