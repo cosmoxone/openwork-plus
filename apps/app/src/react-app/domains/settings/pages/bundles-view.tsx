@@ -1,6 +1,6 @@
 /** @jsxImportSource react */
 import { useMemo, useState } from "react";
-import { Loader2, Package, Upload } from "lucide-react";
+import { Download, Loader2, Package, RefreshCw, Upload } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import type {
   BundleCatalogEntry,
   BundleInstalledEntry,
   BundleInstallResult,
+  BundlePackArgs,
   BundleUninstallResult,
 } from "@/app/lib/desktop-types";
 import { isDesktopRuntime } from "@/app/utils";
@@ -25,6 +26,7 @@ import {
 } from "../settings-layout";
 import { BundleCard } from "../bundles/components/bundle-card";
 import { BundleCatalogCard } from "../bundles/components/bundle-catalog-card";
+import { validateCatalogUrl } from "../bundles/catalog-url-policy";
 import {
   readBundleCatalogUrl,
   readBundleInstallScope,
@@ -32,6 +34,7 @@ import {
   useBundles,
   useInstallBundle,
   useInstallFromCatalog,
+  usePackBundle,
   useUninstallBundle,
   writeBundleCatalogUrl,
   writeBundleInstallScope,
@@ -43,6 +46,68 @@ export type BundlesViewProps = {
 };
 
 type CatalogFilter = "all" | "installed" | "available";
+
+type ExportTarget = {
+  id: string;
+  version: string;
+  sourcePath?: string | null;
+  downloadUrl?: string | null;
+  bundleRoot?: string | null;
+};
+
+function catalogEntryExportable(
+  entry: BundleCatalogEntry,
+  _installedById: Map<string, BundleInstalledEntry>,
+): boolean {
+  if (!entry.installed) return false;
+  return Boolean(entry.sourcePath || entry.downloadUrl);
+}
+
+function installedEntryExportable(
+  bundle: BundleInstalledEntry,
+  catalogById: Map<string, BundleCatalogEntry>,
+): boolean {
+  const catalog = catalogById.get(bundle.id);
+  return Boolean(catalog?.sourcePath || catalog?.downloadUrl);
+}
+
+function buildExportTarget(
+  entry: Pick<
+    BundleCatalogEntry,
+    "id" | "version" | "sourcePath" | "downloadUrl"
+  >,
+  installed?: BundleInstalledEntry | null,
+): ExportTarget {
+  const hasCatalogSource = Boolean(entry.sourcePath || entry.downloadUrl);
+  return {
+    id: entry.id,
+    version: installed?.version ?? entry.version,
+    sourcePath: entry.sourcePath ?? null,
+    downloadUrl: entry.downloadUrl ?? null,
+    // Staged install dir (vendor/scripts) is not a packable bundle tree.
+    bundleRoot: hasCatalogSource ? null : (installed?.bundleRoot ?? null),
+  };
+}
+
+function buildPackArgs(target: ExportTarget, output: string): BundlePackArgs {
+  // Prefer catalog resolution — install receipt bundleRoot is runtime-only.
+  if (target.sourcePath || target.downloadUrl) {
+    return {
+      catalogEntry: {
+        id: target.id,
+        version: target.version,
+        sourcePath: target.sourcePath ?? null,
+        downloadUrl: target.downloadUrl ?? null,
+      },
+      installedId: target.id,
+      output,
+    };
+  }
+  if (target.bundleRoot) {
+    return { bundleDir: target.bundleRoot, output };
+  }
+  return { installedId: target.id, output };
+}
 
 /**
  * Bundles settings page (P2.1): catalog browse + installed list + zip install.
@@ -65,14 +130,16 @@ export function BundlesView(props: BundlesViewProps) {
   // Resolve effective workspaceRoot for install/uninstall based on scope.
   const effectiveWorkspaceRoot = installScope === "workspace" ? workspaceRoot : null;
 
-  // Installed list (used by "Installed" tab and to refresh catalog status).
+  // Installed list + catalog merge always use the **selected workspace** so the
+  // user sees the full picture for this workspace. Install/uninstall alone
+  // respect the scope radio (effectiveWorkspaceRoot). See
+  // cosmoxwork-docs/.../2026-07-18-n6-bundle-phase2-issues-and-decisions.md.
   const bundlesQuery = useBundles({ workspaceRoot });
-  // Catalog (builtin + installed merge); refetches when bundles invalidate
-  // OR when savedRemoteUrl changes (P2.2).
   const catalogQuery = useBundleCatalog({ workspaceRoot, remoteUrl: savedRemoteUrl });
 
   const installMutation = useInstallBundle();
   const installFromCatalogMutation = useInstallFromCatalog();
+  const packMutation = usePackBundle();
   const uninstallMutation = useUninstallBundle();
 
   const [filter, setFilter] = useState<CatalogFilter>("all");
@@ -94,10 +161,33 @@ export function BundlesView(props: BundlesViewProps) {
     [catalogEntries],
   );
 
+  const installedById = useMemo(
+    () => new Map(installed.map((bundle) => [bundle.id, bundle])),
+    [installed],
+  );
+  const catalogById = useMemo(
+    () => new Map(catalogEntries.map((entry) => [entry.id, entry])),
+    [catalogEntries],
+  );
+
+  const exportBusyId = packMutation.isPending
+    ? packMutation.variables?.catalogEntry?.id ??
+      packMutation.variables?.installedId ??
+      null
+    : null;
+
   const handleInstallFromZip = async (fromDirectory = false) => {
     try {
       const picked = await desktopBridge.bundlePickFile(
-        fromDirectory ? { directory: true } : { extensions: ["zip"] },
+        fromDirectory
+          ? {
+              directory: true,
+              title: t("settings.bundles.install_pick_folder_title"),
+            }
+          : {
+              extensions: ["zip"],
+              title: t("settings.bundles.install_pick_zip_title"),
+            },
       );
       if (picked.canceled) return;
       const result: BundleInstallResult = await installMutation.mutateAsync({
@@ -117,12 +207,7 @@ export function BundlesView(props: BundlesViewProps) {
     }
   };
 
-  /** Install a catalog entry by routing it through zip install if a builtin
-   * bundle zip is available, otherwise prompting the user. For MVP+catalog we
-   * rely on the orchestrator being able to install from the bundle directory
-   * when source is "builtin" — but we don't yet have a stable mapping from
-   * catalog id to on-disk path, so we surface a TODO toast and fall back to
-   * the zip flow. P2.5 will add directory install. */
+  /** Install or update directly from a builtin/remote catalog entry. */
   const handleInstallFromCatalog = async (entry: BundleCatalogEntry, replace = false) => {
     // Clear any previous error for this id.
     setActionErrors((prev) => {
@@ -191,16 +276,138 @@ export function BundlesView(props: BundlesViewProps) {
 
   const handleSaveRemoteUrl = () => {
     const trimmed = draftUrl.trim();
-    // Basic validation: must be http(s)://
-    if (trimmed && !/^https?:\/\//i.test(trimmed)) {
-      toast.error(t("settings.bundles.remote_url_invalid"));
+    let normalizedUrl: string | null = null;
+    if (trimmed) {
+      const validation = validateCatalogUrl(trimmed, {
+        allowInsecure: import.meta.env.DEV,
+      });
+      if (!validation.ok) {
+        toast.error(t(`settings.bundles.remote_url_invalid_${validation.reason}`));
+        return;
+      }
+      normalizedUrl = validation.normalizedUrl;
+    }
+    writeBundleCatalogUrl(normalizedUrl);
+    setDraftUrl(normalizedUrl ?? "");
+    setSavedRemoteUrl(normalizedUrl);
+    toast.success(
+      normalizedUrl
+        ? t("settings.bundles.remote_url_saved")
+        : t("settings.bundles.remote_url_cleared"),
+    );
+  };
+
+  const formatExportError = (message: string) => {
+    const needsRestart =
+      message.includes("args.bundleDir") ||
+      message.includes("bundleDir, catalogEntry, or installedId");
+    return needsRestart ? `${message} ${t("settings.bundles.export_restart_hint")}` : message;
+  };
+
+  const runExportPack = async (target: ExportTarget) => {
+    try {
+      const pickedOutput = await desktopBridge.bundlePickSave({
+        defaultFileName: `${target.id}-${target.version}.zip`,
+        title: t("settings.bundles.export_save_title"),
+      });
+      if (pickedOutput.canceled) return;
+
+      const result = await packMutation.mutateAsync(
+        buildPackArgs(target, pickedOutput.filePath),
+      );
+      if (result.ok) {
+        toast.success(
+          t("settings.bundles.export_succeeded", {
+            id: result.id,
+            version: result.version,
+          }),
+          { description: result.output },
+        );
+      } else {
+        toast.error(t("settings.bundles.export_failed"), {
+          description: formatExportError(result.error),
+        });
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(t("settings.bundles.export_failed"), {
+        description: formatExportError(message),
+      });
+    }
+  };
+
+  const handleExportCatalogEntry = (entry: BundleCatalogEntry) => {
+    if (!entry.installed) return;
+    if (!catalogEntryExportable(entry, installedById)) {
+      toast.error(t("settings.bundles.export_failed"), {
+        description: t("settings.bundles.no_export_hint"),
+      });
       return;
     }
-    writeBundleCatalogUrl(trimmed ? trimmed : null);
-    setSavedRemoteUrl(trimmed ? trimmed : null);
-    toast.success(
-      trimmed ? t("settings.bundles.remote_url_saved") : t("settings.bundles.remote_url_cleared"),
+    void runExportPack(
+      buildExportTarget(entry, installedById.get(entry.id) ?? null),
     );
+  };
+
+  const handleExportInstalled = (bundle: BundleInstalledEntry) => {
+    if (!installedEntryExportable(bundle, catalogById)) {
+      toast.error(t("settings.bundles.export_failed"), {
+        description: t("settings.bundles.no_export_hint"),
+      });
+      return;
+    }
+    const catalog = catalogById.get(bundle.id);
+    void runExportPack(
+      buildExportTarget(
+        {
+          id: bundle.id,
+          version: bundle.version,
+          sourcePath: catalog?.sourcePath ?? null,
+          downloadUrl: catalog?.downloadUrl ?? null,
+        },
+        bundle,
+      ),
+    );
+  };
+
+  /** Advanced: pick a bundle source folder manually (must contain a manifest). */
+  const handleExportFromFolder = async () => {
+    try {
+      const pickedDirectory = await desktopBridge.bundlePickFile({
+        directory: true,
+        title: t("settings.bundles.export_pick_source_title"),
+      });
+      if (pickedDirectory.canceled) return;
+
+      const pickedOutput = await desktopBridge.bundlePickSave({
+        defaultFileName: "bundle.zip",
+        title: t("settings.bundles.export_save_title"),
+      });
+      if (pickedOutput.canceled) return;
+
+      const result = await packMutation.mutateAsync({
+        bundleDir: pickedDirectory.filePath,
+        output: pickedOutput.filePath,
+      });
+      if (result.ok) {
+        toast.success(
+          t("settings.bundles.export_succeeded", {
+            id: result.id,
+            version: result.version,
+          }),
+          { description: result.output },
+        );
+      } else {
+        toast.error(t("settings.bundles.export_failed"), {
+          description: formatExportError(result.error),
+        });
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast.error(t("settings.bundles.export_failed"), {
+        description: formatExportError(message),
+      });
+    }
   };
 
   const busyId = useMemo(() => {
@@ -263,6 +470,18 @@ export function BundlesView(props: BundlesViewProps) {
             >
               <Upload size={12} />
               {t("settings.bundles.install_from_dir")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!isDesktopRuntime() || catalogQuery.isFetching}
+              onClick={() => void catalogQuery.refetch()}
+            >
+              <RefreshCw
+                size={12}
+                className={catalogQuery.isFetching ? "animate-spin" : undefined}
+              />
+              {t("settings.bundles.check_updates")}
             </Button>
           </LayoutSectionItemHeaderActions>
         </LayoutSectionItemHeader>
@@ -399,6 +618,25 @@ export function BundlesView(props: BundlesViewProps) {
                 : t("settings.bundles.scope_user_hint")}
             </span>
           </div>
+          <div className="mt-3 flex flex-col gap-2 border-t border-dls-border pt-2">
+            <p className="text-[11px] text-dls-secondary">
+              {t("settings.bundles.export_from_folder_hint")}
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="self-start"
+              disabled={!isDesktopRuntime() || packMutation.isPending}
+              onClick={() => void handleExportFromFolder()}
+            >
+              {packMutation.isPending && !exportBusyId ? (
+                <Loader2 size={12} className="animate-spin" />
+              ) : (
+                <Download size={12} />
+              )}
+              {t("settings.bundles.export_from_folder")}
+            </Button>
+          </div>
         </details>
 
         {loading ? (
@@ -418,6 +656,9 @@ export function BundlesView(props: BundlesViewProps) {
                 bundle={bundle}
                 busy={busyId === bundle.id}
                 error={actionErrors[bundle.id] ?? null}
+                exportable={installedEntryExportable(bundle, catalogById)}
+                exportBusy={exportBusyId === bundle.id}
+                onExport={handleExportInstalled}
                 onUninstall={(b) => void handleUninstall(b)}
               />
             ))}
@@ -430,8 +671,22 @@ export function BundlesView(props: BundlesViewProps) {
                 entry={entry}
                 busy={busyId === entry.id}
                 error={actionErrors[entry.id] ?? null}
+                exportable={catalogEntryExportable(entry, installedById)}
+                exportBusy={exportBusyId === entry.id}
+                onExport={handleExportCatalogEntry}
                 onInstall={(e) => void handleInstallFromCatalog(e)}
-                onUpdate={(e) => void handleInstallFromCatalog(e, true)}
+                onUpdate={(e) => {
+                  if (
+                    window.confirm(
+                      t("settings.bundles.update_confirm", {
+                        id: e.id,
+                        version: e.version,
+                      }),
+                    )
+                  ) {
+                    void handleInstallFromCatalog(e, true);
+                  }
+                }}
                 onUninstall={(e) => void handleUninstall({ id: e.id })}
               />
             ))}

@@ -22,6 +22,14 @@ Install OpenWork on my computer, set up my first workspace, and open it ready to
 2. Creates your workspace
 3. Opens it ready to run
 
+## Bundle management (OpenWork Plus)
+
+In the desktop app, open **Settings → Bundles** to browse builtin or private
+catalogs, install from a zip/folder, choose workspace or user scope, update an
+installed Bundle, or export a local Bundle directory as a shareable zip.
+Private catalog endpoints must use HTTPS and end in `/catalog.json` or
+`/catalog` (development builds also allow `http://localhost`).
+
 ## Use OpenWork from any agent
 
 The OpenWork MCP brings your assigned skills, plugins, MCP connections, Google Workspace, and Microsoft 365 capabilities into any compatible agent.

@@ -17,6 +17,10 @@ import type {
   BundleInstallResult,
   BundleListOptions,
   BundleListResult,
+  BundlePackArgs,
+  BundlePackResult,
+  BundlePickSaveOptions,
+  BundlePickSaveResult,
   BundleUninstallArgs,
   BundleUninstallResult,
 } from "@/app/lib/desktop-types";
@@ -133,13 +137,32 @@ export function useBundleCatalog(options: BundleCatalogArgs = {}) {
 }
 
 /**
- * P2.2: localStorage-backed remote catalog URL. This is a *user preference*
- * (not a workspace property), so we persist it in the renderer's localStorage
- * rather than introduce a new IPC + electron-store. The value lives under
- * `openworkplus.bundleCatalog.remoteUrl`. Returns the current value and a
- * setter that writes through.
+ * P2.4: Pick a save path (.zip) via native save-as dialog. Returns
+ * `{ canceled: true }` if the user dismisses the dialog.
  *
- * Returned `remoteUrl` is null when unset/empty.
+ * Use before calling usePackBundle so the renderer has an explicit output
+ * path to pass through.
+ */
+export function useBundlePickSave() {
+  return useMutation<BundlePickSaveResult, Error, BundlePickSaveOptions>({
+    mutationFn: (opts) => desktopBridge.bundlePickSave(opts),
+  });
+}
+
+/**
+ * P2.4: Pack a bundle directory into a .zip. Caller must first obtain an
+ * output path via useBundlePickSave (or pass null and let the orchestrator
+ * choose, but that path won't be visible to the user).
+ */
+export function usePackBundle() {
+  return useMutation<BundlePackResult, Error, BundlePackArgs>({
+    mutationFn: (args) => desktopBridge.bundlePack(args),
+  });
+}
+
+/**
+ * P2.2: localStorage-backed remote catalog URL. This is a user preference,
+ * not a workspace property. A null value means builtin catalog only.
  */
 export const BUNDLE_CATALOG_URL_KEY = "openworkplus.bundleCatalog.remoteUrl";
 

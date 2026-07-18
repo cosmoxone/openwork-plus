@@ -17,6 +17,10 @@ export type BundleCatalogCardProps = {
   /** P2.3: real update handler (replace: true install). Falls back to onInstall. */
   onUpdate?: (entry: BundleCatalogEntry) => void;
   onUninstall: (entry: BundleCatalogEntry) => void;
+  /** P2.4: one-click export when a resolvable source exists. */
+  exportable?: boolean;
+  exportBusy?: boolean;
+  onExport?: (entry: BundleCatalogEntry) => void;
 };
 
 /**
@@ -30,7 +34,17 @@ export type BundleCatalogCardProps = {
  * Layout mirrors BundleCard so the two can coexist visually.
  */
 export function BundleCatalogCard(props: BundleCatalogCardProps) {
-  const { entry, busy, error, onInstall, onUpdate, onUninstall } = props;
+  const {
+    entry,
+    busy,
+    error,
+    onInstall,
+    onUpdate,
+    onUninstall,
+    exportable = false,
+    exportBusy = false,
+    onExport,
+  } = props;
   const featured = entry.featured === true;
   // P2.3: when entry has no installable source, the action is disabled and
   // the user must fall back to "Install from zip" with a manually-provided
@@ -89,6 +103,17 @@ export function BundleCatalogCard(props: BundleCatalogCardProps) {
       )}
 
       <div className="flex items-center justify-end gap-1">
+        {exportable && onExport && entry.installed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={busy || exportBusy}
+            onClick={() => onExport(entry)}
+          >
+            {exportBusy ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+            {t("settings.bundles.export")}
+          </Button>
+        )}
         {entry.status === "installed" && (
           <Button
             variant="outline"

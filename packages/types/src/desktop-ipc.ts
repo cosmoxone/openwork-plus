@@ -313,6 +313,8 @@ export type BundleInstalledEntry = {
   installedAt?: string;
   scope?: "workspace" | "user";
   targetRoot?: string;
+  /** Staged bundle runtime root from install receipt (used for re-export). */
+  bundleRoot?: string;
 };
 
 export type BundleListResult = {
@@ -348,6 +350,64 @@ export type BundleInstallFromCatalogArgs = {
   /** Update flow: set true to overwrite existing files. */
   replace?: boolean;
 };
+
+/** Catalog / installed entry reference for one-click export (P2.4). */
+export type BundlePackCatalogEntry = {
+  id: string;
+  version?: string;
+  sourcePath?: string | null;
+  downloadUrl?: string | null;
+};
+
+/**
+ * P2.4: pack a bundle directory into a .zip for sharing.
+ * Calls `ow bundle pack <dir> --output <path> --json`.
+ *
+ * Provide exactly one source selector: `bundleDir`, `catalogEntry`, or
+ * `installedId`. The main process resolves catalog/installed paths before pack.
+ */
+export type BundlePackArgs = {
+  /** Advanced: absolute path to a bundle source directory (must contain a manifest). */
+  bundleDir?: string;
+  /** Resolve from builtin sourcePath or remote downloadUrl. */
+  catalogEntry?: BundlePackCatalogEntry;
+  /** Resolve from installed receipt `bundleRoot` by id. */
+  installedId?: string;
+  /**
+   * Output .zip path. If omitted, the orchestrator derives a default next to
+   * the bundle dir (or in os.tmpdir()); bundlePickSave should usually be
+   * called first to get an explicit path.
+   */
+  output?: string | null;
+};
+
+export type BundlePackSuccess = {
+  ok: true;
+  /** Path to the produced .zip. */
+  output: string;
+  /** Bundle id from manifest (echoed for UI confirmation). */
+  id: string;
+  version: string;
+};
+
+export type BundlePackFailure = { ok: false; error: string };
+
+export type BundlePackResult = BundlePackSuccess | BundlePackFailure;
+
+/**
+ * P2.4: save-as dialog for choosing where to write the packed .zip.
+ * Mirrors BundlePickFileResult's discriminated-union shape.
+ */
+export type BundlePickSaveOptions = {
+  /** Suggested file name (e.g. "knowledge-mgmt-0.5.0.zip"). */
+  defaultFileName?: string;
+  /** Native save dialog title (Electron main process). */
+  title?: string;
+};
+
+export type BundlePickSaveResult =
+  | { canceled: true }
+  | { canceled: false; filePath: string };
 
 export type BundleInstallSuccess = {
   ok: true;
@@ -393,6 +453,8 @@ export type BundlePickFileOptions = {
    * filtered by `extensions` (default ["zip"]).
    */
   directory?: boolean;
+  /** Native open dialog title (Electron main process). */
+  title?: string;
 };
 
 export type BundlePickFileResult =
@@ -712,6 +774,14 @@ export type DesktopCommandMap = {
     args: [args: BundleInstallFromCatalogArgs];
     result: BundleInstallResult;
   };
+  bundlePack: {
+    args: [args: BundlePackArgs];
+    result: BundlePackResult;
+  };
+  bundlePickSave: {
+    args: [options?: BundlePickSaveOptions];
+    result: BundlePickSaveResult;
+  };
 
   // Window / OS utilities (dunder commands)
   __openPath: { args: [target: string]; result: unknown };
@@ -751,7 +821,6 @@ export type DesktopCommandResult<C extends DesktopCommandName> = DesktopCommandM
  */
 type DesktopCommandHandler<Event, C extends DesktopCommandName> = (
   event: Event,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
 ) => Promise<DesktopCommandResult<C>>;
 

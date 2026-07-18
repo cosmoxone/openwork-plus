@@ -31,6 +31,15 @@ extraResources:
       - "**/*.md"
       - "**/*.mdx"
       - "docs.json"
+  # Bundle catalog entries carry sourcePath: bundles/<id>. Ship the matching
+  # source directories so one-click install/update works outside dev mode.
+  - from: ../../bundles
+    to: bundles
+    filter:
+      - "**/*"
+      - "!*.zip"
+  - from: resources/bundles/catalog.builtin.json
+    to: bundles/catalog.builtin.json
 asar: true
 asarUnpack:
   - node_modules/.pnpm/@lydell+node-pty*/**

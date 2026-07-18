@@ -12,6 +12,7 @@ import { existsSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { extractBundleZip } from "../../orchestrator/src/bundle/zip.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -309,6 +310,90 @@ export async function resolveInstallSource(entry, options = {}) {
   throw new Error(
     `Bundle ${entry?.id ?? "<unknown>"} has no installable source (no sourcePath or downloadUrl). ` +
       `Use "Install from zip" instead.`,
+  );
+}
+
+/** @param {string} dir */
+function hasPackableBundleManifest(dir) {
+  return (
+    existsSync(path.join(dir, "bundle.json")) ||
+    existsSync(path.join(dir, ".codex-plugin", "plugin.json")) ||
+    existsSync(path.join(dir, "SKILL.md"))
+  );
+}
+
+/**
+ * P2.4: Resolve a local bundle **source directory** suitable for `ow bundle pack`.
+ *
+ * Lookup order:
+ *  1. `sourcePath` → builtin repo/resources directory
+ *  2. `downloadUrl` → download zip, extract to temp (cleaned up by caller)
+ *  3. `bundleRoot` / installed receipt — **only** when it contains a manifest
+ *  4. `installedId` → same manifest check on receipt bundleRoot
+ *
+ * @param {{
+ *   id?: string,
+ *   sourcePath?: string | null,
+ *   downloadUrl?: string | null,
+ *   bundleRoot?: string | null,
+ * }} opts
+ * @returns {Promise<{ bundleDir: string, cleanup: () => Promise<void> }>}
+ */
+export async function resolveExportBundleDir(opts) {
+  const id = typeof opts?.id === "string" ? opts.id.trim() : "";
+  const sourcePath =
+    typeof opts?.sourcePath === "string" && opts.sourcePath.trim()
+      ? opts.sourcePath.trim()
+      : null;
+  const downloadUrl =
+    typeof opts?.downloadUrl === "string" && opts.downloadUrl.trim()
+      ? opts.downloadUrl.trim()
+      : null;
+  const explicitRoot =
+    typeof opts?.bundleRoot === "string" && opts.bundleRoot.trim()
+      ? opts.bundleRoot.trim()
+      : null;
+
+  if (sourcePath) {
+    return {
+      bundleDir: resolveBuiltinPath(sourcePath),
+      cleanup: async () => {},
+    };
+  }
+
+  if (downloadUrl) {
+    const zipPath = await downloadToTemp(downloadUrl, {
+      suffix: id ? `-${id}.zip` : ".zip",
+    });
+    const extracted = await extractBundleZip(zipPath);
+    return {
+      bundleDir: extracted.dir,
+      cleanup: async () => {
+        await extracted.cleanup();
+        const { rm } = await import("node:fs/promises");
+        await rm(zipPath, { force: true }).catch(() => {});
+      },
+    };
+  }
+
+  if (explicitRoot && existsSync(explicitRoot) && hasPackableBundleManifest(explicitRoot)) {
+    return { bundleDir: explicitRoot, cleanup: async () => {} };
+  }
+
+  if (id) {
+    const installed = await runBundleCli(["list"]);
+    const record = Array.isArray(installed)
+      ? installed.find((entry) => entry?.id === id)
+      : null;
+    const root = typeof record?.bundleRoot === "string" ? record.bundleRoot.trim() : "";
+    if (root && existsSync(root) && hasPackableBundleManifest(root)) {
+      return { bundleDir: root, cleanup: async () => {} };
+    }
+  }
+
+  throw new Error(
+    `Bundle ${id || "<unknown>"} has no exportable source. ` +
+      `Install it first, or use a catalog entry with sourcePath/downloadUrl.`,
   );
 }
 

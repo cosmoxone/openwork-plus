@@ -44,7 +44,7 @@ import {
 import { resolveConnectLinkPublicKeys } from "./connect-link-keys.mjs";
 import { openExternalUrl } from "./open-external.mjs";
 import { fetchAgentContextDiagnosticsResponse } from "./agent-context-diagnostics-fetch.mjs";
-import { runBundleCli, resolveInstallSource } from "./bundle-bridge.mjs";
+import { runBundleCli, resolveInstallSource, resolveExportBundleDir } from "./bundle-bridge.mjs";
 import {
   applyWindowsTaskbarIcon,
   windowsBrandAppUserModelId,
@@ -2134,12 +2134,18 @@ const desktopCommandHandlers = {
         ? opts.extensions.map((e) => String(e).replace(/^\./, ""))
         : ["zip"];
       const win = mainWindow;
+      const dialogTitle =
+        typeof opts.title === "string" && opts.title.trim()
+          ? opts.title.trim()
+          : wantDirectory
+            ? "Select bundle source folder"
+            : "Select bundle zip file";
       // P2.5: in directory mode we use ["openDirectory"] so the user can
       // select an unzipped bundle folder. Filters are ignored by Electron
       // in that mode.
       const dialogProps = wantDirectory ? ["openDirectory"] : ["openFile"];
       const baseOptions = {
-        title: wantDirectory ? "Select bundle directory" : "Select bundle archive",
+        title: dialogTitle,
         properties: dialogProps,
       };
       /** @type {Record<string, unknown>} */
@@ -2179,8 +2185,16 @@ const desktopCommandHandlers = {
       console.log("[bundleCatalog] cliArgs=", JSON.stringify(cliArgs));
       try {
         const result = await runBundleCli(cliArgs, { timeoutMs: 30_000 });
-        const entries = Array.isArray(result) ? result : [];
-        return { entries, stale: false };
+        // P2.2 output is { entries, stale, error? }. Keep array support for
+        // older sidecars during staged upgrades.
+        if (Array.isArray(result)) {
+          return { entries: result, stale: false };
+        }
+        return {
+          entries: Array.isArray(result?.entries) ? result.entries : [],
+          stale: result?.stale === true,
+          ...(typeof result?.error === "string" ? { error: result.error } : {}),
+        };
       } catch (err) {
         // Orchestrator missing or builtin path absent → degrade to empty
         // catalog rather than blocking the UI. The user can still install
@@ -2241,6 +2255,112 @@ const desktopCommandHandlers = {
         console.warn(`[bundleInstallFromCatalog] install failed for ${entry.id}:`, msg);
         return { ok: false, error: msg };
       }
+  },
+  "bundlePack": async (_event, ...args) => {
+      // P2.4: pack a bundle directory into a .zip. Resolves catalog/installed
+      // sources via resolveExportBundleDir when bundleDir is omitted.
+      const opts = args[0] ?? {};
+      const output = typeof opts.output === "string" && opts.output.trim()
+        ? opts.output.trim()
+        : null;
+      const bundleDirDirect =
+        typeof opts.bundleDir === "string" && opts.bundleDir.trim()
+          ? opts.bundleDir.trim()
+          : null;
+      const catalogEntry = opts.catalogEntry && typeof opts.catalogEntry === "object"
+        ? opts.catalogEntry
+        : null;
+      const installedId =
+        typeof opts.installedId === "string" && opts.installedId.trim()
+          ? opts.installedId.trim()
+          : null;
+
+      if (!bundleDirDirect && !catalogEntry && !installedId) {
+        return {
+          ok: false,
+          error: "bundlePack requires bundleDir, catalogEntry, or installedId",
+        };
+      }
+
+      /** @type {string} */
+      let bundleDir;
+      /** @type {() => Promise<void>} */
+      let cleanupSource = async () => {};
+
+      try {
+        if (bundleDirDirect) {
+          if (!existsSync(bundleDirDirect)) {
+            return { ok: false, error: `bundleDir not found: ${bundleDirDirect}` };
+          }
+          bundleDir = bundleDirDirect;
+        } else if (catalogEntry) {
+          const resolved = await resolveExportBundleDir({
+            id: typeof catalogEntry.id === "string" ? catalogEntry.id : "",
+            sourcePath: catalogEntry.sourcePath ?? null,
+            downloadUrl: catalogEntry.downloadUrl ?? null,
+          });
+          bundleDir = resolved.bundleDir;
+          cleanupSource = resolved.cleanup;
+        } else {
+          const resolved = await resolveExportBundleDir({ id: installedId });
+          bundleDir = resolved.bundleDir;
+          cleanupSource = resolved.cleanup;
+        }
+
+        const cliArgs = ["pack", bundleDir];
+        if (output) {
+          cliArgs.push("--output", output);
+        }
+        console.log("[bundlePack] cliArgs=", JSON.stringify(cliArgs));
+        const result = await runBundleCli(cliArgs, { timeoutMs: 120_000 });
+        if (result && typeof result.output === "string") {
+          return {
+            ok: true,
+            output: result.output,
+            id: typeof result.id === "string" ? result.id : "",
+            version: typeof result.version === "string" ? result.version : "0.0.0",
+          };
+        }
+        return {
+          ok: false,
+          error: "orchestrator returned unexpected payload: " + JSON.stringify(result).slice(0, 200),
+        };
+      } catch (err) {
+        const msg = err?.message ?? String(err);
+        console.warn("[bundlePack] failed:", msg);
+        return { ok: false, error: msg };
+      } finally {
+        await cleanupSource();
+      }
+  },
+  "bundlePickSave": async (_event, ...args) => {
+      // P2.4: save-as dialog for choosing where to write the packed .zip.
+      // Mirrors bundlePickFile's window-aware fallback.
+      const opts = args[0] ?? {};
+      const defaultFileName =
+        typeof opts.defaultFileName === "string" && opts.defaultFileName.trim()
+          ? opts.defaultFileName.trim()
+          : "bundle.zip";
+      const saveTitle =
+        typeof opts.title === "string" && opts.title.trim()
+          ? opts.title.trim()
+          : "Save bundle zip";
+      const win = mainWindow;
+      const result = win
+        ? await dialog.showSaveDialog(win, {
+            title: saveTitle,
+            defaultPath: defaultFileName,
+            filters: [{ name: "Zip", extensions: ["zip"] }],
+          })
+        : await dialog.showSaveDialog({
+            title: saveTitle,
+            defaultPath: defaultFileName,
+            filters: [{ name: "Zip", extensions: ["zip"] }],
+          });
+      if (result.canceled || !result.filePath) {
+        return { canceled: true };
+      }
+      return { canceled: false, filePath: result.filePath };
   },
 };
 

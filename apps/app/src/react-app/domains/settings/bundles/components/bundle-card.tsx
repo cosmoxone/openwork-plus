@@ -1,5 +1,5 @@
 /** @jsxImportSource react */
-import { Loader2, Package, Trash2 } from "lucide-react";
+import { Download, Loader2, Package, Trash2 } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,9 @@ export type BundleCardProps = {
   busy: boolean;
   error: string | null;
   onUninstall: (bundle: BundleInstalledEntry) => void;
+  exportable?: boolean;
+  exportBusy?: boolean;
+  onExport?: (bundle: BundleInstalledEntry) => void;
 };
 
 function formatIsoDate(iso?: string): string {
@@ -33,7 +36,8 @@ function formatIsoDate(iso?: string): string {
  * inline so the user can see why a bundle failed to remove.
  */
 export function BundleCard(props: BundleCardProps) {
-  const { bundle, busy, error, onUninstall } = props;
+  const { bundle, busy, error, onUninstall, exportable = false, exportBusy = false, onExport } =
+    props;
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-dls-border bg-dls-surface p-4">
       <div className="flex items-start justify-between gap-2">
@@ -82,7 +86,18 @@ export function BundleCard(props: BundleCardProps) {
         </Alert>
       )}
 
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-1">
+        {exportable && onExport && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={busy || exportBusy}
+            onClick={() => onExport(bundle)}
+          >
+            {exportBusy ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+            {t("settings.bundles.export")}
+          </Button>
+        )}
         <Button
           variant="outline"
           size="sm"

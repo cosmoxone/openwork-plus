@@ -2,7 +2,11 @@
 import { installBundle, listBundles, uninstallBundle } from "./installer.mjs";
 import { packBundle } from "./pack.mjs";
 import { extractBundleZip } from "./zip.mjs";
-import { mergeCatalogView, readCatalogFile, fetchRemoteCatalog, readCachedRemoteCatalog } from "./catalog.mjs";
+import {
+  fetchRemoteCatalogWithFallback,
+  mergeCatalogView,
+  readCatalogFile,
+} from "./catalog.mjs";
 
 /**
  * @param {string[]} positionals  形如 ["bundle","install","./path"]
@@ -66,17 +70,29 @@ export async function runBundleCommand(positionals, flags) {
     const remoteUrl = str("remote-url");
     const builtin = builtinPath ? await readCatalogFile(builtinPath) : { bundles: [] };
     let remote = { bundles: [] };
+    let stale = false;
+    let catalogError;
     if (remoteUrl) {
       try {
-        remote = await fetchRemoteCatalog(remoteUrl, dataDir);
-      } catch {
-        remote = await readCachedRemoteCatalog(dataDir);
+        const fetched = await fetchRemoteCatalogWithFallback(remoteUrl, dataDir);
+        remote = fetched.catalog;
+        stale = fetched.stale;
+        catalogError = fetched.error;
+      } catch (error) {
+        // No usable cache: preserve builtin entries and surface the remote
+        // failure rather than turning the entire catalog into an error.
+        stale = true;
+        catalogError = error instanceof Error ? error.message : String(error);
       }
     }
     const installed = await listBundles({ dataDir });
     const view = mergeCatalogView({ builtin, remote, installed });
     if (json) {
-      console.log(JSON.stringify(view, null, 2));
+      console.log(JSON.stringify({
+        entries: view,
+        stale,
+        ...(catalogError ? { error: catalogError } : {}),
+      }, null, 2));
     } else {
       for (const b of view) {
         console.log(`${b.id}@${b.version}  ${b.status}  ${b.name ?? ""}`);
