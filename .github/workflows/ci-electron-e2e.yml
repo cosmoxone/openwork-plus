@@ -1,0 +1,123 @@
+name: Electron Bundles E2E
+
+# Playwright Electron smoke for Bundles settings (A3-01).
+# Runs under Xvfb on Linux so CI can launch the real desktop shell.
+
+on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - "apps/app/**"
+      - "apps/desktop/**"
+      - "e2e/**"
+      - "packages/types/**"
+      - "playwright.config.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/ci-electron-e2e.yml"
+  push:
+    branches:
+      - dev
+    paths:
+      - "apps/app/**"
+      - "apps/desktop/**"
+      - "e2e/**"
+      - "packages/types/**"
+      - "playwright.config.ts"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/ci-electron-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundles-e2e:
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.4.0
+
+      - name: Install OpenCode CLI
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OPENCODE_GITHUB_REPO: ${{ vars.OPENCODE_GITHUB_REPO || 'anomalyco/opencode' }}
+        run: |
+          set -euo pipefail
+
+          repo="${OPENCODE_GITHUB_REPO:-anomalyco/opencode}"
+          version="$(node -e "const fs=require('fs'); const parsed=JSON.parse(fs.readFileSync('constants.json','utf8')); process.stdout.write(String(parsed.opencodeVersion||'').trim().replace(/^v/,''));")"
+          version="$(echo "$version" | tr -d '\r\n' | sed 's/^v//')"
+
+          if [ -z "$version" ]; then
+            echo "Unable to resolve OpenCode version from constants.json." >&2
+            exit 1
+          fi
+
+          url="https://github.com/${repo}/releases/download/v${version}/opencode-linux-x64-baseline.tar.gz"
+          tmp_dir="$RUNNER_TEMP/opencode"
+          extract_dir="$tmp_dir/extracted"
+          rm -rf "$tmp_dir"
+          mkdir -p "$extract_dir"
+
+          curl -fsSL --retry 5 --retry-all-errors --retry-delay 2 \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -o "$tmp_dir/opencode.tar.gz" "$url"
+          tar -xzf "$tmp_dir/opencode.tar.gz" -C "$extract_dir"
+
+          install_dir="$HOME/.opencode/bin"
+          mkdir -p "$install_dir"
+          cp "$extract_dir/opencode" "$install_dir/opencode"
+          chmod 755 "$install_dir/opencode"
+          echo "$install_dir" >> "$GITHUB_PATH"
+
+      - name: Verify OpenCode
+        run: opencode --version
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Xvfb
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb
+
+      - name: Run Bundles Playwright E2E
+        shell: bash
+        env:
+          CI: "true"
+          OPENWORK_DEV_MODE: "1"
+          OPENWORK_E2E_ISOLATED: "1"
+          ELECTRON_DISABLE_SANDBOX: "1"
+        run: |
+          set -euo pipefail
+          Xvfb :99 -screen 0 1600x1000x24 &
+          export DISPLAY=:99
+          sleep 2
+          pnpm test:e2e:electron -- e2e/bundles-settings.e2e.ts
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-bundles-e2e
+          path: |
+            playwright-report/
+            test-results/
+            e2e-results.xml
+          if-no-files-found: ignore

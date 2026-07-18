@@ -20,9 +20,43 @@ export type ConnectDeepLink = {
   key: string;
 };
 
+export type SettingsNavigationDeepLink = {
+  path: string;
+};
+
 function isSupportedDeepLinkProtocol(protocol: string): boolean {
   const normalized = protocol.toLowerCase();
   return normalized === "openwork:" || normalized === "openwork-dev:" || normalized === "https:" || normalized === "http:";
+}
+
+function isOpenworkDesktopScheme(protocol: string): boolean {
+  const normalized = protocol.toLowerCase();
+  return (
+    normalized === "openwork:" ||
+    normalized === "openwork-dev:" ||
+    normalized === "openwork-plus:" ||
+    normalized === "openwork-plus-dev:"
+  );
+}
+
+function settingsPathFromSegments(segments: readonly string[]): string | null {
+  if (segments.length === 0) {
+    return null;
+  }
+
+  if (segments[0] === "settings") {
+    const tabPath = segments.slice(1).join("/") || "general";
+    return `/settings/${tabPath}`;
+  }
+
+  if (segments[0] === "workspace" && segments.length >= 3 && segments[2] === "settings") {
+    const workspaceId = segments[1]?.trim();
+    if (!workspaceId) return null;
+    const tabPath = segments.slice(3).join("/") || "general";
+    return `/workspace/${workspaceId}/settings/${tabPath}`;
+  }
+
+  return null;
 }
 
 export function parseRemoteConnectDeepLink(rawUrl: string): RemoteWorkspaceDefaults | null {
@@ -171,6 +205,43 @@ export function parseConnectDeepLink(rawUrl: string): ConnectDeepLink | null {
   }
 
   return { rawUrl, key: signed ? `signed:${token}` : `exchange:${apiBaseUrl}:${code}` };
+}
+
+export function parseSettingsNavigationDeepLink(rawUrl: string): SettingsNavigationDeepLink | null {
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    return null;
+  }
+
+  if (!isOpenworkDesktopScheme(url.protocol)) {
+    return null;
+  }
+
+  const pathSegments = url.pathname.replace(/^\/+/, "").split("/").filter(Boolean);
+  const pathFromPathname = settingsPathFromSegments(pathSegments);
+  if (pathFromPathname) {
+    return { path: pathFromPathname };
+  }
+
+  const host = url.hostname.toLowerCase();
+  if (host === "settings") {
+    const tabPath = url.pathname.replace(/^\/+/, "") || "general";
+    return { path: `/settings/${tabPath}` };
+  }
+
+  if (host === "workspace") {
+    const hostSegments = pathSegments;
+    if (hostSegments.length >= 2 && hostSegments[1] === "settings") {
+      const workspaceId = hostSegments[0]?.trim();
+      if (!workspaceId) return null;
+      const tabPath = hostSegments.slice(2).join("/") || "general";
+      return { path: `/workspace/${workspaceId}/settings/${tabPath}` };
+    }
+  }
+
+  return null;
 }
 
 function normalizeDebugDeepLinkInput(rawValue: string): string {

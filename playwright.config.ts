@@ -58,6 +58,9 @@ export default defineConfig({
     url: "http://127.0.0.1:4173",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    env: {
+      VITE_DISABLE_OPENWORK_MODELS: "1",
+    },
   },
   metadata: {
     platform: isWindows ? "windows" : process.platform,

@@ -1,19 +1,20 @@
 // Bundle settings page e2e (A3).
 //
-// Goals:
-//   - Stable navigation via /settings/bundles (no fragile Settings click chain)
-//   - data-testid selectors for core controls
-//   - Skip OpenWork Models startup modal via localStorage init script
-//   - Do NOT assert native Electron file/save dialogs
-//
 // Run: pnpm test:e2e:electron -- e2e/bundles-settings.e2e.ts
 
 import { test, expect, _electron, type ElectronApplication, type Page } from "@playwright/test";
 import { createRequire } from "node:module";
 import path from "node:path";
 
+import { seedE2eLocalStorage } from "./helpers/seed-local-storage";
+
 const repoRoot = path.resolve(__dirname, "..");
-const rendererBaseUrl = "http://127.0.0.1:4173";
+const rendererOrigin = "http://127.0.0.1:4173";
+
+function hashRoute(routePath: string): string {
+  const normalized = routePath.startsWith("/") ? routePath : `/${routePath}`;
+  return `${rendererOrigin}/#${normalized}`;
+}
 
 let electronApp: ElectronApplication;
 let page: Page;
@@ -26,14 +27,12 @@ function resolveElectronExe(): string {
 }
 
 async function gotoBundlesSettings() {
-  await page.goto(`${rendererBaseUrl}/settings/bundles`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByTestId("bundles-settings-view")).toBeVisible({ timeout: 30_000 });
+  await page.goto(hashRoute("/settings/bundles"), { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("bundles-install-from-zip")).toBeVisible({ timeout: 30_000 });
 }
 
 test.beforeAll(async () => {
   process.env.OPENWORK_DEV_MODE = "1";
-  process.env.OPENWORK_ELECTRON_REMOTE_DEBUG_PORT = "9223";
-  process.env.OPENWORK_IPC_TRACE = "bundle";
 
   const electronPath = resolveElectronExe();
   electronApp = await _electron.launch({
@@ -43,22 +42,16 @@ test.beforeAll(async () => {
     env: {
       ...process.env,
       OPENWORK_DEV_MODE: "1",
-      OPENWORK_ELECTRON_START_URL: rendererBaseUrl,
+      OPENWORK_ELECTRON_START_URL: hashRoute("/"),
       NODE_ENV: "development",
+      ELECTRON_DISABLE_SANDBOX: "1",
     } as NodeJS.ProcessEnv,
     timeout: 60_000,
     colorScheme: "dark",
   });
 
   page = await electronApp.firstWindow();
-  await page.addInitScript(() => {
-    try {
-      localStorage.setItem("openwork.openworkModelsPromo.hidden", "1");
-      localStorage.setItem("openwork.openworkModelsPromo.startupShown", String(Date.now()));
-    } catch {
-      // ignore
-    }
-  });
+  await seedE2eLocalStorage(page);
   await page.waitForLoadState("domcontentloaded", { timeout: 60_000 });
 });
 
@@ -69,7 +62,7 @@ test.afterAll(async () => {
 });
 
 test.describe("Bundles settings page", () => {
-  test("deep-link route renders Bundles view", async () => {
+  test("hash route renders Bundles view", async () => {
     await gotoBundlesSettings();
     await expect(page.getByTestId("bundles-install-from-zip")).toBeVisible();
     await expect(page.getByTestId("bundles-install-from-folder")).toBeVisible();
@@ -99,7 +92,7 @@ test.describe("Bundles settings page", () => {
   });
 
   test("settings index exposes Bundles nav card", async () => {
-    await page.goto(`${rendererBaseUrl}/settings/general`, { waitUntil: "domcontentloaded" });
+    await page.goto(hashRoute("/settings/general"), { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("settings-nav-bundles")).toBeVisible({ timeout: 30_000 });
   });
 
@@ -108,5 +101,44 @@ test.describe("Bundles settings page", () => {
     const installButton = page.getByTestId("bundles-install-from-zip");
     await expect(installButton).toBeVisible();
     await expect(installButton).toBeEnabled();
+  });
+});
+
+test.describe("Bundles workspace fixture (A3-02)", () => {
+  test("builtin catalog cards render with IPC workspace", async () => {
+    const { mkdtempSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { ensureLocalWorkspaceFixture } = await import("./helpers/workspace-fixture");
+    const fixtureRoot = mkdtempSync(path.join(tmpdir(), "openwork-e2e-workspace-root-"));
+    try {
+      await ensureLocalWorkspaceFixture(page, fixtureRoot);
+      await gotoBundlesSettings();
+      await expect(page.getByTestId("bundle-catalog-card-computer-use")).toBeVisible({
+        timeout: 30_000,
+      });
+      await expect(page.getByTestId("bundle-install-computer-use")).toBeVisible();
+    } finally {
+      const { rmSync } = await import("node:fs");
+      rmSync(fixtureRoot, { recursive: true, force: true });
+    }
+  });
+});
+
+test.describe("Bundles deep links (A3-03)", () => {
+  async function deliverSettingsDeepLink(rawUrl: string) {
+    await page.evaluate((url) => {
+      window.dispatchEvent(
+        new CustomEvent("openwork:deep-link", {
+          detail: { urls: [url] },
+        }),
+      );
+    }, rawUrl);
+  }
+
+  test("openwork-plus://settings/bundles navigates to Bundles", async () => {
+    await page.goto(hashRoute("/settings/general"), { waitUntil: "domcontentloaded" });
+    await deliverSettingsDeepLink("openwork-plus://settings/bundles");
+    await expect(page).toHaveURL(/#\/settings\/bundles(?:\?.*)?$/, { timeout: 15_000 });
+    await expect(page.getByTestId("bundles-install-from-zip")).toBeVisible({ timeout: 30_000 });
   });
 });

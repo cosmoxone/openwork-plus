@@ -433,7 +433,7 @@ export function BundlesView(props: BundlesViewProps) {
   const loading = bundlesQuery.isPending || catalogQuery.isPending;
 
   return (
-    <div data-testid="bundles-settings-view">
+    <div data-testid="bundles-settings-view" className="w-full max-w-3xl">
     <LayoutStack>
       {!isDesktopRuntime() && (
         <Alert>
