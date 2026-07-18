@@ -164,6 +164,36 @@ async function atomicWrite(file, content) {
   await rename(tmp, file);
 }
 
+/**
+ * 读取 workspace 的 opencode.json，遇到不合法 JSON 时**不抛错**：
+ * 把原文件重命名为 `opencode.json.corrupt-<ts>` 作为备份，然后视为 `{}`，
+ * 让 bundle 安装继续。理由：bundle 安装是用户主动行为，不应因目标 workspace
+ * 已经存在的脏配置而被卡住；同时备份原文件，用户可手动恢复。
+ *
+ * @param {string} workspaceRoot
+ * @returns {Promise<{config: any, recoveredFromCorrupt: boolean, backupPath?: string}>}
+ */
+async function readOpencodeJsonOrReset(workspaceRoot) {
+  const file = path.join(workspaceRoot, "opencode.json");
+  if (!existsSync(file)) return { config: {}, recoveredFromCorrupt: false };
+  const raw = await readFile(file, "utf8");
+  try {
+    return { config: JSON.parse(raw), recoveredFromCorrupt: false };
+  } catch (parseErr) {
+    const ts = Date.now();
+    const backupPath = `${file}.corrupt-${ts}.json`;
+    await atomicWrite(backupPath, raw);
+    // 重置为空对象，让安装流程继续；atomicWrite 已经把原内容备份到 .corrupt-*.json。
+    await atomicWrite(file, "{}\n");
+    console.error(
+      `[bundle] WARNING: ${file} was not valid JSON (${parseErr instanceof Error ? parseErr.message : String(parseErr)}). ` +
+        `Backed up to ${backupPath} and reset to {}. Please review the backup manually.`,
+    );
+    return { config: {}, recoveredFromCorrupt: true, backupPath };
+  }
+}
+
+
 /** @param {string} dataDir @param {any} state */
 async function writeInstalled(dataDir, state) {
   await atomicWrite(path.join(dataDir, INSTALLED_FILE), JSON.stringify(state, null, 2));
@@ -221,15 +251,7 @@ async function mergeMcp(workspaceRoot, servers, ctx) {
   const ids = Object.keys(expanded ?? {});
   if (ids.length === 0) return [];
   const file = path.join(workspaceRoot, "opencode.json");
-  /** @type {any} */
-  let config = {};
-  if (existsSync(file)) {
-    try {
-      config = JSON.parse(await readFile(file, "utf8"));
-    } catch (error) {
-      throw new Error(`opencode.json 不是合法 JSON，拒绝合并: ${error.message}`);
-    }
-  }
+  const { config } = await readOpencodeJsonOrReset(workspaceRoot);
   if (!config.mcp || typeof config.mcp !== "object") config.mcp = {};
   /** @type {string[]} */
   const added = [];
@@ -273,15 +295,12 @@ async function unmergeMcp(workspaceRoot, ids) {
 async function mergeOpencodeBlock(workspaceRoot, opencodeBlock) {
   if (!opencodeBlock || typeof opencodeBlock !== "object") return {};
   const file = path.join(workspaceRoot, "opencode.json");
+  // 容错读取：不合法时自动备份并重置为 {}，避免阻塞安装。
+  const { config: parsedConfig, recoveredFromCorrupt } = await readOpencodeJsonOrReset(workspaceRoot);
   /** @type {any} */
-  let config = {};
-  if (existsSync(file)) {
-    try {
-      config = JSON.parse(await readFile(file, "utf8"));
-    } catch (error) {
-      throw new Error(`opencode.json 不是合法 JSON，拒绝合并: ${error.message}`);
-    }
-    // 备份（风险缓解：合并逻辑复杂，可能破坏现有 config）
+  let config = parsedConfig;
+  if (!recoveredFromCorrupt && existsSync(file)) {
+    // 仅在文件本身合法时才做合并前备份（recoveredFromCorrupt=true 时已经在 helper 里备份过）
     const backup = path.join(workspaceRoot, `.opencode-backup-${Date.now()}.json`);
     await atomicWrite(backup, JSON.stringify(config, null, 2));
   }
@@ -337,12 +356,10 @@ async function unmergeOpencodeBlock(workspaceRoot, declared, otherDeclareds = []
   if (!declared || Object.keys(declared).length === 0) return;
   const file = path.join(workspaceRoot, "opencode.json");
   if (!existsSync(file)) return;
-  let config;
-  try {
-    config = JSON.parse(await readFile(file, "utf8"));
-  } catch {
-    return;
-  }
+  // 容错读取：卸载不应因 opencode.json 损坏而崩溃。
+  const { config: parsed } = await readOpencodeJsonOrReset(workspaceRoot);
+  const config = parsed;
+  if (!config || typeof config !== "object") return;
 
   const ARRAY_FIELDS = new Set(["plugin", "instructions"]);
 

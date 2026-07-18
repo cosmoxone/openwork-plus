@@ -74,8 +74,9 @@ function bundleSidecarDirs(electronExePath) {
  *
  * Lookup order:
  *  1. OPENWORK_ORCHESTRATOR_BIN env override (dev escape hatch)
- *  2. Sidecar dirs (dev resources + packaged resources + exe sibling)
- *  3. PATH lookup (system-installed orchestrator, e.g. `pnpm -g i openworkplus-orchestrator`)
+ *  2. Dev mode: bun + source CLI (so source edits apply without rebuilding sidecar)
+ *  3. Sidecar dirs (dev resources + packaged resources + exe sibling)
+ *  4. PATH lookup (system-installed orchestrator, e.g. `pnpm -g i openworkplus-orchestrator`)
  *
  * @param {object} [options]
  * @param {string} [options.electronExePath]  defaults to process.execPath
@@ -88,6 +89,14 @@ export function resolveBundleBinary(options = {}) {
 
   const override = String(env.OPENWORK_ORCHESTRATOR_BIN ?? "").trim();
   if (override && existsSync(override)) return override;
+
+  // Dev-mode shortcut: when OPENWORK_DEV_MODE=1, prefer running orchestrator
+  // source directly via bun (or node) so source edits to installer.mjs etc.
+  // take effect without rebuilding the bun-compiled sidecar.
+  if (env.OPENWORK_DEV_MODE === "1") {
+    const devBin = resolveDevModeRunner();
+    if (devBin) return devBin;
+  }
 
   const sidecarDirs = bundleSidecarDirs(exePath).filter(isDirectory);
   for (const dir of sidecarDirs) {
@@ -103,6 +112,53 @@ export function resolveBundleBinary(options = {}) {
   for (const entry of pathEntries) {
     for (const fileName of binaryFileNames("openwork-orchestrator")) {
       const candidate = path.join(entry, fileName);
+      if (existsSync(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
+/**
+ * In dev mode, locate the orchestrator CLI source and return a runnable form.
+ * Returns a string shaped like "<runner>@@<script>" that runBundleCli knows
+ * how to split. Returns null if dev-mode prerequisites are missing.
+ *
+ * Resolution:
+ *  1. Find repoRoot by walking up from this file.
+ *  2. Check apps/orchestrator/src/cli.ts (or .mjs) exists.
+ *  3. Find a `bun` executable on PATH; fall back to `node`.
+ *
+ * @param {object} [options]
+ * @param {string} [options.env]  defaults to process.env
+ * @returns {string | null}
+ */
+function resolveDevModeRunner(options = {}) {
+  const env = options.env ?? process.env;
+  // Walk up to find repoRoot (the monorepo root containing apps/orchestrator).
+  let dir = __dirname;
+  for (let i = 0; i < 6; i += 1) {
+    const candidate = path.join(dir, "apps", "orchestrator", "src", "cli.ts");
+    if (existsSync(candidate)) {
+      const runner = findExecutableOnPath("bun") ?? "node";
+      return `${runner}@@${candidate}`;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
+/** @param {string} name @param {object} [options] @param {string} [options.env] */
+function findExecutableOnPath(name, options = {}) {
+  const env = options.env ?? process.env;
+  const ext = process.platform === "win32" ? [".exe", ".cmd", ".bat", ""] : [""];
+  const pathEntries = String(env.PATH ?? env.Path ?? "")
+    .split(path.delimiter)
+    .filter(Boolean);
+  for (const entry of pathEntries) {
+    for (const e of ext) {
+      const candidate = path.join(entry, name + e);
       if (existsSync(candidate)) return candidate;
     }
   }
@@ -128,15 +184,39 @@ export function runBundleCli(args, options = {}) {
     );
   }
 
+  // Dev mode may return a "<runner>@@<script>" composite (e.g. "bun@@.../cli.ts").
+  // Split it into spawn() target + leading args. Windows .cmd/.bat runners need
+  // special handling because (a) spawn requires shell:true for .cmd and (b) the
+  // path may contain spaces ("D:\Program Files\...") so we must wrap it in quotes.
+  let spawnTarget = bin;
+  /** @type {string[]} */
+  let runnerArgs = [];
+  let useShell = false;
+  if (bin.includes("@@")) {
+    const [runner, script] = bin.split("@@", 2);
+    spawnTarget = runner;
+    runnerArgs = [script];
+    if (process.platform === "win32") {
+      useShell = true;
+      if (/\.(cmd|bat)$/i.test(runner)) {
+        // Wrap the runner path in quotes so cmd.exe parses it correctly when
+        // it contains spaces. The leading "call " ensures cmd exits with the
+        // child's exit code instead of just launching it asynchronously.
+        spawnTarget = `"${runner}"`;
+      }
+    }
+  }
+
   // --json must be last so the orchestrator's flag parser picks it up
   // regardless of which subcommand positional order the caller chose.
-  const fullArgs = ["bundle", ...args, "--json"];
+  const fullArgs = [...runnerArgs, "bundle", ...args, "--json"];
 
   return new Promise((resolve, reject) => {
-    const child = spawn(bin, fullArgs, {
+    const child = spawn(spawnTarget, fullArgs, {
       env: { ...process.env, ...(options.env ?? {}) },
       stdio: ["ignore", "pipe", "pipe"],
       windowsHide: true,
+      shell: useShell,
     });
 
     /** @type {Buffer[]} */
@@ -178,6 +258,8 @@ export function runBundleCli(args, options = {}) {
       if (code !== 0) {
         // CLI surfaces business errors (missing deps, conflicts) to stderr with
         // a human message; the --json output is reserved for success payloads.
+        console.error("[bundle-bridge] nonzero exit code=", code);
+        console.error("[bundle-bridge] stderr=", stderr.slice(-500));
         reject(new Error(stderr || stdout || `openwork-orchestrator exited with code ${code}`));
         return;
       }

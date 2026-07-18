@@ -2075,6 +2075,7 @@ const desktopCommandHandlers = {
         cliArgs.push("--workspace", opts.workspaceRoot);
       }
       const installed = await runBundleCli(cliArgs);
+      console.log("[bundleList] cliArgs=", JSON.stringify(cliArgs), "count=", installed?.length ?? 0);
       return { installed: Array.isArray(installed) ? installed : [] };
   },
   "bundleInstall": async (_event, ...args) => {
@@ -2090,6 +2091,8 @@ const desktopCommandHandlers = {
       if (params.replace) {
         cliArgs.push("--replace");
       }
+      // Debug: log the exact args + cwd so we can trace IPC -> CLI mismatches.
+      console.log("[bundleInstall] cliArgs=", JSON.stringify(cliArgs), "cwd=", process.cwd());
       try {
         const result = await runBundleCli(cliArgs, { timeoutMs: 60_000 });
         return {
@@ -2221,6 +2224,13 @@ function desktopErrorMessageWithCauses(error) {
 }
 
 async function handleDesktopInvoke(event, command, ...args) {
+  // Bundle-related IPC logging: help diagnose workspace mismatch / encoding
+  // issues. Keep this stdout log line so it shows up in the `pnpm dev` terminal
+  // (NOT the renderer DevTools console — main-process console.log goes to the
+  // Electron stdout, which electron-dev.mjs inherits via stdio:"inherit").
+  if (typeof command === "string" && command.startsWith("bundle")) {
+    console.log(`[desktop-invoke] ${command} args=${JSON.stringify(args)}`);
+  }
   const handler = desktopCommandHandlers[command];
   if (!handler) {
     throw new Error(`Electron desktop bridge method is not implemented yet: ${command}`);
