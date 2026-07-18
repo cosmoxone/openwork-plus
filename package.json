@@ -37,6 +37,8 @@
     "build:web": "pnpm --filter @openwork-ee/den-web build",
     "preview": "pnpm --filter @openwork/app preview",
     "typecheck": "pnpm --filter @openwork/app typecheck",
+    "lint": "eslint apps/app/src apps/desktop/electron packages/types/src --cache --cache-location .eslintcache",
+    "lint:fix": "eslint apps/app/src apps/desktop/electron packages/types/src --fix --cache --cache-location .eslintcache",
     "check:enterprise-mcp-mock-server": "pnpm --filter @openwork/enterprise-mcp-mock-server check",
     "check:enterprise-mock-lab": "pnpm --filter @openwork-ee/enterprise-mock-lab check",
     "check:diagnostics": "pnpm --filter @openwork-ee/diagnostics test && pnpm --filter @openwork-ee/diagnostics build",
@@ -67,7 +69,11 @@
     "release:ship:watch": "node scripts/release/ship.mjs --watch"
   },
   "devDependencies": {
-    "turbo": "^2.5.5"
+    "eslint": "^9.39.5",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.32.0",
+    "turbo": "^2.5.5",
+    "typescript-eslint": "^8.64.0"
   },
   "packageManager": "pnpm@11.4.0"
 }
