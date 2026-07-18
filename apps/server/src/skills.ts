@@ -55,30 +55,41 @@ async function parseSkillEntry(
   entryName: string,
   scope: "project" | "global",
 ): Promise<SkillItem | null> {
-  const content = await readFile(skillPath, "utf8");
-  const { data, body } = parseFrontmatter(content);
-  const name = typeof data.name === "string" ? data.name : entryName;
-  const description = typeof data.description === "string" ? data.description : "";
-  const trigger =
-    typeof data.trigger === "string"
-      ? data.trigger
-      : typeof data.when === "string"
-        ? data.when
-        : extractTriggerFromBody(body);
   try {
-    validateSkillName(name);
-    validateDescription(description);
-  } catch {
+    const content = await readFile(skillPath, "utf8");
+    const { data, body } = parseFrontmatter(content);
+    const name = typeof data.name === "string" ? data.name : entryName;
+    const description = typeof data.description === "string" ? data.description : "";
+    const trigger =
+      typeof data.trigger === "string"
+        ? data.trigger
+        : typeof data.when === "string"
+          ? data.when
+          : extractTriggerFromBody(body);
+    try {
+      validateSkillName(name);
+      validateDescription(description);
+    } catch {
+      return null;
+    }
+    if (name !== entryName) return null;
+    return {
+      name,
+      description,
+      path: skillPath,
+      scope,
+      trigger: trigger.trim() || undefined,
+    };
+  } catch (err) {
+    // Defense in depth: any unexpected error reading/parsing a single skill
+    // (permission, encoding, filesystem race) should not abort the whole list.
+    // Mirror the tolerance applied in readOpencodeJsonOrReset in the bundle
+    // installer — never let one bad user file break the platform surface.
+    console.warn(
+      `[skills] failed to parse ${skillPath}: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return null;
   }
-  if (name !== entryName) return null;
-  return {
-    name,
-    description,
-    path: skillPath,
-    scope,
-    trigger: trigger.trim() || undefined,
-  };
 }
 
 async function listSkillsInDir(dir: string, scope: "project" | "global"): Promise<SkillItem[]> {
