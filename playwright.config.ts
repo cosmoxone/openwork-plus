@@ -7,8 +7,8 @@
 //
 // Test files live next to this config under e2e/. Convention: *.e2e.ts.
 //
-// Run:    pnpm test:e2e
-// Debug:  pnpm test:e2e -- --headed --debug
+// Run:    pnpm test:e2e:electron
+// Debug:  pnpm test:e2e:electron -- --headed --debug
 
 import { defineConfig } from "@playwright/test";
 
@@ -49,9 +49,16 @@ export default defineConfig({
       },
     },
   ],
-  // We intentionally do NOT set webServer. The desktop binary launches its
-  // own Vite dev server via electron-dev.mjs when OPENWORK_DEV_MODE=1.
-  // For production-like tests we use the built dist/ — see e2e/fixtures.
+  // _electron.launch starts Electron directly; it does not run
+  // electron-dev.mjs. Serve the renderer through Vite so absolute /assets
+  // URLs resolve correctly instead of producing a blank file:// window.
+  webServer: {
+    command:
+      "pnpm --filter @openwork/app exec vite --host 127.0.0.1 --port 4173 --strictPort",
+    url: "http://127.0.0.1:4173",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
   metadata: {
     platform: isWindows ? "windows" : process.platform,
     openworkDevMode: process.env.OPENWORK_DEV_MODE ?? "0",

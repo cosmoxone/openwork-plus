@@ -66,10 +66,12 @@ function SettingsCard(props: {
   title: string;
   desc: string;
   onClick: () => void;
+  testId?: string;
 }) {
   return (
     <button
       type="button"
+      data-testid={props.testId}
       onClick={props.onClick}
       className="flex items-center gap-3 rounded-2xl border border-dls-border bg-dls-surface p-4 text-left transition-colors hover:bg-dls-hover"
     >
@@ -100,6 +102,7 @@ export function GeneralSettingsView(props: GeneralSettingsViewProps) {
               icon={card.icon}
               title={cardTitle(card)}
               desc={cardDescription(card)}
+              testId={`settings-nav-${card.tab}`}
               onClick={() => props.onNavigateTab(card.tab)}
             />
           ))}

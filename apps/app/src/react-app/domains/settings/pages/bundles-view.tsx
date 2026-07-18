@@ -433,6 +433,7 @@ export function BundlesView(props: BundlesViewProps) {
   const loading = bundlesQuery.isPending || catalogQuery.isPending;
 
   return (
+    <div data-testid="bundles-settings-view">
     <LayoutStack>
       {!isDesktopRuntime() && (
         <Alert>
@@ -451,6 +452,7 @@ export function BundlesView(props: BundlesViewProps) {
             <Button
               variant="outline"
               size="sm"
+              data-testid="bundles-install-from-zip"
               disabled={!isDesktopRuntime() || installMutation.isPending}
               onClick={() => void handleInstallFromZip(false)}
             >
@@ -465,6 +467,7 @@ export function BundlesView(props: BundlesViewProps) {
             <Button
               variant="outline"
               size="sm"
+              data-testid="bundles-install-from-folder"
               disabled={!isDesktopRuntime() || installMutation.isPending}
               onClick={() => void handleInstallFromZip(true)}
             >
@@ -474,6 +477,7 @@ export function BundlesView(props: BundlesViewProps) {
             <Button
               variant="ghost"
               size="sm"
+              data-testid="bundles-check-updates"
               disabled={!isDesktopRuntime() || catalogQuery.isFetching}
               onClick={() => void catalogQuery.refetch()}
             >
@@ -503,6 +507,7 @@ export function BundlesView(props: BundlesViewProps) {
               <button
                 key={key}
                 type="button"
+                data-testid={`bundles-filter-${key}`}
                 aria-pressed={isOn}
                 onClick={() => setFilter(key)}
                 className={
@@ -543,13 +548,14 @@ export function BundlesView(props: BundlesViewProps) {
             Editing the input does NOT trigger refetch — user must press Save
             (or Clear) to commit, so partial URLs don't cause a flood of
             failing requests. */}
-        <details className="rounded-md border border-dls-border bg-dls-surface px-3 py-2 text-xs">
+        <details className="rounded-md border border-dls-border bg-dls-surface px-3 py-2 text-xs" data-testid="bundles-advanced-panel">
           <summary className="cursor-pointer select-none text-dls-secondary">
             {t("settings.bundles.remote_url_advanced")}
           </summary>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
             <Input
               type="url"
+              data-testid="bundles-remote-url-input"
               value={draftUrl}
               placeholder={t("settings.bundles.remote_url_placeholder")}
               onChange={(e) => setDraftUrl(e.target.value)}
@@ -558,7 +564,7 @@ export function BundlesView(props: BundlesViewProps) {
               autoComplete="off"
             />
             <div className="flex items-center gap-1">
-              <Button size="sm" variant="default" onClick={handleSaveRemoteUrl}>
+              <Button size="sm" variant="default" data-testid="bundles-remote-url-save" onClick={handleSaveRemoteUrl}>
                 {t("settings.bundles.remote_url_save")}
               </Button>
               {savedRemoteUrl && (
@@ -626,6 +632,7 @@ export function BundlesView(props: BundlesViewProps) {
               size="sm"
               variant="outline"
               className="self-start"
+              data-testid="bundles-export-from-folder"
               disabled={!isDesktopRuntime() || packMutation.isPending}
               onClick={() => void handleExportFromFolder()}
             >
@@ -694,6 +701,7 @@ export function BundlesView(props: BundlesViewProps) {
         )}
       </LayoutSectionItem>
     </LayoutStack>
+    </div>
   );
 }
 

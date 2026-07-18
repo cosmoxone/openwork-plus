@@ -39,7 +39,10 @@ export function BundleCard(props: BundleCardProps) {
   const { bundle, busy, error, onUninstall, exportable = false, exportBusy = false, onExport } =
     props;
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-dls-border bg-dls-surface p-4">
+    <div
+      className="flex flex-col gap-3 rounded-xl border border-dls-border bg-dls-surface p-4"
+      data-testid={`bundle-installed-card-${bundle.id}`}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-start gap-2">
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-dls-border bg-dls-hover">
@@ -91,6 +94,7 @@ export function BundleCard(props: BundleCardProps) {
           <Button
             variant="ghost"
             size="sm"
+            data-testid={`bundle-export-${bundle.id}`}
             disabled={busy || exportBusy}
             onClick={() => onExport(bundle)}
           >
@@ -101,6 +105,7 @@ export function BundleCard(props: BundleCardProps) {
         <Button
           variant="outline"
           size="sm"
+          data-testid={`bundle-uninstall-${bundle.id}`}
           disabled={busy}
           onClick={() => onUninstall(bundle)}
         >
