@@ -39,6 +39,8 @@
     "typecheck": "pnpm --filter @openwork/app typecheck",
     "lint": "eslint apps/app/src apps/desktop/electron packages/types/src --cache --cache-location .eslintcache",
     "lint:fix": "eslint apps/app/src apps/desktop/electron packages/types/src --fix --cache --cache-location .eslintcache",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "check:enterprise-mcp-mock-server": "pnpm --filter @openwork/enterprise-mcp-mock-server check",
     "check:enterprise-mock-lab": "pnpm --filter @openwork-ee/enterprise-mock-lab check",
     "check:diagnostics": "pnpm --filter @openwork-ee/diagnostics test && pnpm --filter @openwork-ee/diagnostics build",
@@ -69,6 +71,8 @@
     "release:ship:watch": "node scripts/release/ship.mjs --watch"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "electron-playwright-helpers": "^2.1.0",
     "eslint": "^9.39.5",
     "eslint-import-resolver-typescript": "^3.6.0",
     "eslint-plugin-import": "^2.32.0",

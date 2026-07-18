@@ -101,3 +101,6 @@ bundles/*.zip
 
 # Bundle install/uninstall atomic backup files (orchestrator runtime)
 .opencode-backup-*.json
+test-results/
+playwright-report/
+.last-run.json
