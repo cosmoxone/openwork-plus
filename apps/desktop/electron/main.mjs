@@ -2266,21 +2266,65 @@ function desktopErrorMessageWithCauses(error) {
 }
 
 async function handleDesktopInvoke(event, command, ...args) {
-  // Bundle-related IPC logging: help diagnose workspace mismatch / encoding
-  // issues. Keep this stdout log line so it shows up in the `pnpm dev` terminal
-  // (NOT the renderer DevTools console — main-process console.log goes to the
-  // Electron stdout, which electron-dev.mjs inherits via stdio:"inherit").
-  if (typeof command === "string" && command.startsWith("bundle")) {
-    console.log(`[desktop-invoke] ${command} args=${JSON.stringify(args)}`);
+  // IPC invoke tracing. Default: log only bundle* commands (high signal,
+  // low noise — these involve subprocess spawns and are the usual source of
+  // "nothing happens" bugs). Set OPENWORK_IPC_TRACE=all to log every command
+  // (very chatty — workspaceList fires on every focus change).
+  //
+  // Logs go to the Electron main-process stdout, visible in the `pnpm dev`
+  // terminal — NOT in renderer DevTools.
+  const traceMode = String(process.env.OPENWORK_IPC_TRACE ?? "bundle").trim().toLowerCase();
+  const shouldTrace =
+    traceMode === "all" ||
+    (traceMode !== "off" && typeof command === "string" && command.startsWith("bundle"));
+  if (shouldTrace) {
+    const argSummary = summarizeArgsForLog(args);
+    console.log(`[desktop-invoke] ${command} ${argSummary}`);
   }
   const handler = desktopCommandHandlers[command];
   if (!handler) {
     throw new Error(`Electron desktop bridge method is not implemented yet: ${command}`);
   }
   try {
-    return await handler(event, ...args);
+    const startedAt = Date.now();
+    const result = await handler(event, ...args);
+    if (shouldTrace && traceMode === "all") {
+      // In 'all' mode also log duration, since some handlers are async-heavy
+      // (engineStart, workspaceImportConfig) and the latency is useful signal.
+      console.log(`[desktop-invoke] ${command} ok (${Date.now() - startedAt}ms)`);
+    }
+    return result;
   } catch (error) {
+    if (shouldTrace) {
+      console.error(
+        `[desktop-invoke] ${command} failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
     throw new Error(desktopErrorMessageWithCauses(error), { cause: error });
+  }
+}
+
+/**
+ * Compact summary of IPC args for logging. Avoids dumping huge objects (e.g.
+ * workspaceBootstrap state) by truncating long strings and capping array length.
+ * @param {unknown[]} args
+ * @returns {string}
+ */
+function summarizeArgsForLog(args) {
+  if (!Array.isArray(args) || args.length === 0) return "";
+  try {
+    const json = JSON.stringify(args, (_key, value) => {
+      if (typeof value === "string" && value.length > 80) {
+        return value.slice(0, 77) + "...";
+      }
+      if (Array.isArray(value) && value.length > 8) {
+        return [`<${value.length} items>`, ...value.slice(0, 3)];
+      }
+      return value;
+    });
+    return `args=${json}`;
+  } catch {
+    return `args=<unserializable>`;
   }
 }
 

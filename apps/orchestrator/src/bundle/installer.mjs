@@ -13,6 +13,7 @@ import { loadBundle } from "./schema.mjs";
 import { extractBundleZip } from "./zip.mjs";
 import { stageBundleRuntime } from "./vendor-stage.mjs";
 import { deepMerge, isPlainObject } from "./merge.mjs";
+import { readUserDataOrReset } from "./fault-tolerant.mjs";
 
 /** @param {any} v */
 function clone(v) {
@@ -147,12 +148,14 @@ function cliBinDir(dataDir) {
 /** @param {string} dataDir */
 async function readInstalled(dataDir) {
   const file = path.join(dataDir, INSTALLED_FILE);
-  if (!existsSync(file)) return { schemaVersion: "1.0.0", bundles: [] };
-  try {
-    return JSON.parse(await readFile(file, "utf8"));
-  } catch {
-    return { schemaVersion: "1.0.0", bundles: [] };
-  }
+  const defaultState = { schemaVersion: "1.0.0", bundles: [] };
+  const result = await readUserDataOrReset({
+    file,
+    defaultValue: defaultState,
+    label: "installed-bundles.json",
+    atomicWrite,
+  });
+  return result.value;
 }
 
 /** 原子写：写临时文件后 rename。 */
@@ -166,31 +169,31 @@ async function atomicWrite(file, content) {
 
 /**
  * 读取 workspace 的 opencode.json，遇到不合法 JSON 时**不抛错**：
- * 把原文件重命名为 `opencode.json.corrupt-<ts>` 作为备份，然后视为 `{}`，
+ * 把原文件备份为 `opencode.json.corrupt-<ts>.json`，然后视为 `{}`，
  * 让 bundle 安装继续。理由：bundle 安装是用户主动行为，不应因目标 workspace
  * 已经存在的脏配置而被卡住；同时备份原文件，用户可手动恢复。
+ *
+ * Thin wrapper over the generic `readUserDataOrReset` helper from
+ * fault-tolerant.mjs. Kept as a local function to preserve the existing
+ * return shape (`{config, recoveredFromCorrupt, backupPath}`) so callers
+ * don't need to change.
  *
  * @param {string} workspaceRoot
  * @returns {Promise<{config: any, recoveredFromCorrupt: boolean, backupPath?: string}>}
  */
 async function readOpencodeJsonOrReset(workspaceRoot) {
   const file = path.join(workspaceRoot, "opencode.json");
-  if (!existsSync(file)) return { config: {}, recoveredFromCorrupt: false };
-  const raw = await readFile(file, "utf8");
-  try {
-    return { config: JSON.parse(raw), recoveredFromCorrupt: false };
-  } catch (parseErr) {
-    const ts = Date.now();
-    const backupPath = `${file}.corrupt-${ts}.json`;
-    await atomicWrite(backupPath, raw);
-    // 重置为空对象，让安装流程继续；atomicWrite 已经把原内容备份到 .corrupt-*.json。
-    await atomicWrite(file, "{}\n");
-    console.error(
-      `[bundle] WARNING: ${file} was not valid JSON (${parseErr instanceof Error ? parseErr.message : String(parseErr)}). ` +
-        `Backed up to ${backupPath} and reset to {}. Please review the backup manually.`,
-    );
-    return { config: {}, recoveredFromCorrupt: true, backupPath };
-  }
+  const result = await readUserDataOrReset({
+    file,
+    defaultValue: /** @type {any} */ ({}),
+    label: "opencode.json",
+    atomicWrite,
+  });
+  return {
+    config: result.value,
+    recoveredFromCorrupt: result.recoveredFromCorrupt,
+    backupPath: result.backupPath,
+  };
 }
 
 
