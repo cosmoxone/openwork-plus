@@ -4,6 +4,7 @@ import { Loader2, Package, Upload } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { desktopBridge } from "@/app/lib/desktop";
 import type {
   BundleCatalogEntry,
@@ -24,7 +25,15 @@ import {
 } from "../settings-layout";
 import { BundleCard } from "../bundles/components/bundle-card";
 import { BundleCatalogCard } from "../bundles/components/bundle-catalog-card";
-import { useBundleCatalog, useBundles, useInstallBundle, useInstallFromCatalog, useUninstallBundle } from "../bundles/use-bundles";
+import {
+  readBundleCatalogUrl,
+  useBundleCatalog,
+  useBundles,
+  useInstallBundle,
+  useInstallFromCatalog,
+  useUninstallBundle,
+  writeBundleCatalogUrl,
+} from "../bundles/use-bundles";
 
 export type BundlesViewProps = {
   /** Active workspace root; empty/null → user scope. */
@@ -42,10 +51,17 @@ type CatalogFilter = "all" | "installed" | "available";
 export function BundlesView(props: BundlesViewProps) {
   const workspaceRoot = props.selectedWorkspaceRoot?.trim() || null;
 
+  // P2.2: persisted remote catalog URL (localStorage-backed user preference).
+  // `savedRemoteUrl` is what we actually feed into the query; `draftUrl` is
+  // what the user is currently typing before pressing [Save].
+  const [savedRemoteUrl, setSavedRemoteUrl] = useState<string | null>(() => readBundleCatalogUrl());
+  const [draftUrl, setDraftUrl] = useState<string>(() => readBundleCatalogUrl() ?? "");
+
   // Installed list (used by "Installed" tab and to refresh catalog status).
   const bundlesQuery = useBundles({ workspaceRoot });
-  // Catalog (builtin + installed merge); refetches when bundles invalidate.
-  const catalogQuery = useBundleCatalog({ workspaceRoot });
+  // Catalog (builtin + installed merge); refetches when bundles invalidate
+  // OR when savedRemoteUrl changes (P2.2).
+  const catalogQuery = useBundleCatalog({ workspaceRoot, remoteUrl: savedRemoteUrl });
 
   const installMutation = useInstallBundle();
   const installFromCatalogMutation = useInstallFromCatalog();
@@ -164,6 +180,20 @@ export function BundlesView(props: BundlesViewProps) {
     }
   };
 
+  const handleSaveRemoteUrl = () => {
+    const trimmed = draftUrl.trim();
+    // Basic validation: must be http(s)://
+    if (trimmed && !/^https?:\/\//i.test(trimmed)) {
+      toast.error(t("settings.bundles.remote_url_invalid"));
+      return;
+    }
+    writeBundleCatalogUrl(trimmed ? trimmed : null);
+    setSavedRemoteUrl(trimmed ? trimmed : null);
+    toast.success(
+      trimmed ? t("settings.bundles.remote_url_saved") : t("settings.bundles.remote_url_cleared"),
+    );
+  };
+
   const busyId = useMemo(() => {
     if (installMutation.isPending && installMutation.variables) {
       return (installMutation.variables as { source?: string }).source ?? null;
@@ -270,6 +300,50 @@ export function BundlesView(props: BundlesViewProps) {
             </AlertDescription>
           </Alert>
         )}
+
+        {/* P2.2: Remote catalog URL (private hub). Persisted in localStorage.
+            Editing the input does NOT trigger refetch — user must press Save
+            (or Clear) to commit, so partial URLs don't cause a flood of
+            failing requests. */}
+        <details className="rounded-md border border-dls-border bg-dls-surface px-3 py-2 text-xs">
+          <summary className="cursor-pointer select-none text-dls-secondary">
+            {t("settings.bundles.remote_url_advanced")}
+          </summary>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
+              type="url"
+              value={draftUrl}
+              placeholder={t("settings.bundles.remote_url_placeholder")}
+              onChange={(e) => setDraftUrl(e.target.value)}
+              className="h-8 text-xs sm:flex-1"
+              spellCheck={false}
+              autoComplete="off"
+            />
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="default" onClick={handleSaveRemoteUrl}>
+                {t("settings.bundles.remote_url_save")}
+              </Button>
+              {savedRemoteUrl && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setDraftUrl("");
+                    writeBundleCatalogUrl(null);
+                    setSavedRemoteUrl(null);
+                  }}
+                >
+                  {t("settings.bundles.remote_url_clear")}
+                </Button>
+              )}
+            </div>
+          </div>
+          {savedRemoteUrl && (
+            <p className="mt-2 text-[11px] text-dls-secondary">
+              {t("settings.bundles.remote_url_active", { url: savedRemoteUrl })}
+            </p>
+          )}
+        </details>
 
         {loading ? (
           <div className="flex items-center justify-center py-8 text-dls-secondary">

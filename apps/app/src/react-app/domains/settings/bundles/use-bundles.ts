@@ -131,3 +131,39 @@ export function useBundleCatalog(options: BundleCatalogArgs = {}) {
     retry: false,
   });
 }
+
+/**
+ * P2.2: localStorage-backed remote catalog URL. This is a *user preference*
+ * (not a workspace property), so we persist it in the renderer's localStorage
+ * rather than introduce a new IPC + electron-store. The value lives under
+ * `openworkplus.bundleCatalog.remoteUrl`. Returns the current value and a
+ * setter that writes through.
+ *
+ * Returned `remoteUrl` is null when unset/empty.
+ */
+export const BUNDLE_CATALOG_URL_KEY = "openworkplus.bundleCatalog.remoteUrl";
+
+export function readBundleCatalogUrl(): string | null {
+  if (typeof window === "undefined" || !window.localStorage) return null;
+  try {
+    const raw = window.localStorage.getItem(BUNDLE_CATALOG_URL_KEY);
+    if (typeof raw !== "string") return null;
+    const trimmed = raw.trim();
+    return trimmed ? trimmed : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeBundleCatalogUrl(url: string | null): void {
+  if (typeof window === "undefined" || !window.localStorage) return;
+  try {
+    if (url && url.trim()) {
+      window.localStorage.setItem(BUNDLE_CATALOG_URL_KEY, url.trim());
+    } else {
+      window.localStorage.removeItem(BUNDLE_CATALOG_URL_KEY);
+    }
+  } catch {
+    // localStorage may be disabled (private mode); silently ignore.
+  }
+}
