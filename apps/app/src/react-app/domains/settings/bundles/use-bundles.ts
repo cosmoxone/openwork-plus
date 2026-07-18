@@ -143,6 +143,33 @@ export function useBundleCatalog(options: BundleCatalogArgs = {}) {
  */
 export const BUNDLE_CATALOG_URL_KEY = "openworkplus.bundleCatalog.remoteUrl";
 
+/**
+ * P2.5: persisted install scope preference. "workspace" installs into the
+ * current workspace's .opencode/, "user" installs into the user-global
+ * scope. The state lives in localStorage because it's a per-user UI pref,
+ * not a workspace property.
+ */
+export const BUNDLE_INSTALL_SCOPE_KEY = "openworkplus.bundle.installScope";
+
+export function readBundleInstallScope(): "workspace" | "user" {
+  if (typeof window === "undefined" || !window.localStorage) return "workspace";
+  try {
+    const raw = window.localStorage.getItem(BUNDLE_INSTALL_SCOPE_KEY);
+    return raw === "user" ? "user" : "workspace";
+  } catch {
+    return "workspace";
+  }
+}
+
+export function writeBundleInstallScope(scope: "workspace" | "user"): void {
+  if (typeof window === "undefined" || !window.localStorage) return;
+  try {
+    window.localStorage.setItem(BUNDLE_INSTALL_SCOPE_KEY, scope);
+  } catch {
+    // ignore
+  }
+}
+
 export function readBundleCatalogUrl(): string | null {
   if (typeof window === "undefined" || !window.localStorage) return null;
   try {

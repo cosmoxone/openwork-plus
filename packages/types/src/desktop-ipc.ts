@@ -387,6 +387,12 @@ export type BundleUninstallResult =
 
 export type BundlePickFileOptions = {
   extensions?: string[];
+  /**
+   * P2.5: when true, the dialog becomes a folder picker (for installing from
+   * an unzipped bundle directory). When false/omitted, opens a file picker
+   * filtered by `extensions` (default ["zip"]).
+   */
+  directory?: boolean;
 };
 
 export type BundlePickFileResult =

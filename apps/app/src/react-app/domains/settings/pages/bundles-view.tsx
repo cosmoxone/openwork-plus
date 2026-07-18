@@ -27,12 +27,14 @@ import { BundleCard } from "../bundles/components/bundle-card";
 import { BundleCatalogCard } from "../bundles/components/bundle-catalog-card";
 import {
   readBundleCatalogUrl,
+  readBundleInstallScope,
   useBundleCatalog,
   useBundles,
   useInstallBundle,
   useInstallFromCatalog,
   useUninstallBundle,
   writeBundleCatalogUrl,
+  writeBundleInstallScope,
 } from "../bundles/use-bundles";
 
 export type BundlesViewProps = {
@@ -56,6 +58,12 @@ export function BundlesView(props: BundlesViewProps) {
   // what the user is currently typing before pressing [Save].
   const [savedRemoteUrl, setSavedRemoteUrl] = useState<string | null>(() => readBundleCatalogUrl());
   const [draftUrl, setDraftUrl] = useState<string>(() => readBundleCatalogUrl() ?? "");
+
+  // P2.5: persisted install scope. "workspace" → install into this workspace;
+  // "user" → install into user-global scope (workspaceRoot passed as null).
+  const [installScope, setInstallScope] = useState<"workspace" | "user">(() => readBundleInstallScope());
+  // Resolve effective workspaceRoot for install/uninstall based on scope.
+  const effectiveWorkspaceRoot = installScope === "workspace" ? workspaceRoot : null;
 
   // Installed list (used by "Installed" tab and to refresh catalog status).
   const bundlesQuery = useBundles({ workspaceRoot });
@@ -86,13 +94,15 @@ export function BundlesView(props: BundlesViewProps) {
     [catalogEntries],
   );
 
-  const handleInstallFromZip = async () => {
+  const handleInstallFromZip = async (fromDirectory = false) => {
     try {
-      const picked = await desktopBridge.bundlePickFile({ extensions: ["zip"] });
+      const picked = await desktopBridge.bundlePickFile(
+        fromDirectory ? { directory: true } : { extensions: ["zip"] },
+      );
       if (picked.canceled) return;
       const result: BundleInstallResult = await installMutation.mutateAsync({
         source: picked.filePath,
-        workspaceRoot,
+        workspaceRoot: effectiveWorkspaceRoot,
       });
       if (result.ok) {
         toast.success(
@@ -102,9 +112,8 @@ export function BundlesView(props: BundlesViewProps) {
         toast.error(t("settings.bundles.install_failed"), { description: result.error });
       }
     } catch (err) {
-      toast.error(t("settings.bundles.install_failed"), {
-        description: err instanceof Error ? err.message : String(err),
-      });
+      const msg = err instanceof Error ? err.message : String(err);
+      toast.error(t("settings.bundles.install_failed"), { description: msg });
     }
   };
 
@@ -129,7 +138,7 @@ export function BundlesView(props: BundlesViewProps) {
           sourcePath: entry.sourcePath ?? null,
           downloadUrl: entry.downloadUrl ?? null,
         },
-        workspaceRoot,
+        workspaceRoot: effectiveWorkspaceRoot,
         replace,
       });
       if (result.ok) {
@@ -165,7 +174,7 @@ export function BundlesView(props: BundlesViewProps) {
     try {
       const result: BundleUninstallResult = await uninstallMutation.mutateAsync({
         id: bundle.id,
-        workspaceRoot,
+        workspaceRoot: effectiveWorkspaceRoot,
       });
       if (result.ok) {
         toast.success(t("settings.bundles.uninstall_succeeded", { id: result.id }));
@@ -236,7 +245,7 @@ export function BundlesView(props: BundlesViewProps) {
               variant="outline"
               size="sm"
               disabled={!isDesktopRuntime() || installMutation.isPending}
-              onClick={() => void handleInstallFromZip()}
+              onClick={() => void handleInstallFromZip(false)}
             >
               {installMutation.isPending ? (
                 <Loader2 size={12} className="animate-spin" />
@@ -244,6 +253,16 @@ export function BundlesView(props: BundlesViewProps) {
                 <Upload size={12} />
               )}
               {t("settings.bundles.install_from_zip")}
+            </Button>
+            {/* P2.5: directory install — pick an unzipped bundle folder. */}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!isDesktopRuntime() || installMutation.isPending}
+              onClick={() => void handleInstallFromZip(true)}
+            >
+              <Upload size={12} />
+              {t("settings.bundles.install_from_dir")}
             </Button>
           </LayoutSectionItemHeaderActions>
         </LayoutSectionItemHeader>
@@ -343,6 +362,43 @@ export function BundlesView(props: BundlesViewProps) {
               {t("settings.bundles.remote_url_active", { url: savedRemoteUrl })}
             </p>
           )}
+          {/* P2.5: install scope. Persists across sessions (per-user UI pref). */}
+          <div className="mt-3 flex items-center gap-3 border-t border-dls-border pt-2">
+            <span className="text-[11px] text-dls-secondary">
+              {t("settings.bundles.scope_label")}
+            </span>
+            <label className="flex items-center gap-1 text-[11px]">
+              <input
+                type="radio"
+                name="bundle-install-scope"
+                value="workspace"
+                checked={installScope === "workspace"}
+                onChange={() => {
+                  setInstallScope("workspace");
+                  writeBundleInstallScope("workspace");
+                }}
+              />
+              {t("settings.bundles.scope_workspace")}
+            </label>
+            <label className="flex items-center gap-1 text-[11px]">
+              <input
+                type="radio"
+                name="bundle-install-scope"
+                value="user"
+                checked={installScope === "user"}
+                onChange={() => {
+                  setInstallScope("user");
+                  writeBundleInstallScope("user");
+                }}
+              />
+              {t("settings.bundles.scope_user")}
+            </label>
+            <span className="text-[10px] text-dls-secondary/70">
+              {installScope === "workspace"
+                ? (workspaceRoot || t("settings.bundles.scope_no_workspace"))
+                : t("settings.bundles.scope_user_hint")}
+            </span>
+          </div>
         </details>
 
         {loading ? (

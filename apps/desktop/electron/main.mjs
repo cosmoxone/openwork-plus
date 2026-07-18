@@ -2129,21 +2129,24 @@ const desktopCommandHandlers = {
   },
   "bundlePickFile": async (_event, ...args) => {
       const opts = args[0] ?? {};
+      const wantDirectory = opts.directory === true;
       const extensions = Array.isArray(opts.extensions) && opts.extensions.length
         ? opts.extensions.map((e) => String(e).replace(/^\./, ""))
         : ["zip"];
       const win = mainWindow;
+      // P2.5: in directory mode we use ["openDirectory"] so the user can
+      // select an unzipped bundle folder. Filters are ignored by Electron
+      // in that mode.
+      const dialogProps = wantDirectory ? ["openDirectory"] : ["openFile"];
+      const baseOptions = {
+        title: wantDirectory ? "Select bundle directory" : "Select bundle archive",
+        properties: dialogProps,
+      };
+      /** @type {Record<string, unknown>} */
+      const options = wantDirectory ? baseOptions : { ...baseOptions, filters: [{ name: "Bundle", extensions }] };
       const result = win
-        ? await dialog.showOpenDialog(win, {
-            title: "Select bundle archive",
-            properties: ["openFile"],
-            filters: [{ name: "Bundle", extensions }],
-          })
-        : await dialog.showOpenDialog({
-            title: "Select bundle archive",
-            properties: ["openFile"],
-            filters: [{ name: "Bundle", extensions }],
-          });
+        ? await dialog.showOpenDialog(win, options)
+        : await dialog.showOpenDialog(options);
       if (result.canceled || !result.filePaths.length) {
         return { canceled: true };
       }
